@@ -1,0 +1,8 @@
+{
+  "name": "jp.maku.my_package_json",
+  "author": "maku",
+  "version": "0.0.0",
+  "displayName": "MyPackageJSON",
+  "description": "This is a test package",
+  "unity": "2021.3"
+}

@@ -5,6 +5,7 @@ using System.IO;
 using System;
 using System.Linq;
 using UnityEditor;
+using PlasticGui.Configuration.CloudEdition;
 
 /// <summary>
 /// アプリケーション終了時の処理をさせるのに MonoBehaviour が必要なのでシングルトンコンポーネント化するが、
@@ -35,6 +36,8 @@ public class SaveSystem : SingletonCompo<SaveSystem>
     /// <summary>
     /// 【注意】
     /// ここで指定したパスの、セーブデータをしまう用のフォルダを必ず作っておく。
+    /// 【メモ】
+    /// プロパティとしてやれば、静的な場所でも $" " を使える
     /// </summary>
     //public static string SaveFolderPath => @"C:\Users\vantan\Documents\Unity\Maku\ChessN7\Assets\SaveFiles\";
     public static string SaveFolderPath => $"{Application.persistentDataPath}/";
@@ -53,6 +56,10 @@ public class SaveSystem : SingletonCompo<SaveSystem>
 
 
     #region 初期化
+    /// <summary>
+    /// 1. IFriendWith_SaveSystem を継承しておりかつ抽象ではない型を全部把握して SavableBaseTypes に記憶しておく
+    /// 2. 記憶した全クラスのインスタンスを1つずつ作り、各インスタンスの SetManagementDictionaty() を呼ぶ
+    /// </summary>
     void GetSavableBaseTypes()
     {
         SavableBaseTypes = System.Reflection.Assembly
@@ -120,7 +127,6 @@ public class SaveSystem : SingletonCompo<SaveSystem>
             string jsonData = streamReader.ReadToEnd();
             streamReader.Close();
             JsonUtility.FromJsonOverwrite(jsonData, data);
-
             ///<summary>
             /// 以下の処理にはセーブの処理が含まれている。
             /// この処理を、ロードよりも前に持ってきてしまうと、

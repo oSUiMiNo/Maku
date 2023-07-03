@@ -5,7 +5,7 @@ using System.IO;
 using System;
 using System.Linq;
 using UnityEditor;
-using PlasticGui.Configuration.CloudEdition;
+//using PlasticGui.Configuration.CloudEdition;
 
 /// <summary>
 /// アプリケーション終了時の処理をさせるのに MonoBehaviour が必要なのでシングルトンコンポーネント化するが、

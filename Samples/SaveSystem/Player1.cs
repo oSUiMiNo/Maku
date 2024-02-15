@@ -27,17 +27,17 @@ public class Player1 : SingletonCompo<Player1>
 
     protected override void Start()
     {
-        InputEventHandler.OnKeyDown_S += () =>
+        InputEventHandler.OnDown_S += () =>
         {
             p0.Save();
             p1.Save();
         };
-        InputEventHandler.OnKeyDown_L += () =>
+        InputEventHandler.OnDown_L += () =>
         {
             p0.Load();
             p1.Load();
         };
-        InputEventHandler.OnKeyDown_C += () =>
+        InputEventHandler.OnDown_C += () =>
         {
             Debug.Log("ランクの表示 0 -----------------------------------------");
             Debug.Log($"ユーザー名 : {p0.UserName}");
@@ -49,13 +49,13 @@ public class Player1 : SingletonCompo<Player1>
             Debug.Log($"ユーザーランク : {p1.UserRank}");
             Debug.Log("--------------------------------------------------------");
         };
-        InputEventHandler.OnKeyDown_X += () =>
+        InputEventHandler.OnDown_X += () =>
         {
             Debug.Log("データ更新した。");
             p0.UserName = "あちゃ";
             p0.UserRank += 10;
         };
-        InputEventHandler.OnKeyDown_V += () =>
+        InputEventHandler.OnDown_V += () =>
         {
             foreach (var a in PlayerData.instances)
             {

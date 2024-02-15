@@ -233,7 +233,7 @@ public abstract class SingletonCompo<SingletonType> : NonGenericSingletonCompoBa
         {
             thisObj = new GameObject(thisName);
         }
-        CheckComponent<SingletonType>(thisObj);
+        CheckAddComponent<SingletonType>(thisObj);
     }
 
     protected SingletonCompo() { } // コンストラクタ（外部からの呼び出し禁止）

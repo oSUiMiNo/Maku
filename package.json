@@ -1,8 +1,8 @@
 {
-  "name": "jp.maku.my_package_json",
-  "author": "maku",
+  "name": "jp.maku.maku_utillity",
+  "author": "mao",
   "version": "0.0.0",
-  "displayName": "MyPackageJSON",
-  "description": "This is a test package",
-  "unity": "2021.3"
+  "displayName": "Maku",
+  "description": "自分用",
+  "unity": "2022.3"
 }

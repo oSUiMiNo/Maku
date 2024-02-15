@@ -8,9 +8,9 @@ using UnityEngine.UI;
 
 public interface IMyExtention
 {
-    T CheckComponent<T>(GameObject obj) where T : Component;
-    Component CheckComponent(Type type, GameObject gObj);
-    void CheckMultiComponent(List<Type> compos, GameObject gObj);
+    T CheckAddComponent<T>(GameObject obj) where T : Component;
+    Component CheckAddComponent(Type type, GameObject gObj);
+    void CheckAddMultiComponent(List<Type> compos, GameObject gObj);
     GameObject CreateChild(string name, GameObject parent, Type compo);
     GameObject CreateChild(string name, GameObject parent, List<Type> compos);
     List<GameObject> CreateChildren(string name, GameObject parent, Type compo, int quantity);
@@ -31,7 +31,7 @@ public abstract class MonoBehaviourMyExtention : MonoBehaviour, IMyExtention
     /// 型引数で指定されたコンポーネントへの参照を取得。
     /// コンポーネントがない場合はアタッチして参照を取得。
     /// </Summary>
-    public Compo CheckComponent<Compo>(GameObject gObj) where Compo : Component
+    public Compo CheckAddComponent<Compo>(GameObject gObj) where Compo : Component
     {
         //Debug.Log($"コンポーネント   {typeof(Compo).Name}");
         #region 呼び出し元通知
@@ -58,7 +58,7 @@ public abstract class MonoBehaviourMyExtention : MonoBehaviour, IMyExtention
     /// そういった場合にこちらを使う。
     /// ただし戻り値が Component型 なので、取得したコンポーネントを使いたい場合は更に変換が必要。
     /// </Summary>
-    public Component CheckComponent(Type Compo, GameObject gObj)
+    public Component CheckAddComponent(Type Compo, GameObject gObj)
     {
         //ここでTryGetComponent 使うと、AddComponent の所で、MonoBehaviour 継承してないとか言われる。原因はそのうち調べる
         Component targetCompo = gObj.GetComponent(Compo);
@@ -70,11 +70,11 @@ public abstract class MonoBehaviourMyExtention : MonoBehaviour, IMyExtention
     }
 
 
-    public void CheckMultiComponent(List<Type> compos, GameObject gObj)
+    public void CheckAddMultiComponent(List<Type> compos, GameObject gObj)
     {
         foreach (Type a in compos)
         {
-            CheckComponent(a, gObj);
+            CheckAddComponent(a, gObj);
         }
     }
 
@@ -82,7 +82,7 @@ public abstract class MonoBehaviourMyExtention : MonoBehaviour, IMyExtention
     public GameObject CreateChild(string name, GameObject parent, Type compo)
     {
         GameObject gObj = new GameObject();
-        CheckComponent(compo, gObj);
+        CheckAddComponent(compo, gObj);
         gObj.transform.parent = parent.transform;
         gObj.name = name;
         
@@ -92,7 +92,7 @@ public abstract class MonoBehaviourMyExtention : MonoBehaviour, IMyExtention
     public GameObject CreateChild(string name, GameObject parent, List<Type> compos)
     {
         GameObject gObj = new GameObject();
-        CheckMultiComponent(compos, gObj);
+        CheckAddMultiComponent(compos, gObj);
         gObj.transform.parent = parent.transform;
         gObj.name = name;
 
@@ -105,7 +105,7 @@ public abstract class MonoBehaviourMyExtention : MonoBehaviour, IMyExtention
         for (int a = 0; a < quantity; a++)
         {
             GameObject gObj = new GameObject();
-            CheckComponent(compo, gObj);
+            CheckAddComponent(compo, gObj);
             gObj.transform.parent = parent.transform;
             gObj.name = name;
             gObjs.Add(gObj);
@@ -119,7 +119,7 @@ public abstract class MonoBehaviourMyExtention : MonoBehaviour, IMyExtention
         for(int a = 0; a < quantity; a++)
         {
             GameObject gObj = new GameObject();
-            CheckMultiComponent(compos, gObj);
+            CheckAddMultiComponent(compos, gObj);
             gObj.transform.parent = parent.transform;
             gObj.name = name;
             gObjs.Add(gObj);
@@ -182,9 +182,9 @@ public class MyExtention : IMyExtention
     /// 型引数で指定されたコンポーネントへの参照を取得。
     /// コンポーネントがない場合はアタッチして参照を取得。
     /// </Summary>
-    public T CheckComponent<T>(GameObject obj) where T : Component
+    public T CheckAddComponent<T>(GameObject obj) where T : Component
     {
-        return MyExtentionHandler.Compo.CheckComponent<T>(obj);
+        return MyExtentionHandler.Compo.CheckAddComponent<T>(obj);
     }
 
     /// <Summary>
@@ -195,14 +195,14 @@ public class MyExtention : IMyExtention
     /// そういった場合にこちらを使う。
     /// ただし戻り値が Component型 なので、取得したコンポーネントを使いたい場合は更に変換が必要。
     /// </Summary>
-    public Component CheckComponent(Type type, GameObject gObj)
+    public Component CheckAddComponent(Type type, GameObject gObj)
     {
-        return MyExtentionHandler.Compo.CheckComponent(type, gObj);
+        return MyExtentionHandler.Compo.CheckAddComponent(type, gObj);
     }
 
-    public void CheckMultiComponent(List<Type> compos, GameObject gObj)
+    public void CheckAddMultiComponent(List<Type> compos, GameObject gObj)
     {
-        MyExtentionHandler.Compo.CheckMultiComponent(compos, gObj);
+        MyExtentionHandler.Compo.CheckAddMultiComponent(compos, gObj);
     }
 
 

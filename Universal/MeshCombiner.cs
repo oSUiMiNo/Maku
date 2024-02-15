@@ -15,7 +15,7 @@ public class MeshCombiner : Singleton<MeshCombiner>
     public void Combine(GameObject fieldParent, Material combinedMat)
     {
         // 親オブジェクトにMeshFilterがあるかどうか確認
-        MeshFilter parentMeshFilter = CheckComponent<MeshFilter>(fieldParent);
+        MeshFilter parentMeshFilter = CheckAddComponent<MeshFilter>(fieldParent);
 
 
         // 子オブジェクトのMeshFilterへの参照を配列として保持
@@ -54,7 +54,7 @@ public class MeshCombiner : Singleton<MeshCombiner>
         fieldParent.AddComponent<MeshCollider>();
 
         // 結合したメッシュにマテリアルをセット
-        CheckComponent<MeshRenderer>(fieldParent).material = combinedMat;
+        CheckAddComponent<MeshRenderer>(fieldParent).material = combinedMat;
 
         // 親オブジェクトをアクティブに
         fieldParent.SetActive(true);

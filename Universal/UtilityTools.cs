@@ -157,7 +157,7 @@ public class TimeHandler : SingletonCompo<TimeHandler>
             if (DisplayCraated) return;
             Display = CreateChild($"{ClockName}Display", GameObject.Find("ClockCanvas"), new List<Type> { typeof(TextMeshProUGUI) });
             Debug.Log($"いーーーーーーーーーー1　　{Display}");
-            DisplayTex = CheckComponent<TextMeshProUGUI>(Display);
+            DisplayTex = CheckAddComponent<TextMeshProUGUI>(Display);
 
             Debug.Log($"いーーーーーーーーーー2　　{DisplayTex}");
         }

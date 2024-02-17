@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class FileBrowser
 {
-    public static string SelectFilePath(string title, string directory, string extension)
+    public static string SelectFilePath(string extension, string title = "", string directory = "")
     {
         //StandaloneFileBrowserを使ってパスの取得
         string[] paths = StandaloneFileBrowser.OpenFilePanel(title, directory, extension, false);
@@ -29,7 +29,7 @@ public class FileBrowser
         }
     }
 
-    public static List<string> SelectFilePath_Multi(string title, string directory, string extension)
+    public static List<string> SelectFilePath_Multi(string extension, string title = "", string directory = "")
     {
         //StandaloneFileBrowserを使ってパスの取得
         string[] paths = StandaloneFileBrowser.OpenFilePanel(title, directory, extension, false);

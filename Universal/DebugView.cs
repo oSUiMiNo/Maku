@@ -41,13 +41,13 @@ public class DebugView : MonoBehaviour
         if (Compo != null)
         {
             Buffer.ForEach( a => Compo.text.text += a.ToString() + "\n");
-            Buffer.Clear();
+            Buffer.Clear(); 
         }    
 
         if(Buffer.Count > 1000)
         {
             Buffer.Clear();
-            Debug.LogError("バッファのサイズが1000を上回ったのでバッファをクリアしました。");
+            Debug.LogWarning("バッファのサイズが1000を上回ったのでバッファをクリアしました。");
         }
 
         Debug.Log(message);

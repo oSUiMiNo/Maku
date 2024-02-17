@@ -84,6 +84,60 @@ public class SaveSystem : SingletonCompo<SaveSystem>
 
 
 
+    #region セーブ Json.NET版
+    //public static void Save(ISave data)
+    //{
+    //    DebugView.Log($"---SaveSystem  セーブ---");
+    //    ///<summary>
+    //    ///【StreamWriter の使い方】
+    //    /// sw.Writeとsw.WriteLineと書くことで、テキストに文字を出力することができる。
+    //    /// 改行しないときは、Write
+    //    /// 改行するときは、WriteLine
+    //    /// </summary>
+    //    string Path = data.GetPath();
+    //    string jsonData = JsonConvert.SerializeObject(data, Formatting.Indented); // 循環参照（双方向の相互参照）が何とかってエラー処理が出てしまう
+    //    StreamWriter streamWriter = new(Path, false);
+    //    streamWriter.WriteLine(jsonData);
+    //    streamWriter.Flush();
+    //    streamWriter.Close();
+    //}
+    #endregion
+
+
+
+    #region ロード Json.NET版 ( 通常のクラス用 )
+    //public static void Load(ISave data)
+    //{
+    //    DebugView.Log($"---SaveSystem  ロード---");
+    //    string Path = data.GetPath();
+    //    if (!File.Exists(Path))
+    //    {
+    //        DebugView.Log("-----------最初回ロード-----------");
+    //        ///<summary>
+    //        /// 初回はとりまJsonデータを作りたいので、
+    //        /// 以下の処理の中でセーブも行っている。
+    //        /// ここでセーブしておかないとセーブファイルが無いまんまなのでまたここに来る。
+    //        /// </summary>
+    //        Friend(data).CheckFirstLoading();
+    //    }
+    //    else
+    //    {
+    //        StreamReader streamReader = new(Path);
+    //        string jsonData = streamReader.ReadToEnd();
+    //        streamReader.Close();
+    //        JsonConvert.PopulateObject(jsonData, data);
+    //        ///<summary>
+    //        /// 以下の処理にはセーブの処理が含まれている。
+    //        /// この処理を、ロードよりも前に持ってきてしまうと、
+    //        /// ロード前のデータがセーブされた状態でロード処理に移ってしまう。
+    //        /// </summary>
+    //        Friend(data).CheckFirstLoading();
+    //    }
+    //}
+    #endregion
+
+
+
     #region セーブ
     public static void Save(ISave data)
     {
@@ -96,7 +150,7 @@ public class SaveSystem : SingletonCompo<SaveSystem>
         /// </summary>
         string Path = data.GetPath();
         //string jsonData = EditorJsonUtility.ToJson(data);
-        string jsonData = JsonUtility.ToJson(data);
+        string jsonData = JsonUtility.ToJson(data, true);
         StreamWriter streamWriter = new(Path, false);
         streamWriter.WriteLine(jsonData);
         streamWriter.Flush();

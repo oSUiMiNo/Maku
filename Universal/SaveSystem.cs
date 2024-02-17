@@ -5,6 +5,7 @@ using System.IO;
 using System;
 using System.Linq;
 using UnityEditor;
+using Unity.Plastic.Newtonsoft.Json;
 //using PlasticGui.Configuration.CloudEdition;
 
 /// <summary>

@@ -45,7 +45,7 @@ public class SaveSystem : SingletonCompo<SaveSystem>
 
     protected override void SubLateAwake()
     {
-        //DebugView.Log($"セーブファイルどこ    {SaveFolderPath}");
+        //DebugView.Log($"セーブファイルどこ : {SaveFolderPath}");
         GetSavableBaseTypes();
         InitSavables();
     }
@@ -86,60 +86,6 @@ public class SaveSystem : SingletonCompo<SaveSystem>
 
 
     #region セーブ Json.NET版
-    //public static void Save(ISave data)
-    //{
-    //    DebugView.Log($"---SaveSystem  セーブ---");
-    //    ///<summary>
-    //    ///【StreamWriter の使い方】
-    //    /// sw.Writeとsw.WriteLineと書くことで、テキストに文字を出力することができる。
-    //    /// 改行しないときは、Write
-    //    /// 改行するときは、WriteLine
-    //    /// </summary>
-    //    string Path = data.GetPath();
-    //    string jsonData = JsonConvert.SerializeObject(data, Formatting.Indented); // 循環参照（双方向の相互参照）が何とかってエラー処理が出てしまう
-    //    StreamWriter streamWriter = new(Path, false);
-    //    streamWriter.WriteLine(jsonData);
-    //    streamWriter.Flush();
-    //    streamWriter.Close();
-    //}
-    #endregion
-
-
-
-    #region ロード Json.NET版 ( 通常のクラス用 )
-    //public static void Load(ISave data)
-    //{
-    //    DebugView.Log($"---SaveSystem  ロード---");
-    //    string Path = data.GetPath();
-    //    if (!File.Exists(Path))
-    //    {
-    //        DebugView.Log("-----------最初回ロード-----------");
-    //        ///<summary>
-    //        /// 初回はとりまJsonデータを作りたいので、
-    //        /// 以下の処理の中でセーブも行っている。
-    //        /// ここでセーブしておかないとセーブファイルが無いまんまなのでまたここに来る。
-    //        /// </summary>
-    //        Friend(data).CheckFirstLoading();
-    //    }
-    //    else
-    //    {
-    //        StreamReader streamReader = new(Path);
-    //        string jsonData = streamReader.ReadToEnd();
-    //        streamReader.Close();
-    //        JsonConvert.PopulateObject(jsonData, data);
-    //        ///<summary>
-    //        /// 以下の処理にはセーブの処理が含まれている。
-    //        /// この処理を、ロードよりも前に持ってきてしまうと、
-    //        /// ロード前のデータがセーブされた状態でロード処理に移ってしまう。
-    //        /// </summary>
-    //        Friend(data).CheckFirstLoading();
-    //    }
-    //}
-    #endregion
-
-
-
-    #region セーブ
     public static void Save(ISave data)
     {
         DebugView.Log($"---SaveSystem  セーブ---");
@@ -150,8 +96,9 @@ public class SaveSystem : SingletonCompo<SaveSystem>
         /// 改行するときは、WriteLine
         /// </summary>
         string Path = data.GetPath();
-        //string jsonData = EditorJsonUtility.ToJson(data);
-        string jsonData = JsonUtility.ToJson(data, true);
+        // データクラスに循環参照しているパラメータがあるとエラーを吐くので、
+        // そのパラメータには[JsonIgnore]をつけてシリアライズを無視してもらう
+        string jsonData = JsonConvert.SerializeObject(data, Formatting.Indented);
         StreamWriter streamWriter = new(Path, false);
         streamWriter.WriteLine(jsonData);
         streamWriter.Flush();
@@ -161,7 +108,7 @@ public class SaveSystem : SingletonCompo<SaveSystem>
 
 
 
-    #region ロード ( 通常のクラス用 )
+    #region ロード Json.NET版 ( 通常のクラス用 )
     public static void Load(ISave data)
     {
         DebugView.Log($"---SaveSystem  ロード---");
@@ -181,7 +128,12 @@ public class SaveSystem : SingletonCompo<SaveSystem>
             StreamReader streamReader = new(Path);
             string jsonData = streamReader.ReadToEnd();
             streamReader.Close();
-            JsonUtility.FromJsonOverwrite(jsonData, data);
+            // デシリアライズした結果を既存のクラスに上書きしたい場合はPopulateObject
+            JsonConvert.PopulateObject(jsonData, data, new JsonSerializerSettings
+            {
+                // これをセットしないとロードしたデータを上書きした際、List系のデータが上書きではなく要素の追加をされてしまう
+                ObjectCreationHandling = ObjectCreationHandling.Replace, 
+            });
             ///<summary>
             /// 以下の処理にはセーブの処理が含まれている。
             /// この処理を、ロードよりも前に持ってきてしまうと、
@@ -190,6 +142,61 @@ public class SaveSystem : SingletonCompo<SaveSystem>
             Friend(data).CheckFirstLoading();
         }
     }
+    #endregion
+
+
+
+    #region セーブ JsonUtility
+    //public static void Save(ISave data)
+    //{
+    //    DebugView.Log($"---SaveSystem  セーブ---");
+    //    ///<summary>
+    //    ///【StreamWriter の使い方】
+    //    /// sw.Writeとsw.WriteLineと書くことで、テキストに文字を出力することができる。
+    //    /// 改行しないときは、Write
+    //    /// 改行するときは、WriteLine
+    //    /// </summary>
+    //    string Path = data.GetPath();
+    //    //string jsonData = EditorJsonUtility.ToJson(data);
+    //    string jsonData = JsonUtility.ToJson(data, true);
+    //    StreamWriter streamWriter = new(Path, false);
+    //    streamWriter.WriteLine(jsonData);
+    //    streamWriter.Flush();
+    //    streamWriter.Close();
+    //}
+    #endregion
+
+
+
+    #region ロード JsonUtilityp ( 通常のクラス用 )
+    //public static void Load(ISave data)
+    //{
+    //    DebugView.Log($"---SaveSystem  ロード---");
+    //    string Path = data.GetPath();
+    //    if (!File.Exists(Path))
+    //    {
+    //        DebugView.Log("-----------最初回ロード-----------");
+    //        ///<summary>
+    //        /// 初回はとりまJsonデータを作りたいので、
+    //        /// 以下の処理の中でセーブも行っている。
+    //        /// ここでセーブしておかないとセーブファイルが無いまんまなのでまたここに来る。
+    //        /// </summary>
+    //        Friend(data).CheckFirstLoading();
+    //    }
+    //    else
+    //    {
+    //        StreamReader streamReader = new(Path);
+    //        string jsonData = streamReader.ReadToEnd();
+    //        streamReader.Close();
+    //        JsonUtility.FromJsonOverwrite(jsonData, data);
+    //        ///<summary>
+    //        /// 以下の処理にはセーブの処理が含まれている。
+    //        /// この処理を、ロードよりも前に持ってきてしまうと、
+    //        /// ロード前のデータがセーブされた状態でロード処理に移ってしまう。
+    //        /// </summary>
+    //        Friend(data).CheckFirstLoading();
+    //    }
+    //}
     #endregion
 
 
@@ -223,7 +230,7 @@ public class SaveSystem : SingletonCompo<SaveSystem>
     //    afterData.enabled = true;
     //}
     #endregion
-    
+
 
 
     #region 後処理
@@ -276,10 +283,13 @@ public abstract class Savable : MyExtention,
 {
     #region 全Savable系基底クラス共通の処理
     //共通データ
-    [SerializeField] protected string path = string.Empty;  //private にしたら保存されずエラーになる。
-    [SerializeField] protected int instanceNumber = -1;  //private にしたら保存されずエラーになる。
-    [SerializeField] protected bool isLoadedAtFirst = false;  //private にしたら保存されずエラーになる。
-
+    [JsonProperty] private string path = string.Empty;  //Json.NET だと public 以外シリアアライズされないが、[JsonProperty]をつけると関係なくいける
+    [JsonProperty] private int instanceNumber = -1;  //Json.NET だと public 以外シリアアライズされないが、[JsonProperty]をつけると関係なくいける
+    [JsonProperty] private bool isLoadedAtFirst = false;  //Json.NET だと public 以外シリアアライズされないが、[JsonProperty]をつけると関係なくいける
+    // JsonUtility の場合
+    //[SerializeField] protected string path = string.Empty;  //private にしたら保存されずエラーになる
+    //[SerializeField] protected int instanceNumber = -1;  //private にしたら保存されずエラーになる
+    //[SerializeField] protected bool isLoadedAtFirst = false;  //private にしたら保存されずエラーになる
 
     //統括用ディクショナリー
     public static Dictionary<string, List<SaveSystem.IFriendWith_SaveSystem>> InstancesListsManagementDictionaty = new();

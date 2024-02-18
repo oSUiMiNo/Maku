@@ -19,19 +19,19 @@ public class Player1 : SingletonCompo<Player1>
         #region データ
         public string UserName = "Default Name";
         public int UserRank = 0;
-        public List<string> Items = new List<string>() { "薬草", "聖水" };
-        public List<Friend> Friends = new List<Friend>();
         [JsonProperty] // スタティックなデータをシリアアライズしたい場合は[JsonProperty]をつける
-        public static string TestStatic = "スタティックデータのテスト";
+        public static string Job = "アルケミスト";
+        public List<string> Items = new List<string>() { "薬草", "聖水" };
+        public Dictionary<string, Friend> Friends = new Dictionary<string, Friend>();
         #endregion    
     }
     public class Friend
     {
-        public string Name = "Default Name";
+        public string Job = "Default Name";
         public int Rank = 0;
-        public Friend(string name, int rank)
+        public Friend(string job, int rank)
         {
-            Name = name;
+            Job = job;
             Rank = rank;
         }
     }
@@ -64,9 +64,12 @@ public class Player1 : SingletonCompo<Player1>
             p0.Items.ForEach(a => items0 += $"{a} ");
             Debug.Log($"アイテム : {items0}");
             string friends0 = string.Empty;
-            p0.Friends.ForEach(a => friends0 += $"{a.Name},{a.Rank} ");
+            foreach (var a in p0.Friends)
+            {
+                friends0 += $"{a.Key},{a.Value.Job},{a.Value.Rank} ";
+            }
             Debug.Log($"フレンド : {friends0}");
-            Debug.Log($"スタティック : {PlayerData.TestStatic}");
+            Debug.Log($"スタティック : {PlayerData.Job}");
             Debug.Log("-----------------------------------------");
 
             Debug.Log("--------- プレイヤー1 の情報 --------------------------------");
@@ -77,9 +80,12 @@ public class Player1 : SingletonCompo<Player1>
             p1.Items.ForEach(a => items1 += $"{a} ");
             Debug.Log($"アイテム : {items1}");
             string friends1 = string.Empty;
-            p1.Friends.ForEach(a => friends1 += $"{a.Name},{a.Rank} ");
+            foreach(var a in p1.Friends)
+            {
+                friends1 += $"{a.Key},{a.Value.Job},{a.Value.Rank} ";
+            }
             Debug.Log($"フレンド : {friends1}");
-            Debug.Log($"スタティック : {PlayerData.TestStatic}");
+            Debug.Log($"スタティック : {PlayerData.Job}");
             Debug.Log("-----------------------------------------");
         };
         InputEventHandler.OnDown_X += () =>
@@ -88,9 +94,9 @@ public class Player1 : SingletonCompo<Player1>
             p0.UserName = "あちゃ";
             p0.UserRank += 10;
             p0.Items.Add("バイキルミン");
-            p0.Friends.Add(new Friend("まく", 8));
-            p0.Friends.Add(new Friend("くまた", 15));
-            PlayerData.TestStatic = "スタティックデータ変更した";
+            p0.Friends.Add("まく", new Friend("エレメントアーチャー", 8));
+            p0.Friends.Add("くまた", new Friend("シールドセージ", 15));
+            PlayerData.Job = "ハイセプター";
         };
         InputEventHandler.OnDown_V += () =>
         {

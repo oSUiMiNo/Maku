@@ -294,8 +294,9 @@ public abstract class Savable : MyExtention,
     //統括用ディクショナリー
     public static Dictionary<string, List<SaveSystem.IFriendWith_SaveSystem>> InstancesListsManagementDictionaty = new();
 
-    //各セーブ可能クラスに用意する staticなインスタンス管理リストのゲッター
-    public abstract List<SaveSystem.IFriendWith_SaveSystem> Instances { get; protected set; }
+    // 各セーブ可能クラスに用意する staticなインスタンス管理リストのゲッター
+    // Instances が循環参照になっているので[JsonIgnore]をつけてシリアライズされないようにする。継承先でオーバーライドする際は付けなくても正常に動きそう
+    [JsonIgnore] public abstract List<SaveSystem.IFriendWith_SaveSystem> Instances { get; protected set; }
 
     //自分のセーブファイルを保存する場所のパスを返す。
     public string GetPath() { return path; }
@@ -310,7 +311,7 @@ public abstract class Savable : MyExtention,
         this.isLoadedAtFirst = isLoadedAtFirst;
     }
 
-    //親クラスの、辞書に自分の管理リストを登録する。
+    // 親クラスの、辞書に自分の管理リストを登録する。
     void SaveSystem.IFriendWith_SaveSystem.SetManagementDictionaty()
     {
         InstancesListsManagementDictionaty.Add($"{GetType().Name}s", Instances);

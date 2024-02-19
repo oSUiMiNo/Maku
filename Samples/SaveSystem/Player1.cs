@@ -6,15 +6,20 @@ using UnityEngine;
 [System.Serializable]
 public class Player1 : SingletonCompo<Player1>
 {
-    public override bool IsActive { get; protected set; } = false;
+    public override bool IsActive { get; protected set; }
+    = false;
+    //= true;
 
     [System.Serializable]
     class PlayerData : Savable
     {
-        [JsonIgnore] // Instances が循環参照になっているので[JsonIgnore]をつけてシリアライズされないようにする
         public override List<SaveSystem.IFriendWith_SaveSystem> Instances { get; protected set; } = instances;
         public static List<SaveSystem.IFriendWith_SaveSystem> instances = new();
 
+        // 以下の書き方ではダメ？何で代入しているinstancesはスタティックじゃないといけないの？と思ったが、
+        // 恐らく以下のように書くと本クラスのインスタンスが作られる度に管理用のInstancesが増えてしまうが、
+        // 今回は１クラス１リストにしたかったため
+        // public override List<SaveSystem.IFriendWith_SaveSystem> Instances { get; protected set; } = new();
 
         #region データ
         public string UserName = "Default Name";

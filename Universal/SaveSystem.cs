@@ -293,7 +293,7 @@ public abstract class Savable : MyExtention,
     //[SerializeField] protected bool isLoadedAtFirst = false;  //private にしたら保存されずエラーになる
 
     // データをしまうフォルダの名前
-    [JsonIgnore] protected virtual string AffiliatedFolderName { get; set; } = string.Empty;
+    [JsonIgnore] public virtual string AffiliatedFolderName { get; set; } = string.Empty;
 
     // 統括用ディクショナリー
     public static Dictionary<string, List<SaveSystem.IFriendWith_SaveSystem>> InstancesListsManagementDictionaty = new();

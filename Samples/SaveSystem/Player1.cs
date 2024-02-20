@@ -7,8 +7,8 @@ using UnityEngine;
 public class Player1 : SingletonCompo<Player1>
 {
     public override bool IsActive { get; protected set; }
-    //= false;
-    = true;
+    = false;
+    //= true;
 
     [System.Serializable]
     class PlayerData : Savable

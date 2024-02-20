@@ -40,12 +40,12 @@ public class SaveSystem : SingletonCompo<SaveSystem>
     /// 【メモ】
     /// プロパティとしてやれば、静的な場所でも $" " を使える
     /// </summary>
-    //public static string SaveFolderPath => @"C:\Users\vantan\Documents\Unity\Maku\ChessN7\Assets\SaveFiles\";
-    public static string SaveFolderPath => $"{Application.persistentDataPath}/";
+    //public static string SaveFolderPath => @"C:\Users\vantan\Documents\Unity\Maku\ChessN7\Assets\SaveFiles";
+    public static string SaveFolderPath => $"{Application.persistentDataPath}";
 
     protected override void SubLateAwake()
     {
-        //DebugView.Log($"セーブファイルどこ : {SaveFolderPath}");
+        DebugView.Log($"セーブフォルダどこ : {SaveFolderPath}");
         GetSavableBaseTypes();
         InitSavables();
     }
@@ -99,6 +99,7 @@ public class SaveSystem : SingletonCompo<SaveSystem>
         // データクラスに循環参照しているパラメータがあるとエラーを吐くので、
         // そのパラメータには[JsonIgnore]をつけてシリアライズを無視してもらう
         string jsonData = JsonConvert.SerializeObject(data, Formatting.Indented);
+        // 書き込み
         StreamWriter streamWriter = new(Path, false);
         streamWriter.WriteLine(jsonData);
         streamWriter.Flush();
@@ -282,16 +283,19 @@ public abstract class Savable : MyExtention,
     ISave
 {
     #region 全Savable系基底クラス共通の処理
-    //共通データ
+    // 共通データ
     [JsonProperty] private string path = string.Empty;  //Json.NET だと public 以外シリアアライズされないが、[JsonProperty]をつけると関係なくいける
     [JsonProperty] private int instanceNumber = -1;  //Json.NET だと public 以外シリアアライズされないが、[JsonProperty]をつけると関係なくいける
     [JsonProperty] private bool isLoadedAtFirst = false;  //Json.NET だと public 以外シリアアライズされないが、[JsonProperty]をつけると関係なくいける
-    // JsonUtility の場合
+                                                          // JsonUtility の場合
     //[SerializeField] protected string path = string.Empty;  //private にしたら保存されずエラーになる
     //[SerializeField] protected int instanceNumber = -1;  //private にしたら保存されずエラーになる
     //[SerializeField] protected bool isLoadedAtFirst = false;  //private にしたら保存されずエラーになる
 
-    //統括用ディクショナリー
+    // データをしまうフォルダの名前
+    [JsonIgnore] protected virtual string AffiliatedFolderName { get; set; } = string.Empty;
+
+    // 統括用ディクショナリー
     public static Dictionary<string, List<SaveSystem.IFriendWith_SaveSystem>> InstancesListsManagementDictionaty = new();
 
     // 各セーブ可能クラスに用意する staticなインスタンス管理リストのゲッター
@@ -352,7 +356,7 @@ public abstract class Savable : MyExtention,
         List<SaveSystem.IFriendWith_SaveSystem> list = new();
         foreach (var a in InstancesListsManagementDictionaty.Values)
         {
-            //統括ディクショナリを分解して中身のリストの中身に入ったインスタンスを1つのリストにまとめなおす。
+            //統括ディクショナリを分解して中身のリストの中身に入ったインスタンスを1つのリストにまとめなおす
             list.AddRange(a);
         }
         return list;
@@ -370,12 +374,15 @@ public abstract class Savable : MyExtention,
         //アプリを起動してから1回目のロード
         if (!isLoadedAtFirst)
         {
-            //管理リストに自分を登録。
+            //管理リストに自分を登録
             Instances.Add(this);
-
-            //自分のインスタンス番号とパスを設定する。
+            //自分のインスタンス番号と所属フォルダとパスを設定
             instanceNumber = Instances.Count - 1;
-            path = @$"{SaveSystem.SaveFolderPath}{GetType().Name}{instanceNumber}.json";
+            string affiliatedFolderPath = @$"{SaveSystem.SaveFolderPath}/{AffiliatedFolderName}";
+            // 指定したパスのフォルダが存在しない場合作成
+            if (!Directory.Exists(affiliatedFolderPath)) Directory.CreateDirectory(affiliatedFolderPath);
+            // 自分の完全なパスを作成
+            path = @$"{affiliatedFolderPath}/{GetType().Name}{instanceNumber}.json";
         }
 
         ////ロード
@@ -383,6 +390,7 @@ public abstract class Savable : MyExtention,
 
         ////管理リスト更新
         Instances[instanceNumber] = this;  //いらないかも
+
         Debug.Log("------ロードした------");
     }
 }

@@ -15,7 +15,7 @@ public class Player1 : SingletonCompo<Player1>
     {
         protected override string AffiliatedFolderName { get; set; } = "PlayerData";
         public override List<SaveSystem.IFriendWith_SaveSystem> Instances { get; protected set; } = instances;
-        public static List<SaveSystem.IFriendWith_SaveSystem> instances = new();
+        private static List<SaveSystem.IFriendWith_SaveSystem> instances = new();
         
         // 以下の書き方ではダメ？何で代入しているinstancesはスタティックじゃないといけないの？と思ったが、
         // 恐らく以下のように書くと本クラスのインスタンスが作られる度に管理用のInstancesが増えてしまうが、
@@ -106,12 +106,12 @@ public class Player1 : SingletonCompo<Player1>
         };
         InputEventHandler.OnDown_V += () =>
         {
-            if (PlayerData.instances.Count == 0)
+            if (p0.Instances.Count == 0)
             {
                 Debug.Log("セーブデータのインスタンス無し");
                 return;
             }
-            foreach (var a in PlayerData.instances)
+            foreach (var a in p0.Instances)
             {
                 Debug.Log($"{a}");
             }

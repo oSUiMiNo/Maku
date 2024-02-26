@@ -253,8 +253,11 @@ public abstract class SingletonCompo<SingletonType> : NonGenericSingletonCompoBa
     {
         if (DestroyMistakenSingleton()) return;  //ここの return 大事。gameObject を Destroy しても、Awake() は最後まで実行されちゃうらしいので。
         GetInstance_N_SingletonizeGameObject<SingletonType>();
+        Awake0();
         SubLateAwake();
     }
+    protected virtual void Awake0() { }
+    [Obsolete("Awake0() を使ってください。")]
     protected virtual void SubLateAwake() { }
 
     public bool DestroyMistakenSingleton()

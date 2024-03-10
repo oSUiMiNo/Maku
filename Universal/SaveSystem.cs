@@ -6,6 +6,7 @@ using System;
 using System.Linq;
 using UnityEditor;
 using Newtonsoft.Json;
+using UnityEngine.UIElements;
 //using PlasticGui.Configuration.CloudEdition;
 
 /// <summary>
@@ -287,16 +288,18 @@ public abstract class Savable : MyExtention,
 {
     #region 全Savable系基底クラス共通の処理
     // 共通データ
-    [JsonProperty] private string path = string.Empty;  //Json.NET だと public 以外シリアアライズされないが、[JsonProperty]をつけると関係なくいける
-    [JsonProperty] private int instanceNumber = -1;  //Json.NET だと public 以外シリアアライズされないが、[JsonProperty]をつけると関係なくいける
-    [JsonProperty] private bool isLoadedAtFirst = false;  //Json.NET だと public 以外シリアアライズされないが、[JsonProperty]をつけると関係なくいける
+    [JsonProperty] protected string _Path { get; private set; } = string.Empty;  //Json.NET だと public 以外シリアアライズされないが、[JsonProperty]をつけると関係なくいける
+    [JsonProperty] protected int InstanceNumber { get; private set; } = -1;  //Json.NET だと public 以外シリアアライズされないが、[JsonProperty]をつけると関係なくいける
+    [JsonProperty] protected bool IsLoadedAtFirst { get; private set; } = false;  //Json.NET だと public 以外シリアアライズされないが、[JsonProperty]をつけると関係なくいける
                                                           // JsonUtility の場合
-    //[SerializeField] protected string path = string.Empty;  //private にしたら保存されずエラーになる
-    //[SerializeField] protected int instanceNumber = -1;  //private にしたら保存されずエラーになる
-    //[SerializeField] protected bool isLoadedAtFirst = false;  //private にしたら保存されずエラーになる
+                                                          //[SerializeField] protected string path = string.Empty;  //private にしたら保存されずエラーになる
+                                                          //[SerializeField] protected int instanceNumber = -1;  //private にしたら保存されずエラーになる
+                                                          //[SerializeField] protected bool isLoadedAtFirst = false;  //private にしたら保存されずエラーになる
 
-    // データをしまうフォルダの名前
+    // データをしまうフォルダの名前。指定しない場合は「Application.persistentDataPath」になる。
     [JsonIgnore] public virtual string SaveFolderPath { get; set; } = string.Empty;
+    // データのファイル名。指定しない場合は「クラス名+instanceNumber」になる
+    [JsonIgnore] public virtual string FileName { get; set; } = string.Empty;
 
     // 統括用ディクショナリー
     public static Dictionary<string, List<SaveSystem.IFriendWith_SaveSystem>> InstancesListsManagementDictionaty = new();
@@ -306,7 +309,7 @@ public abstract class Savable : MyExtention,
     [JsonIgnore] public abstract List<SaveSystem.IFriendWith_SaveSystem> Instances { get; protected set; }
 
     //自分のセーブファイルを保存する場所のパスを返す。
-    public string GetPath() { return path; }
+    public string GetPath() { return _Path; }
 
     /// <summary>
     /// isFirstLoadingは各セーブ可能基底クラスごとに用意しているため抽象化しきれない変数。
@@ -315,7 +318,7 @@ public abstract class Savable : MyExtention,
     /// </summary>
     void SaveSystem.IFriendWith_SaveSystem.SetFirstLoading(bool isLoadedAtFirst)
     {
-        this.isLoadedAtFirst = isLoadedAtFirst;
+        this.IsLoadedAtFirst = isLoadedAtFirst;
     }
 
     // 親クラスの、辞書に自分の管理リストを登録する。
@@ -328,10 +331,10 @@ public abstract class Savable : MyExtention,
     // ロードしたデータが初回ロードかどうか確認し、初回であれば初回フラグだけを変更し保存。
     void SaveSystem.IFriendWith_SaveSystem.CheckFirstLoading()
     {
-        if (!isLoadedAtFirst)
+        if (!IsLoadedAtFirst)
         {
             Debug.Log($"{this} はアプリを起動してから１回目のロード");
-            isLoadedAtFirst = true;
+            IsLoadedAtFirst = true;
             SaveSystem.Save(this);
         }
         else
@@ -339,7 +342,7 @@ public abstract class Savable : MyExtention,
             Debug.Log($"{this} はアプリを起動後に少なくとも１回ロードされたようです");
         }
 
-        Debug.Log($"{isLoadedAtFirst}");
+        Debug.Log($"{IsLoadedAtFirst}");
     }
 
     void SaveSystem.IFriendWith_SaveSystem.ResetFirstLoading()
@@ -375,25 +378,26 @@ public abstract class Savable : MyExtention,
     public void Load()
     {
         //アプリを起動してから1回目のロード
-        if (!isLoadedAtFirst)
+        if (!IsLoadedAtFirst)
         {
             //管理リストに自分を登録
             Instances.Add(this);
             //自分のインスタンス番号と所属フォルダとパスを設定
-            instanceNumber = Instances.Count - 1;
+            InstanceNumber = Instances.Count - 1;
             //string AffiliatedFolderPath = @$"{SaveSystem.SaveFolderPath}/{AffiliatedFolderName}";
             if (string.IsNullOrEmpty(SaveFolderPath)) SaveFolderPath = Application.persistentDataPath;
             // 指定したパスのフォルダが存在しない場合作成
             if (!Directory.Exists(SaveFolderPath)) Directory.CreateDirectory(SaveFolderPath);
             // 自分の完全なパスを作成
-            path = @$"{SaveFolderPath}/{GetType().Name}{instanceNumber}.json";
+            if (string.IsNullOrEmpty(FileName)) _Path = @$"{SaveFolderPath}/{GetType().Name}{InstanceNumber}.json";
+            else _Path = @$"{SaveFolderPath}/{FileName}.json";
         }
 
         ////ロード
         SaveSystem.Load(this);
 
         ////管理リスト更新
-        Instances[instanceNumber] = this;  //いらないかも
+        Instances[InstanceNumber] = this;  //いらないかも
 
         Debug.Log("------ロードした------");
     }
@@ -539,16 +543,18 @@ public abstract class SavableSingleton<SingletonType> : Singleton<SingletonType>
 {
     #region 全Savable系基底クラス共通の処理
     // 共通データ
-    [JsonProperty] private string path = string.Empty;  //Json.NET だと public 以外シリアアライズされないが、[JsonProperty]をつけると関係なくいける
-    [JsonProperty] private int instanceNumber = -1;  //Json.NET だと public 以外シリアアライズされないが、[JsonProperty]をつけると関係なくいける
-    [JsonProperty] private bool isLoadedAtFirst = false;  //Json.NET だと public 以外シリアアライズされないが、[JsonProperty]をつけると関係なくいける
-                                                          // JsonUtility の場合
-                                                          //[SerializeField] protected string path = string.Empty;  //private にしたら保存されずエラーになる
-                                                          //[SerializeField] protected int instanceNumber = -1;  //private にしたら保存されずエラーになる
-                                                          //[SerializeField] protected bool isLoadedAtFirst = false;  //private にしたら保存されずエラーになる
+    [JsonProperty] protected string _Path { get; private set; } = string.Empty;  //Json.NET だと public 以外シリアアライズされないが、[JsonProperty]をつけると関係なくいける
+    [JsonProperty] protected int InstanceNumber { get; private set; } = -1;  //Json.NET だと public 以外シリアアライズされないが、[JsonProperty]をつけると関係なくいける
+    [JsonProperty] protected bool IsLoadedAtFirst { get; private set; } = false;  //Json.NET だと public 以外シリアアライズされないが、[JsonProperty]をつけると関係なくいける
+                                                                                  // JsonUtility の場合
+                                                                                  //[SerializeField] protected string path = string.Empty;  //private にしたら保存されずエラーになる
+                                                                                  //[SerializeField] protected int instanceNumber = -1;  //private にしたら保存されずエラーになる
+                                                                                  //[SerializeField] protected bool isLoadedAtFirst = false;  //private にしたら保存されずエラーになる
 
     // データをしまうフォルダの名前
     [JsonIgnore] public virtual string SaveFolderPath { get; set; } = string.Empty;
+    // データのファイル名。指定しない場合は「クラス名+instanceNumber」になる
+    [JsonIgnore] public virtual string FileName { get; set; } = string.Empty;
 
     // 統括用ディクショナリー
     public static Dictionary<string, List<SaveSystem.IFriendWith_SaveSystem>> InstancesListsManagementDictionaty = new();
@@ -558,7 +564,7 @@ public abstract class SavableSingleton<SingletonType> : Singleton<SingletonType>
     [JsonIgnore] public abstract List<SaveSystem.IFriendWith_SaveSystem> Instances { get; protected set; }
 
     //自分のセーブファイルを保存する場所のパスを返す。
-    public string GetPath() { return path; }
+    public string GetPath() { return _Path; }
 
     /// <summary>
     /// isFirstLoadingは各セーブ可能基底クラスごとに用意しているため抽象化しきれない変数。
@@ -567,7 +573,7 @@ public abstract class SavableSingleton<SingletonType> : Singleton<SingletonType>
     /// </summary>
     void SaveSystem.IFriendWith_SaveSystem.SetFirstLoading(bool isLoadedAtFirst)
     {
-        this.isLoadedAtFirst = isLoadedAtFirst;
+        this.IsLoadedAtFirst = isLoadedAtFirst;
     }
 
     // 親クラスの、辞書に自分の管理リストを登録する。
@@ -580,10 +586,10 @@ public abstract class SavableSingleton<SingletonType> : Singleton<SingletonType>
     // ロードしたデータが初回ロードかどうか確認し、初回であれば初回フラグだけを変更し保存。
     void SaveSystem.IFriendWith_SaveSystem.CheckFirstLoading()
     {
-        if (!isLoadedAtFirst)
+        if (!IsLoadedAtFirst)
         {
             Debug.Log($"{this} はアプリを起動してから１回目のロード");
-            isLoadedAtFirst = true;
+            IsLoadedAtFirst = true;
             SaveSystem.Save(this);
         }
         else
@@ -591,7 +597,7 @@ public abstract class SavableSingleton<SingletonType> : Singleton<SingletonType>
             Debug.Log($"{this} はアプリを起動後に少なくとも１回ロードされたようです");
         }
 
-        Debug.Log($"{isLoadedAtFirst}");
+        Debug.Log($"{IsLoadedAtFirst}");
     }
 
     void SaveSystem.IFriendWith_SaveSystem.ResetFirstLoading()
@@ -627,25 +633,26 @@ public abstract class SavableSingleton<SingletonType> : Singleton<SingletonType>
     public void Load()
     {
         //アプリを起動してから1回目のロード
-        if (!isLoadedAtFirst)
+        if (!IsLoadedAtFirst)
         {
             //管理リストに自分を登録
             Instances.Add(this);
             //自分のインスタンス番号と所属フォルダとパスを設定
-            instanceNumber = Instances.Count - 1;
+            InstanceNumber = Instances.Count - 1;
             //string AffiliatedFolderPath = @$"{SaveSystem.SaveFolderPath}/{AffiliatedFolderName}";
             if (string.IsNullOrEmpty(SaveFolderPath)) SaveFolderPath = Application.persistentDataPath;
             // 指定したパスのフォルダが存在しない場合作成
             if (!Directory.Exists(SaveFolderPath)) Directory.CreateDirectory(SaveFolderPath);
             // 自分の完全なパスを作成
-            path = @$"{SaveFolderPath}/{GetType().Name}{instanceNumber}.json";
+            if (string.IsNullOrEmpty(FileName)) _Path = @$"{SaveFolderPath}/{GetType().Name}{InstanceNumber}.json";
+            else _Path = @$"{SaveFolderPath}/{FileName}.json";
         }
 
         ////ロード
         SaveSystem.Load(this);
 
         ////管理リスト更新
-        Instances[instanceNumber] = this;  //いらないかも
+        Instances[InstanceNumber] = this;  //いらないかも
         Debug.Log("------ロードした------");
     }
 }

@@ -34,6 +34,8 @@ public class SaveSystem : SingletonCompo<SaveSystem>
 
     static IEnumerable<Type> SavableBaseTypes;
 
+
+    // 消す　＝＝＝＝＝＝＝
     /// <summary>
     /// 【注意】
     /// ここで指定したパスの、セーブデータをしまう用のフォルダを必ず作っておく。
@@ -41,11 +43,12 @@ public class SaveSystem : SingletonCompo<SaveSystem>
     /// プロパティとしてやれば、静的な場所でも $" " を使える
     /// </summary>
     //public static string SaveFolderPath => @"C:\Users\vantan\Documents\Unity\Maku\ChessN7\Assets\SaveFiles";
-    public static string SaveFolderPath => $"{Application.persistentDataPath}";
+    //public static string SaveFolderPath => $"{Application.persistentDataPath}";
+    // 消す　＝＝＝＝＝＝＝
+
 
     protected override void SubLateAwake()
     {
-        DebugView.Log($"セーブフォルダどこ : {SaveFolderPath}");
         GetSavableBaseTypes();
         InitSavables();
     }
@@ -293,7 +296,7 @@ public abstract class Savable : MyExtention,
     //[SerializeField] protected bool isLoadedAtFirst = false;  //private にしたら保存されずエラーになる
 
     // データをしまうフォルダの名前
-    [JsonIgnore] public virtual string AffiliatedFolderName { get; set; } = string.Empty;
+    [JsonIgnore] public virtual string SaveFolderPath { get; set; } = string.Empty;
 
     // 統括用ディクショナリー
     public static Dictionary<string, List<SaveSystem.IFriendWith_SaveSystem>> InstancesListsManagementDictionaty = new();
@@ -378,11 +381,12 @@ public abstract class Savable : MyExtention,
             Instances.Add(this);
             //自分のインスタンス番号と所属フォルダとパスを設定
             instanceNumber = Instances.Count - 1;
-            string affiliatedFolderPath = @$"{SaveSystem.SaveFolderPath}/{AffiliatedFolderName}";
+            //string AffiliatedFolderPath = @$"{SaveSystem.SaveFolderPath}/{AffiliatedFolderName}";
+            if (string.IsNullOrEmpty(SaveFolderPath)) SaveFolderPath = Application.persistentDataPath;
             // 指定したパスのフォルダが存在しない場合作成
-            if (!Directory.Exists(affiliatedFolderPath)) Directory.CreateDirectory(affiliatedFolderPath);
+            if (!Directory.Exists(SaveFolderPath)) Directory.CreateDirectory(SaveFolderPath);
             // 自分の完全なパスを作成
-            path = @$"{affiliatedFolderPath}/{GetType().Name}{instanceNumber}.json";
+            path = @$"{SaveFolderPath}/{GetType().Name}{instanceNumber}.json";
         }
 
         ////ロード
@@ -534,17 +538,24 @@ public abstract class SavableSingleton<SingletonType> : Singleton<SingletonType>
      where SingletonType : Singleton<SingletonType>, new()
 {
     #region 全Savable系基底クラス共通の処理
-    //共通データ
-    [SerializeField] protected string path = string.Empty;  //private にしたら保存されずエラーになる。
-    [SerializeField] protected int instanceNumber = -1;  //private にしたら保存されずエラーになる。
-    [SerializeField] protected bool isLoadedAtFirst = false;  //private にしたら保存されずエラーになる。
+    // 共通データ
+    [JsonProperty] private string path = string.Empty;  //Json.NET だと public 以外シリアアライズされないが、[JsonProperty]をつけると関係なくいける
+    [JsonProperty] private int instanceNumber = -1;  //Json.NET だと public 以外シリアアライズされないが、[JsonProperty]をつけると関係なくいける
+    [JsonProperty] private bool isLoadedAtFirst = false;  //Json.NET だと public 以外シリアアライズされないが、[JsonProperty]をつけると関係なくいける
+                                                          // JsonUtility の場合
+                                                          //[SerializeField] protected string path = string.Empty;  //private にしたら保存されずエラーになる
+                                                          //[SerializeField] protected int instanceNumber = -1;  //private にしたら保存されずエラーになる
+                                                          //[SerializeField] protected bool isLoadedAtFirst = false;  //private にしたら保存されずエラーになる
 
+    // データをしまうフォルダの名前
+    [JsonIgnore] public virtual string SaveFolderPath { get; set; } = string.Empty;
 
-    //統括用ディクショナリー
+    // 統括用ディクショナリー
     public static Dictionary<string, List<SaveSystem.IFriendWith_SaveSystem>> InstancesListsManagementDictionaty = new();
 
-    //各セーブ可能クラスに用意する staticなインスタンス管理リストのゲッター
-    public abstract List<SaveSystem.IFriendWith_SaveSystem> Instances { get; protected set; }
+    // 各セーブ可能クラスに用意する staticなインスタンス管理リストのゲッター
+    // Instances が循環参照になっているので[JsonIgnore]をつけてシリアライズされないようにする。継承先でオーバーライドする際は付けなくても正常に動きそう
+    [JsonIgnore] public abstract List<SaveSystem.IFriendWith_SaveSystem> Instances { get; protected set; }
 
     //自分のセーブファイルを保存する場所のパスを返す。
     public string GetPath() { return path; }
@@ -559,7 +570,7 @@ public abstract class SavableSingleton<SingletonType> : Singleton<SingletonType>
         this.isLoadedAtFirst = isLoadedAtFirst;
     }
 
-    //親クラスの、辞書に自分の管理リストを登録する。
+    // 親クラスの、辞書に自分の管理リストを登録する。
     void SaveSystem.IFriendWith_SaveSystem.SetManagementDictionaty()
     {
         InstancesListsManagementDictionaty.Add($"{GetType().Name}s", Instances);
@@ -600,7 +611,7 @@ public abstract class SavableSingleton<SingletonType> : Singleton<SingletonType>
         List<SaveSystem.IFriendWith_SaveSystem> list = new();
         foreach (var a in InstancesListsManagementDictionaty.Values)
         {
-            //統括ディクショナリを分解して中身のリストの中身に入ったインスタンスを1つのリストにまとめなおす。
+            //統括ディクショナリを分解して中身のリストの中身に入ったインスタンスを1つのリストにまとめなおす
             list.AddRange(a);
         }
         return list;
@@ -618,12 +629,16 @@ public abstract class SavableSingleton<SingletonType> : Singleton<SingletonType>
         //アプリを起動してから1回目のロード
         if (!isLoadedAtFirst)
         {
-            //管理リストに自分を登録。
+            //管理リストに自分を登録
             Instances.Add(this);
-
-            //自分のインスタンス番号とパスを設定する。
+            //自分のインスタンス番号と所属フォルダとパスを設定
             instanceNumber = Instances.Count - 1;
-            path = @$"{SaveSystem.SaveFolderPath}{GetType().Name}{instanceNumber}.json";
+            //string AffiliatedFolderPath = @$"{SaveSystem.SaveFolderPath}/{AffiliatedFolderName}";
+            if (string.IsNullOrEmpty(SaveFolderPath)) SaveFolderPath = Application.persistentDataPath;
+            // 指定したパスのフォルダが存在しない場合作成
+            if (!Directory.Exists(SaveFolderPath)) Directory.CreateDirectory(SaveFolderPath);
+            // 自分の完全なパスを作成
+            path = @$"{SaveFolderPath}/{GetType().Name}{instanceNumber}.json";
         }
 
         ////ロード

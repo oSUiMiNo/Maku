@@ -13,7 +13,7 @@ public class Player1 : SingletonCompo<Player1>
     [System.Serializable]
     class PlayerData : Savable
     {
-        public override string AffiliatedFolderName { get; set; } = "PlayerData";
+        public override string SaveFolderPath { get; set; } = $"{Application.persistentDataPath}/PlayerData";
         public override List<SaveSystem.IFriendWith_SaveSystem> Instances { get; protected set; } = instances;
         private static List<SaveSystem.IFriendWith_SaveSystem> instances = new();
         

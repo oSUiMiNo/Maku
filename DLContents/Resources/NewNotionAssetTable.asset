@@ -9,9 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 60f3bfcec490d2b47b5d1390fabe8170, type: 3}
+  m_Script: {fileID: 11500000, guid: e717473892d50774bb1e630de528ae55, type: 3}
   m_Name: NewNotionAssetTable
   m_EditorClassIdentifier: 
-  assetNames:
-  - "\u30A2\u30BB\u30C3\u30C81"
-  - "\u30A2\u30BB\u30C3\u30C82"
+  assetNames: []

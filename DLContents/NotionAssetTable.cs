@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 
 // 生成したスクリプタブルオブジェクトはフォルダResourcesに配置する
-[CreateAssetMenu()]
+[CreateAssetMenu(fileName = "NotionAssetTable")]
 public class NotionAssetTable : ScriptableObject
 {
     #region == インスタンスの作成===============================================
     // この名前のスクリプタブルオブジェクトが
     // フォルダResources に配置されてないといけない。
-    private static readonly string RESOURCE_PATH = "NewNotionAssetTable";
+    private static readonly string RESOURCE_PATH = "NotionAssetTable";
 
     private static NotionAssetTable ins = null;
     public static NotionAssetTable Ins

@@ -14,15 +14,20 @@ public class EditableJSON
     {
         get
         {
-            Apply();
             using (var sr = new StreamReader(Path, System.Text.Encoding.UTF8))
                 return JObject.Parse(sr.ReadToEnd());
         }
     }
     public string Json // ïÅí ÇÃï∂éöóÒÇÃJson
     {
-        get { return JsonConvert.SerializeObject(Obj); }
+        get 
+        {
+            json = JsonConvert.SerializeObject(Obj);
+            Apply();
+            return json; 
+        }
     }
+    private string json;
 
 
     public EditableJSON(string jsonPath)
@@ -36,7 +41,7 @@ public class EditableJSON
     {
         using (var sw = new StreamWriter(Path, false, System.Text.Encoding.UTF8))
         {
-            sw.Write(Json);
+            sw.Write(json);
         }
     }
 

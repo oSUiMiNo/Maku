@@ -22,8 +22,8 @@ public class EditableJSON
     {
         get 
         {
-            json = JsonConvert.SerializeObject(Obj);
             Apply();
+            json = JsonConvert.SerializeObject(Obj);
             return json; 
         }
     }
@@ -33,6 +33,7 @@ public class EditableJSON
     public EditableJSON(string jsonPath)
     {
         Path = jsonPath;
+        //json = JsonConvert.SerializeObject(Obj);
     }
 
 

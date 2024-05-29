@@ -15,9 +15,13 @@ public class EditableJSON
         get
         {
             using (var sr = new StreamReader(Path, System.Text.Encoding.UTF8))
-                return JObject.Parse(sr.ReadToEnd());
+            {
+                obj = JObject.Parse(sr.ReadToEnd());
+                return obj;
+            }
         }
     }
+    private JObject obj = null;
     public string Json // •’Ê‚Ì•¶š—ñ‚ÌJson
     {
         get 

@@ -8,7 +8,6 @@ using System.Text.RegularExpressions;
 using Cysharp.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Unity.Properties;
 using UnityEngine;
 using UnityEngine.Networking;
 

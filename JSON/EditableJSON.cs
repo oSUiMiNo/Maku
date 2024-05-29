@@ -14,6 +14,7 @@ public class EditableJSON
     {
         get
         {
+            Apply();
             using (var sr = new StreamReader(Path, System.Text.Encoding.UTF8))
                 return JObject.Parse(sr.ReadToEnd());
         }

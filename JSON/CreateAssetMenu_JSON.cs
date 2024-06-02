@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using System;
 using System.IO;
 using UnityEngine;
@@ -77,3 +78,4 @@ public class CreateAssetMenu_JSON
         }
     }
 }
+#endif

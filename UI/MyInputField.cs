@@ -51,7 +51,7 @@ public class MyInputField : MyUI
 
             string t = _Text.Value.Remove(_Text.Value.Length-1);
             _Text.Value = t;
-            text_Input.text = t;
+            //text_Input.text = t;
             //SetPort();
         };
     }

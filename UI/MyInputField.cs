@@ -13,6 +13,14 @@ public class MyInputField : MyUI
     [SerializeField]
     public StringReactiveProperty _Text = new StringReactiveProperty(string.Empty);
 
+    [SerializeField]
+    int limitOfLength = 500;
+
+    [SerializeField]
+    bool onlyNumber = false;
+
+    
+
 
     protected sealed override void Awake0()
     {
@@ -51,23 +59,28 @@ public class MyInputField : MyUI
     protected sealed override void Update()
     {
         // 何かキーが押された場合
-        if (Input.anyKeyDown)
+        if (UnityEngine.Input.anyKeyDown)
         {
-            string keyStr = Input.inputString; // 入力されたキーの名前を取得
-            InputString(keyStr);
+            string keyStr = UnityEngine.Input.inputString; // 入力されたキーの名前を取得
+            if (onlyNumber) InputNum(keyStr);
+            else Input(keyStr);
         }
     }
 
-    void InputString(string c)
+    void InputNum(string c)
     {
-        if (_Text.Value.Length >= 5) return; 
-        if (int.TryParse(c, out int a)) //数字に変換できないつまり数字じゃないもじははじく。
-        {
-            _Text.Value += c;
-            _Text.Value = _Text.Value;
-            //text_Input.text = text;
-            //SetPort();
-        }
+        if (_Text.Value.Length >= limitOfLength) return;
+        if (!int.TryParse(c, out int a)) return; //数字に変換できないつまり数字じゃないもじははじく。
+        
+        _Text.Value += c;
+        _Text.Value = _Text.Value;
+    }
+
+    void Input(string c)
+    {
+        if (_Text.Value.Length >= limitOfLength) return;
+        _Text.Value += c;
+        _Text.Value = _Text.Value;
     }
 
 

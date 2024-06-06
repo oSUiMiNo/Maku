@@ -48,9 +48,10 @@ public class MyInputField : MyUI
                 //SetPort();
                 return;
             }
+
             string t = _Text.Value.Remove(_Text.Value.Length-1);
             _Text.Value = t;
-            //text_Input.text = text;
+            text_Input.text = t;
             //SetPort();
         };
     }

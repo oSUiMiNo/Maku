@@ -18,10 +18,14 @@ public abstract class MyUI : SealableMonoBehaviourMyExtention
     public IObservable<bool> ClickedObservable => Clicked;
     public ReactiveProperty<bool> Clicked = new ReactiveProperty<bool>();
 
+    public bool Active = false;
+
     protected sealed override async void Awake()
     {
         //presenter = UIPresenter.Childlen[gameObject];
         InputEventHandler.OnDown_MouseLeft += () => CheckClickMargin();
+        On_Click.Subscribe(_ => Active = true); // ‰Á•M
+        On_ClickMargin.Subscribe(_ => Active = false); // ‰Á•M
         SetLayer("UI");
         Awake0(); Awake1();
         //InputEventHandler.OnDown_MouseLeft += () => DebugView.Log($"‚Ç‚±‚©‚µ‚çƒNƒŠƒbƒN‚µ‚½");

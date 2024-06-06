@@ -42,23 +42,20 @@ public class MyInputField : MyUI
 
         InputEventHandler.OnDown_BackSpace += () =>
         {
-            Debug.Log("バックスペース！");
+            if (!Active) return;
             if (_Text.Value.Length <= 0)
             {
-                //SetPort();
                 return;
-            }
-
-            string t = _Text.Value.Remove(_Text.Value.Length-1);
+            };
+            string t = _Text.Value.Remove(_Text.Value.Length-2);
             _Text.Value = t;
-            //text_Input.text = t;
-            //SetPort();
         };
     }
 
 
     protected sealed override void Update()
     {
+        if (!Active) return;
         // 何かキーが押された場合
         if (UnityEngine.Input.anyKeyDown)
         {

@@ -17,7 +17,7 @@ using UnityEngine.Networking;
 
 public class DownloadCatalogFromNotion : MonoBehaviour
 {
-    private const string NotionAccessToken = "secret_GKXw55IIbLe0LkOPsWpt0IG8BCLfOokRhamOysuBhyW";
+    private const string NotionAccessToken = "secret_OIxSWO69mxnD9FNbmL2US0pcsLWCUmsaglBZBCWPWrC";
     private const string DatabaseID = "e8777c71cf694fa8bd135fb1d7cb1728";
 
 

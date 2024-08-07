@@ -39,6 +39,7 @@ public class MyButton : MyUI
     private void PlayAnim( bool state )
     {
         if (animator == null) return;
+        if (animatorController.Value == null) return;
         animator.SetBool("MouseOver", state);
     }
 }

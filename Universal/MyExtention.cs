@@ -18,6 +18,16 @@ public interface IMyExtention
     GameObject LoadPrefab(string name);
     void Pause();
     GameObject CreateCanvas(string name, RenderMode renderMode);
+
+    // Transformのリセット
+    void TransReset_Local(Transform transform);
+    void TransReset_World(Transform transform);
+
+    // Stringのトリミング
+    // 右側切り抜き
+    string CropStr_R(string str, string splitter, bool containSplitter);
+    // 右側切り落とし
+    string TrimStr_R(string str, string splitter, bool containSplitter);
 }
 
 
@@ -35,18 +45,18 @@ public abstract class MonoBehaviourMyExtention : MonoBehaviour, IMyExtention
     {
         //Debug.Log($"コンポーネント   {typeof(Compo).Name}");
         #region 呼び出し元通知
-            var caller = new System.Diagnostics.StackFrame(1, false);
+        var caller = new System.Diagnostics.StackFrame(1, false);
         string callerMethodName = caller.GetMethod().Name;
         string callerClassName = caller.GetMethod().DeclaringType.Name;
         //Debug.Log("クラス  " + callerClassName + " の、     メソッド  " + callerMethodName + "()  から呼び出されました。");
         #endregion
         //ここでTryGetComponent 使うと、AddComponent の所で、MonoBehaviour 継承してないとか言われる。原因はそのうち調べる
         Compo targetCompo = gObj.GetComponent<Compo>();
-        if(targetCompo == null)
+        if (targetCompo == null)
         {
             targetCompo = gObj.AddComponent<Compo>();
         }
-        return targetCompo;    
+        return targetCompo;
     }
 
 
@@ -62,7 +72,7 @@ public abstract class MonoBehaviourMyExtention : MonoBehaviour, IMyExtention
     {
         //ここでTryGetComponent 使うと、AddComponent の所で、MonoBehaviour 継承してないとか言われる。原因はそのうち調べる
         Component targetCompo = gObj.GetComponent(Compo);
-        if(targetCompo == null)
+        if (targetCompo == null)
         {
             targetCompo = gObj.AddComponent(Compo);
         }
@@ -85,7 +95,7 @@ public abstract class MonoBehaviourMyExtention : MonoBehaviour, IMyExtention
         CheckAddComponent(compo, gObj);
         gObj.transform.parent = parent.transform;
         gObj.name = name;
-        
+
         return gObj;
     }
 
@@ -98,7 +108,7 @@ public abstract class MonoBehaviourMyExtention : MonoBehaviour, IMyExtention
 
         return gObj;
     }
-    
+
     public List<GameObject> CreateChildren(string name, GameObject parent, Type compo, int quantity)
     {
         List<GameObject> gObjs = new List<GameObject>();
@@ -113,10 +123,10 @@ public abstract class MonoBehaviourMyExtention : MonoBehaviour, IMyExtention
         return gObjs;
     }
 
-    public List<GameObject> CreateChildren(string name, GameObject parent , List<Type> compos, int quantity)
+    public List<GameObject> CreateChildren(string name, GameObject parent, List<Type> compos, int quantity)
     {
         List<GameObject> gObjs = new List<GameObject>();
-        for(int a = 0; a < quantity; a++)
+        for (int a = 0; a < quantity; a++)
         {
             GameObject gObj = new GameObject();
             CheckAddMultiComponent(compos, gObj);
@@ -160,10 +170,54 @@ public abstract class MonoBehaviourMyExtention : MonoBehaviour, IMyExtention
         Canvas canvas = gObj.AddComponent<Canvas>();
         CanvasScaler canvasScaler = gObj.AddComponent<CanvasScaler>();
         GraphicRaycaster graphicRaycaster = gObj.AddComponent<GraphicRaycaster>();
-            
+
         canvas.renderMode = renderMode;
 
         return gObj;
+    }
+
+    // Transformのリセット
+    public void TransReset_Local(Transform transform)
+    {
+        transform.localPosition = Vector3.zero;
+        transform.localRotation = Quaternion.identity;
+        transform.localScale = Vector3.one;
+    }
+    public void TransReset_World(Transform transform)
+    {
+        transform.position = Vector3.zero;
+        transform.rotation = Quaternion.identity;
+        transform.localScale = new Vector3(
+            transform.localScale.x / transform.lossyScale.x,
+            transform.localScale.y / transform.lossyScale.y,
+            transform.localScale.z / transform.lossyScale.z
+        );
+    }
+
+    // Stringのトリミング
+    // 右側切り抜き
+    public string CropStr_R(string str, string splitter, bool containSplitter)
+    {
+        int i = str.IndexOf(splitter);
+        if (i < 0) return str;
+
+        int a;
+        if (containSplitter) a = 0;
+        else a = splitter.Length;
+
+        return str.Substring(i + a);
+    }
+    // 右側切り落とし
+    public string TrimStr_R(string str, string splitter, bool containSplitter)
+    {
+        var i = str.IndexOf(splitter);
+        if (i < 0) return str;
+
+        int a;
+        if (containSplitter) a = splitter.Length;
+        else a = 0;
+
+        return str.Substring(0, i + a);
     }
 }
 
@@ -245,6 +299,29 @@ public class MyExtention : IMyExtention
     public GameObject CreateCanvas(string name, RenderMode renderMode)
     {
         return MyExtentionHandler.Compo.CreateCanvas(name, renderMode);
+    }
+
+    // Transformのリセット
+    public void TransReset_Local(Transform transform)
+    {
+        MyExtentionHandler.Compo.TransReset_World(transform);
+
+    }
+    public void TransReset_World(Transform transform)
+    {
+        MyExtentionHandler.Compo.TransReset_World(transform);
+    }
+
+    // Stringのトリミング
+    // 右側切り抜き
+    public string CropStr_R(string str, string splitter, bool containSplitter)
+    {
+        return MyExtentionHandler.Compo.CropStr_R(str, splitter, containSplitter);
+    }
+    // 右側切り落とし
+    public string TrimStr_R(string str, string splitter, bool containSplitter)
+    {
+        return MyExtentionHandler.Compo.TrimStr_R(str, splitter, containSplitter);
     }
 }
 

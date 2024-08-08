@@ -9,7 +9,7 @@ using Cysharp.Threading.Tasks;
 // カタログ等からランタイムに生成したゲームオブジェクトのインデックスを管理してセーブするクラスを後で作成
 
 
-public class EditorbleInfo : MonoBehaviourMyExtention
+public class EditorbleHeader : MonoBehaviourMyExtention
 {
     List<string> ExistingContentIDList = new List<string>();
 

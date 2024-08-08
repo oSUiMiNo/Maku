@@ -11,7 +11,7 @@ public class EditorbleTransform : SavableCompo
     private static List<SaveSystem.IFriendWith_SaveSystem> instances = new();
     public override string SaveFolderPath { get; set; }
     public override string FileName { get; set; }
-    EditorbleInfo editorbleInfo => GetComponent<EditorbleInfo>();
+    EditorbleHeader editorbleInfo => GetComponent<EditorbleHeader>();
 
     private void Awake()
     {

@@ -16,7 +16,7 @@ public abstract class MyUI : SealableMonoBehaviourMyExtention
     public Subject<Unit> On_ClickMargin = new Subject<Unit>();
 
     public IObservable<bool> ClickedObservable => Clicked;
-    public ReactiveProperty<bool> Clicked = new ReactiveProperty<bool>();
+    public ReactiveProperty<bool> Clicked = new ReactiveProperty<bool>(false);
 
     public bool Active = false;
 

@@ -279,19 +279,24 @@ public class MTConverter
                 Material exportedMT = (Material)AssetDatabase.LoadAssetAtPath(newMTPath, typeof(Material));
                 a.newMTs[i] = exportedMT;
 
-                string newPrefabPath = Path.Combine(directory, $"{target.name}_URP.prefab");
-                PrefabUtility.SaveAsPrefabAsset(target, newPrefabPath);
-                EditorUtility.SetDirty(target);
-                AssetDatabase.SaveAssets();
+                //string newPrefabPath = Path.Combine(directory, $"{target.name}_URP.prefab");
+                //PrefabUtility.SaveAsPrefabAsset(target, newPrefabPath);
+                //EditorUtility.SetDirty(target);
+                //AssetDatabase.SaveAssets();
             }
             a.renderer.materials = a.newMTs;
         });
+
+        string newPrefabPath = Path.Combine(directory, $"{target.name}_URP.prefab");
+        PrefabUtility.SaveAsPrefabAsset(target, newPrefabPath);
+        EditorUtility.SetDirty(target);
+        AssetDatabase.SaveAssets();
 
         // ‰Á•M
         if (targetToExept == null) return;
         foreach (var a in targetToExept)
         {
-            string newPrefabPath = Path.Combine(directory, $"{target.name}_URP.prefab");
+            //string newPrefabPath = Path.Combine(directory, $"{target.name}_URP.prefab");
             PrefabUtility.SaveAsPrefabAsset(target, newPrefabPath);
             EditorUtility.SetDirty(target);
             AssetDatabase.SaveAssets();

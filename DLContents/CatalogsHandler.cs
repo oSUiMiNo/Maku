@@ -63,17 +63,6 @@ public class Catalogs : SavableSingleton<Catalogs>
 [System.Serializable]
 public class Catalog
 {
-    //public Catalog(string path_Catalog, List<string> paths_Group, string labels, List<string> afterDL)
-    //{
-    //    Path_Catalog = path_Catalog;
-    //    Paths_Group = paths_Group;
-    //    _labels = new Dictionary<string, Addresses>();
-    //    Addresses addresses = new Addresses(afterDL, new List<string>() { "a", "b" });
-    //    Debug.Log($"{labels}");
-    //    Debug.Log($"{addresses.AfterDL[0]}");
-    //    Debug.Log($"{addresses.BeforeDL[0]}");
-    //    _labels.Add(labels, addresses);
-    //}
     [JsonProperty] public string Path_Catalog;
     [JsonProperty] public List<string> Paths_Group = new List<string>();
     [JsonProperty] public Dictionary<string, Addresses> Labels = new Dictionary<string, Addresses>();
@@ -82,11 +71,6 @@ public class Catalog
 [System.Serializable]
 public class Addresses
 {
-    //public Addresses(List<string> beforeDL, List<string> afterDL) 
-    //{
-    //    BeforeDL = beforeDL;
-    //    AfterDL = afterDL;
-    //}
     [JsonProperty] public List<string> BeforeDL = new List<string>();
     [JsonProperty] public List<string> AfterDL = new List<string>();
 }

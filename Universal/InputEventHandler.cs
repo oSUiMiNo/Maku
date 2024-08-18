@@ -253,6 +253,13 @@ public class InputEventHandler : SingletonCompo<InputEventHandler>
     public static event System.Action On_MouseMiddle;
     public static event System.Action OnDown_MouseMiddle;
     public static event System.Action OnUp_MouseMiddle;
+
+    // ダブルクリック
+    int doubleClickCount = 0;
+    float doubleClickInterval = 0;
+    public static event System.Action On_MouseDouble;
+    public static event System.Action OnDown_MouseDouble;
+    public static event System.Action OnUp_MouseDouble;
     #endregion ==================================================
 
 
@@ -263,6 +270,7 @@ public class InputEventHandler : SingletonCompo<InputEventHandler>
         KeyUp();
         Wheel();
         Click();
+        DoubleClick();
     }
 
 
@@ -310,6 +318,45 @@ public class InputEventHandler : SingletonCompo<InputEventHandler>
         if (Input.GetMouseButton(2)) On_MouseMiddle?.Invoke();
         if (Input.GetMouseButtonDown(2)) OnDown_MouseMiddle?.Invoke();
         if (Input.GetMouseButtonUp(2)) OnUp_MouseMiddle?.Invoke();
+    }
+
+
+    void DoubleClick()
+    {
+        if (doubleClickCount == 0)
+            if (Input.GetMouseButtonDown(0))
+            {
+                doubleClickCount++;
+                return;
+            }
+
+        if (doubleClickCount == 1)
+            if (Input.GetMouseButtonDown(0))
+            {
+                doubleClickCount++;
+            }
+
+        if (doubleClickCount < 1) return;
+        if (doubleClickCount > 2)
+        {
+            doubleClickCount = 0;
+            doubleClickInterval = 0;
+            return;
+        }
+
+        doubleClickInterval += Time.deltaTime;
+
+        if (doubleClickInterval > 1f)
+        {
+            doubleClickCount = 0;
+            doubleClickInterval = 0;
+            return;
+        }
+
+        if (doubleClickCount != 2) return;
+        doubleClickCount = 0;
+        doubleClickInterval = 0;
+        On_MouseDouble?.Invoke();
     }
 
     void Key()

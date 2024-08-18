@@ -9,7 +9,9 @@ using System.IO;
 
 public class CatalogsHandler : SingletonCompo<CatalogsHandler>
 {
-    public static Catalogs Data = new Catalogs();
+    //public static Catalogs Data = new Catalogs();
+    public static Catalogs Data = Catalogs.Ins;
+
     public override bool IsActive { get; protected set; } = true;
 
 
@@ -22,7 +24,7 @@ public class CatalogsHandler : SingletonCompo<CatalogsHandler>
 
 
 [System.Serializable]
-public class Catalogs : Savable
+public class Catalogs : SavableSingleton<Catalogs>
 {
     #region ====== Savable ÇÃédçûÇ› ================================================
     public override List<SaveSystem.IFriendWith_SaveSystem> Instances { get; protected set; } = instances;

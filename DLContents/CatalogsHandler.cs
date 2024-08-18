@@ -7,9 +7,9 @@ using System.IO;
 
 
 
-public class CatalogDataHandler : SingletonCompo<CatalogDataHandler>
+public class CatalogsHandler : SingletonCompo<CatalogsHandler>
 {
-    public static CatalogData Data = new CatalogData();
+    public static Catalogs Data = new Catalogs();
     public override bool IsActive { get; protected set; } = true;
 
 
@@ -22,7 +22,7 @@ public class CatalogDataHandler : SingletonCompo<CatalogDataHandler>
 
 
 [System.Serializable]
-public class CatalogData : Savable
+public class Catalogs : Savable
 {
     #region ====== Savable ÇÃédçûÇ› ================================================
     public override List<SaveSystem.IFriendWith_SaveSystem> Instances { get; protected set; } = instances;
@@ -32,7 +32,6 @@ public class CatalogData : Savable
     #endregion =======================================
 
     [JsonProperty] public Dictionary<string, Catalog> ContentsCatalogs = new Dictionary<string, Catalog>();
-
 
     public void LoadFast()
     {

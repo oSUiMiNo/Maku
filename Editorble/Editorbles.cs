@@ -4,6 +4,34 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using System.IO;
+using UnityEngine.AddressableAssets;
+using UnityEngine.AddressableAssets.ResourceLocators;
+using UnityEngine.Assertions;
+using UnityEngine.ResourceManagement.AsyncOperations;
+using UnityEngine.ResourceManagement.ResourceLocations;
+using UniRx;
+using Cysharp.Threading.Tasks;
+
+
+
+
+public class EditorblesHandler : SingletonCompo<EditorblesHandler>
+{
+    public override bool IsActive { get; protected set; }
+    = true;
+    //= false;
+
+    public static Editorbles editorbles = Editorbles.Ins;
+    
+  
+    protected override void Awake0()
+    {
+        Debug.Log($"{editorbles}");
+        editorbles.LoadFast();
+    }
+}
+
+
 
 [System.Serializable]
 public class Editorbles : SavableSingleton<Editorbles>
@@ -44,18 +72,5 @@ public class Editorbles : SavableSingleton<Editorbles>
     {
         IDListDict.Remove(id);
         Save();
-    }
-}
-
-public class EditorblesHandler : SingletonCompo<EditorblesHandler>
-{
-    public override bool IsActive { get; protected set; }
-    = true;
-    //= false;
-
-    protected override void Awake0()
-    {
-        Debug.Log($"{Editorbles.Ins}");
-        Editorbles.Ins.LoadFast();
     }
 }

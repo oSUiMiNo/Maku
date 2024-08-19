@@ -78,6 +78,7 @@ public class InputEventHandler : SingletonCompo<InputEventHandler>
     public static event System.Action On_Left;
     public static event System.Action On_Ctrl;
     public static event System.Action On_Alt;
+    public static event System.Action On_Shift;
     #endregion
 
     #region KeyDown ==================================
@@ -435,6 +436,8 @@ public class InputEventHandler : SingletonCompo<InputEventHandler>
             Input.GetKey(KeyCode.LeftControl)) On_Ctrl?.Invoke();
         if (Input.GetKey(KeyCode.RightAlt) ||
             Input.GetKey(KeyCode.LeftAlt)) On_Alt?.Invoke();
+        if (Input.GetKey(KeyCode.RightShift) ||
+            Input.GetKey(KeyCode.LeftShift)) On_Shift?.Invoke();
     }
 
     void KeyDown()

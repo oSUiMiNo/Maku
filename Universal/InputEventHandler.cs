@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 // キー打った時のイベント
@@ -154,6 +155,7 @@ public class InputEventHandler : SingletonCompo<InputEventHandler>
     public static event System.Action OnDown_Left;
     public static event System.Action OnDown_Ctrl;
     public static event System.Action OnDown_Alt;
+    public static event System.Action OnDown_Shift;
     #endregion
 
     #region KeyUp ==================================
@@ -230,6 +232,84 @@ public class InputEventHandler : SingletonCompo<InputEventHandler>
     public static event System.Action OnUp_Left;
     public static event System.Action OnUp_Ctrl;
     public static event System.Action OnUp_Alt;
+    public static event System.Action OnUp_Shift;
+    #endregion
+
+    #region Keyフラグ ==================================
+    public static bool Flag_A;
+    public static bool Flag_B;
+    public static bool Flag_C;
+    public static bool Flag_D;
+    public static bool Flag_E;
+    public static bool Flag_F;
+    public static bool Flag_G;
+    public static bool Flag_H;
+    public static bool Flag_I;
+    public static bool Flag_J;
+    public static bool Flag_K;
+    public static bool Flag_L;
+    public static bool Flag_M;
+    public static bool Flag_N;
+    public static bool Flag_O;
+    public static bool Flag_P;
+    public static bool Flag_Q;
+    public static bool Flag_R;
+    public static bool Flag_S;
+    public static bool Flag_T;
+    public static bool Flag_U;
+    public static bool Flag_V;
+    public static bool Flag_W;
+    public static bool Flag_X;
+    public static bool Flag_Y;
+    public static bool Flag_Z;
+                
+    public static bool Flag_0;
+    public static bool Flag_1;
+    public static bool Flag_2;
+    public static bool Flag_3;
+    public static bool Flag_4;
+    public static bool Flag_5;
+    public static bool Flag_6;
+    public static bool Flag_7;
+    public static bool Flag_8;
+    public static bool Flag_9;
+                
+    public static bool Flag_F1;
+    public static bool Flag_F2;
+    public static bool Flag_F3;
+    public static bool Flag_F4;
+    public static bool Flag_F5;
+    public static bool Flag_F6;
+    public static bool Flag_F7;
+    public static bool Flag_F8;
+    public static bool Flag_F9;
+    public static bool Flag_F10;
+    public static bool Flag_F11;
+    public static bool Flag_F12;
+               
+    public static bool Flag_BracketL;
+    public static bool Flag_BracketR;
+    public static bool Flag_Slash;
+    public static bool Flag_BackSlash;
+    public static bool Flag_At;
+    public static bool Flag_Period;
+    public static bool Flag_Comma;
+    public static bool Flag_Colon;
+    public static bool Flag_Semicolon;
+                
+    public static bool Flag_BackSpace;
+    public static bool Flag_Delete;
+    public static bool Flag_Tab;
+    public static bool Flag_Enter;
+    public static bool Flag_Esc;
+    public static bool Flag_Space;
+    public static bool Flag_Up;
+    public static bool Flag_Down;
+    public static bool Flag_Right;
+    public static bool Flag_Left;
+    public static bool Flag_Ctrl;
+    public static bool Flag_Alt;
+    public static bool Flag_Shift;
     #endregion
 
     #region マウス ===============================================
@@ -264,6 +344,11 @@ public class InputEventHandler : SingletonCompo<InputEventHandler>
     #endregion ==================================================
 
 
+    protected sealed override void Awake0()
+    {
+        KeyFlagDown();
+        KeyFlagUp();
+    }
     protected sealed override void Update()
     {
         Key();
@@ -516,6 +601,8 @@ public class InputEventHandler : SingletonCompo<InputEventHandler>
             Input.GetKeyDown(KeyCode.LeftControl)) OnDown_Ctrl?.Invoke();
         if (Input.GetKeyDown(KeyCode.RightAlt) ||
             Input.GetKeyDown(KeyCode.LeftAlt)) OnDown_Alt?.Invoke();
+        if (Input.GetKeyDown(KeyCode.RightShift) ||
+            Input.GetKeyDown(KeyCode.LeftShift)) OnDown_Shift?.Invoke();
     }
 
     void KeyUp()
@@ -594,5 +681,165 @@ public class InputEventHandler : SingletonCompo<InputEventHandler>
             Input.GetKeyUp(KeyCode.LeftControl)) OnUp_Ctrl?.Invoke();
         if (Input.GetKeyUp(KeyCode.RightAlt) ||
             Input.GetKeyUp(KeyCode.LeftAlt)) OnUp_Alt?.Invoke();
+        if (Input.GetKeyUp(KeyCode.RightShift) ||
+            Input.GetKeyUp(KeyCode.LeftShift)) OnUp_Shift?.Invoke();
+    }
+
+    void KeyFlagDown()
+    {
+        OnDown_A += () => { Flag_A = true; };
+        OnDown_B += () => { Flag_B = true; };
+        OnDown_C += () => { Flag_C = true; };
+        OnDown_D += () => { Flag_D = true; };
+        OnDown_E += () => { Flag_E = true; };
+        OnDown_F += () => { Flag_F = true; };
+        OnDown_G += () => { Flag_G = true; };
+        OnDown_H += () => { Flag_H = true; };
+        OnDown_I += () => { Flag_I = true; };
+        OnDown_J += () => { Flag_J = true; };
+        OnDown_K += () => { Flag_K = true; };
+        OnDown_L += () => { Flag_L = true; };
+        OnDown_M += () => { Flag_M = true; };
+        OnDown_N += () => { Flag_N = true; };
+        OnDown_O += () => { Flag_O = true; };
+        OnDown_P += () => { Flag_P = true; };
+        OnDown_Q += () => { Flag_Q = true; };
+        OnDown_R += () => { Flag_R = true; };
+        OnDown_S += () => { Flag_S = true; };
+        OnDown_T += () => { Flag_T = true; };
+        OnDown_U += () => { Flag_U = true; };
+        OnDown_V += () => { Flag_V = true; };
+        OnDown_W += () => { Flag_W = true; };
+        OnDown_X += () => { Flag_X = true; };
+        OnDown_Y += () => { Flag_Y = true; };
+        OnDown_Z += () => { Flag_Z = true; };
+
+        OnDown_0 += () => { Flag_0 = true; };
+        OnDown_1 += () => { Flag_1 = true; };
+        OnDown_2 += () => { Flag_2 = true; };
+        OnDown_3 += () => { Flag_3 = true; };
+        OnDown_4 += () => { Flag_4 = true; };
+        OnDown_5 += () => { Flag_5 = true; };
+        OnDown_6 += () => { Flag_6 = true; };
+        OnDown_7 += () => { Flag_7 = true; };
+        OnDown_8 += () => { Flag_8 = true; };
+        OnDown_9 += () => { Flag_9 = true; };
+
+        OnDown_F1 += () => { Flag_F1 = true; };
+        OnDown_F2 += () => { Flag_F2 = true; };
+        OnDown_F3 += () => { Flag_F3 = true; };
+        OnDown_F4 += () => { Flag_F4 = true; };
+        OnDown_F5 += () => { Flag_F5 = true; };
+        OnDown_F6 += () => { Flag_F6 = true; };
+        OnDown_F7 += () => { Flag_F7 = true; };
+        OnDown_F8 += () => { Flag_F8 = true; };
+        OnDown_F9 += () => { Flag_F9 = true; };
+        OnDown_F10 += () => { Flag_F10 = true; };
+        OnDown_F11 += () => { Flag_F11 = true; };
+        OnDown_F12 += () => { Flag_F12 = true; };
+
+        OnDown_BracketL += () => { Flag_BracketL = true; };
+        OnDown_BracketR += () => { Flag_BracketR = true; };
+        OnDown_Slash += () => { Flag_Slash = true; };
+        OnDown_BackSlash += () => { Flag_BackSlash = true; };
+        OnDown_At += () => { Flag_At = true; };
+        OnDown_Period += () => { Flag_Period = true; };
+        OnDown_Comma += () => { Flag_Comma = true; };
+        OnDown_Colon += () => { Flag_Colon = true; };
+        OnDown_Semicolon += () => { Flag_Semicolon = true; };
+
+        OnDown_BackSpace += () => { Flag_BackSpace = true; };
+        OnDown_Delete += () => { Flag_Delete = true; };
+        OnDown_Tab += () => { Flag_Tab = true; };
+        OnDown_Enter += () => { Flag_Enter = true; };
+        OnDown_Esc += () => { Flag_Esc = true; };
+        OnDown_Space += () => { Flag_Space = true; };
+        OnDown_Up += () => { Flag_Up = true; };
+        OnDown_Down += () => { Flag_Down = true; };
+        OnDown_Right += () => { Flag_Right = true; };
+        OnDown_Left += () => { Flag_Left = true; };
+
+        OnDown_Ctrl += () => { Flag_Ctrl = true; };
+        OnDown_Alt += () => { Flag_Alt = true; };
+        OnDown_Shift += () => { Flag_Shift = true; };
+    }
+
+    void KeyFlagUp()
+    {
+        OnUp_A += () => { Flag_A = false; };
+        OnUp_B += () => { Flag_B = false; };
+        OnUp_C += () => { Flag_C = false; };
+        OnUp_D += () => { Flag_D = false; };
+        OnUp_E += () => { Flag_E = false; };
+        OnUp_F += () => { Flag_F = false; };
+        OnUp_G += () => { Flag_G = false; };
+        OnUp_H += () => { Flag_H = false; };
+        OnUp_I += () => { Flag_I = false; };
+        OnUp_J += () => { Flag_J = false; };
+        OnUp_K += () => { Flag_K = false; };
+        OnUp_L += () => { Flag_L = false; };
+        OnUp_M += () => { Flag_M = false; };
+        OnUp_N += () => { Flag_N = false; };
+        OnUp_O += () => { Flag_O = false; };
+        OnUp_P += () => { Flag_P = false; };
+        OnUp_Q += () => { Flag_Q = false; };
+        OnUp_R += () => { Flag_R = false; };
+        OnUp_S += () => { Flag_S = false; };
+        OnUp_T += () => { Flag_T = false; };
+        OnUp_U += () => { Flag_U = false; };
+        OnUp_V += () => { Flag_V = false; };
+        OnUp_W += () => { Flag_W = false; };
+        OnUp_X += () => { Flag_X = false; };
+        OnUp_Y += () => { Flag_Y = false; };
+        OnUp_Z += () => { Flag_Z = false; };
+                                   
+        OnUp_0 += () => { Flag_0 = false; };
+        OnUp_1 += () => { Flag_1 = false; };
+        OnUp_2 += () => { Flag_2 = false; };
+        OnUp_3 += () => { Flag_3 = false; };
+        OnUp_4 += () => { Flag_4 = false; };
+        OnUp_5 += () => { Flag_5 = false; };
+        OnUp_6 += () => { Flag_6 = false; };
+        OnUp_7 += () => { Flag_7 = false; };
+        OnUp_8 += () => { Flag_8 = false; };
+        OnUp_9 += () => { Flag_9 = false; };
+          
+        OnUp_F1 += () => { Flag_F1 = false; };
+        OnUp_F2 += () => { Flag_F2 = false; };
+        OnUp_F3 += () => { Flag_F3 = false; };
+        OnUp_F4 += () => { Flag_F4 = false; };
+        OnUp_F5 += () => { Flag_F5 = false; };
+        OnUp_F6 += () => { Flag_F6 = false; };
+        OnUp_F7 += () => { Flag_F7 = false; };
+        OnUp_F8 += () => { Flag_F8 = false; };
+        OnUp_F9 += () => { Flag_F9 = false; };
+        OnUp_F10 += () => { Flag_F10 = false; };
+        OnUp_F11 += () => { Flag_F11 = false; };
+        OnUp_F12 += () => { Flag_F12 = false; };
+          
+        OnUp_BracketL += () => { Flag_BracketL = false; };
+        OnUp_BracketR += () => { Flag_BracketR = false; };
+        OnUp_Slash += () => { Flag_Slash = false; };
+        OnUp_BackSlash += () => { Flag_BackSlash = false; };
+        OnUp_At += () => { Flag_At = false; };
+        OnUp_Period += () => { Flag_Period = false; };
+        OnUp_Comma += () => { Flag_Comma = false; };
+        OnUp_Colon += () => { Flag_Colon = false; };
+        OnUp_Semicolon += () => { Flag_Semicolon = false; };
+          
+        OnUp_BackSpace += () => { Flag_BackSpace = false; };
+        OnUp_Delete += () => { Flag_Delete = false; };
+        OnUp_Tab += () => { Flag_Tab = false; };
+        OnUp_Enter += () => { Flag_Enter = false; };
+        OnUp_Esc += () => { Flag_Esc = false; };
+        OnUp_Space += () => { Flag_Space = false; };
+        OnUp_Up += () => { Flag_Up = false; };
+        OnUp_Down += () => { Flag_Down = false; };
+        OnUp_Right += () => { Flag_Right = false; };
+        OnUp_Left += () => { Flag_Left = false; };
+          
+        OnUp_Ctrl += () => { Flag_Ctrl = false; };
+        OnUp_Alt += () => { Flag_Alt = false; };
+        OnUp_Shift += () => { Flag_Shift = false; };
     }
 }

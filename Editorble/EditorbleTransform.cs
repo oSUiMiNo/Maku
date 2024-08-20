@@ -40,6 +40,7 @@ public class EditorbleTransform : SavableCompo
         get { return scale; }
         set {
             scale = value;
+            if (Scale < 0.05f) scale = 0.05f;
             transform.localScale = baseScale * scale;
         }
     }
@@ -59,9 +60,9 @@ public class EditorbleTransform : SavableCompo
             //transform.localRotation = Quaternion.Euler(rotation);
 
             Vector3 diff = rotation - value;
-            if (diff.x > 0) transform.RotateAround(transform.position, Vector3.right, diff.x);
-            if (diff.y > 0) transform.RotateAround(transform.position, Vector3.up, diff.y);
-            if (diff.z > 0) transform.RotateAround(transform.position, Vector3.forward, diff.z);
+            if (diff.x != 0) transform.RotateAround(transform.position, Vector3.right, diff.x);
+            if (diff.y != 0) transform.RotateAround(transform.position, Vector3.up, diff.y);
+            if (diff.z != 0) transform.RotateAround(transform.position, Vector3.forward, diff.z);
 
             rotation = transform.rotation.eulerAngles;
         }

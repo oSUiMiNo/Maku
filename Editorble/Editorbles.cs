@@ -19,6 +19,7 @@ public class EditorblesHandler : SingletonCompo<EditorblesHandler>
   
     protected override void Awake0()
     {
+        Debug.Log($"パーシステント {Application.persistentDataPath}");
         Debug.Log($"{editorbles}");
         editorbles.LoadFast();
     }

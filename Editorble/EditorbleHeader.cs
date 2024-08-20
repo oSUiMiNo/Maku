@@ -11,7 +11,7 @@ using Cysharp.Threading.Tasks;
 
 public class EditorbleHeader : MonoBehaviourMyExtention
 {
-    List<string> ExistingContentIDList = new List<string>();
+    //List<string> ExistingContentIDList = new List<string>();
 
     public string id;
     public string address;
@@ -25,16 +25,22 @@ public class EditorbleHeader : MonoBehaviourMyExtention
         }
         this.address = address;
         id = $"{address}__{Editorbles.IDListDict[address].Count}";
-        ExistingContentIDList.Add(id);
+        //ExistingContentIDList.Add(id);
         Editorbles.IDListDict[address].Add(id);
     }
 
     public void SetID(string id, string address)
     {
-        ExistingContentIDList.Add(id);
+        //ExistingContentIDList.Add(id);
         int index = int.Parse(CropStr_R(id, "__", false));
         Debug.Log($"{address}_{index}, {id}, {Editorbles.IDListDict[address][index]}");
         this.address = address;
         this.id = id;
+    }
+
+    public void Destroy()
+    {
+        Editorbles.IDListDict[address].Remove(id);
+        Destroy(gameObject);
     }
 }

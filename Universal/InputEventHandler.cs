@@ -517,6 +517,8 @@ public class InputEventHandler : SingletonCompo<InputEventHandler>
         if (Input.GetKey(KeyCode.DownArrow)) On_Down?.Invoke();
         if (Input.GetKey(KeyCode.RightArrow)) On_Right?.Invoke();
         if (Input.GetKey(KeyCode.LeftArrow)) On_Left?.Invoke();
+       
+
         if (Input.GetKey(KeyCode.RightControl) ||
             Input.GetKey(KeyCode.LeftControl)) On_Ctrl?.Invoke();
         if (Input.GetKey(KeyCode.RightAlt) ||
@@ -597,6 +599,8 @@ public class InputEventHandler : SingletonCompo<InputEventHandler>
         if (Input.GetKeyDown(KeyCode.DownArrow)) OnDown_Down?.Invoke();
         if (Input.GetKeyDown(KeyCode.RightArrow)) OnDown_Right?.Invoke();
         if (Input.GetKeyDown(KeyCode.LeftArrow)) OnDown_Left?.Invoke();
+        
+
         if (Input.GetKeyDown(KeyCode.RightControl) ||
             Input.GetKeyDown(KeyCode.LeftControl)) OnDown_Ctrl?.Invoke();
         if (Input.GetKeyDown(KeyCode.RightAlt) ||
@@ -677,6 +681,8 @@ public class InputEventHandler : SingletonCompo<InputEventHandler>
         if (Input.GetKeyUp(KeyCode.DownArrow)) OnUp_Down?.Invoke();
         if (Input.GetKeyUp(KeyCode.RightArrow)) OnUp_Right?.Invoke();
         if (Input.GetKeyUp(KeyCode.LeftArrow)) OnUp_Left?.Invoke();
+        
+
         if (Input.GetKeyUp(KeyCode.RightControl) ||
             Input.GetKeyUp(KeyCode.LeftControl)) OnUp_Ctrl?.Invoke();
         if (Input.GetKeyUp(KeyCode.RightAlt) ||

@@ -18,29 +18,35 @@ public class EditorbleHeader : MonoBehaviourMyExtention
 
     public void CreateID(string address)
     {
-        if(!Editorbles.IDListDict.ContainsKey(address))
+        if(!Editorbles.Ins.IDListDict.ContainsKey(address))
         {
             Debug.Log($"アドレス無し{address}");
-            Editorbles.IDListDict.Add(address, new List<string>());
+            Editorbles.Ins.IDListDict.Add(address, new List<string>());
         }
         this.address = address;
-        id = $"{address}__{Editorbles.IDListDict[address].Count}";
+        id = $"{address}__{Editorbles.Ins.IDListDict[address].Count}";
         //ExistingContentIDList.Add(id);
-        Editorbles.IDListDict[address].Add(id);
+        Editorbles.Ins.IDListDict[address].Add(id);
     }
 
     public void SetID(string id, string address)
     {
         //ExistingContentIDList.Add(id);
+        //int index = int.Parse(CropStr_R(id, "__", false)) - 1;
         int index = int.Parse(CropStr_R(id, "__", false));
-        Debug.Log($"{address}_{index}, {id}, {Editorbles.IDListDict[address][index]}");
+        Debug.Log($"セットID　＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝");
+        Debug.Log($"{address}");
+        Debug.Log($"{address}_{index}");
+        Debug.Log($"{id}");
+        Debug.Log($"{Editorbles.Ins.IDListDict[address][index]}");
         this.address = address;
         this.id = id;
     }
 
-    public void Destroy()
+    public void Delete()
     {
-        Editorbles.IDListDict[address].Remove(id);
+        //Editorbles.IDListDict[address].Remove(id);
+        EditorblesHandler.Compo.Delete(id);
         Destroy(gameObject);
     }
 }

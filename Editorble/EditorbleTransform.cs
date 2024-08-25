@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
-using Codice.CM.Common.Merge;
+using static InputEventHandler;
+
 
 [System.Serializable]
 public class EditorbleTransform : SavableCompo
@@ -23,9 +24,10 @@ public class EditorbleTransform : SavableCompo
 
     [SerializeField] string id;
     [SerializeField] Vector3 baseScale = Vector3.one;
-    [SerializeField] float scale;
+    [SerializeField] float scale = 1;
     [SerializeField] Vector3 position;
     [SerializeField] Vector3 rotation;
+    //[SerializeField] Vector3Int angle90;
 
     public Vector3 BaseScale
     {
@@ -56,34 +58,83 @@ public class EditorbleTransform : SavableCompo
     {
         get { return rotation; }
         set {
-            //rotation = value;
-            //transform.localRotation = Quaternion.Euler(rotation);
-
             Vector3 diff = rotation - value;
-            if (diff.x != 0) transform.RotateAround(transform.position, Vector3.right, diff.x);
-            if (diff.y != 0) transform.RotateAround(transform.position, Vector3.up, diff.y);
-            if (diff.z != 0) transform.RotateAround(transform.position, Vector3.forward, diff.z);
+            //Debug.Log($"ディフ {-diff.x}");
+            if (diff.x != 0) transform.RotateAround(transform.position, Vector3.right, -diff.x);
+            else
+            if (diff.y != 0) transform.RotateAround(transform.position, Vector3.up, -diff.y);
+            else
+            if (diff.z != 0) transform.RotateAround(transform.position, Vector3.forward, -diff.z);
 
-            rotation = transform.rotation.eulerAngles;
+            rotation = value;
+            rotation.x = (int)Mathf.Repeat(rotation.x, 360);
+            rotation.y = (int)Mathf.Repeat(rotation.y, 360);
+            rotation.z = (int)Mathf.Repeat(rotation.z, 360);
+
+            //if(diff.magnitude < 0.05f) transform.rotation  = Quaternion.identity;
+
+            //rotation = transform.rotation.eulerAngles;
+
+            //if(transform.rotation.eulerAngles.x > 180)
+            //{
+            //    rotation.x = transform.rotation.eulerAngles.x - 360;
+            //}
+            //if (transform.rotation.eulerAngles.y > 180)
+            //{
+            //    rotation.y = transform.rotation.eulerAngles.y - 360;
+            //}
+            //if (transform.rotation.eulerAngles.z > 180)
+            //{
+            //    rotation.z = transform.rotation.eulerAngles.z - 360;
+            //}
+
+
+            //rotation = new Vector3(
+            //    Mathf.Repeat(transform.rotation.eulerAngles.x + 180, 360),
+            //    Mathf.Repeat(transform.rotation.eulerAngles.y + 180, 360),
+            //    Mathf.Repeat(transform.rotation.eulerAngles.z + 180, 360)
+            //    );
+
+
+            //Debug.Log($"ローテ {rotation}");
+            //Debug.Log($"ローテオイラー {transform.rotation.eulerAngles}");
+            //Debug.Log($"オイラー {transform.eulerAngles}");
         }
     }
+
+    //public Vector3Int Angle90
+    //{
+    //    get { return angle90; }
+    //    set
+    //    {
+    //        Debug.Log($"アングル0 {value}");
+    //        angle90 = value;
+    //        angle90.x = (int)Mathf.Repeat(angle90.x, 4);
+    //        angle90.y = (int)Mathf.Repeat(angle90.y, 4);
+    //        angle90.z = (int)Mathf.Repeat(angle90.z, 4);
+    //        Debug.Log($"アングル1 {angle90}");
+    //    }
+    //}
 
 
     private void Start()
     {
         LoadEditorble();
 
-        InputEventHandler.OnDown_L += () =>
+        OnDown_L += () =>
         {
+            if (Flag_Shift || Flag_Ctrl || Flag_Alt) return;
             LoadEditorble();
         };
-        InputEventHandler.OnDown_S += () =>
+        OnDown_S += () =>
         {
+            if (Flag_Shift || Flag_Ctrl || Flag_Alt) return;
             Save();
         };
 
-        InputEventHandler.OnDown_X += () =>
+        OnDown_X += () =>
         {
+            if (Flag_Shift || Flag_Ctrl || Flag_Alt) return;
             Scale += 0.5f;
         };
     }
@@ -100,6 +151,12 @@ public class EditorbleTransform : SavableCompo
         transform.localScale = baseScale * scale;
         transform.localPosition = position;
         transform.localRotation = Quaternion.Euler(rotation);
+    }
+
+    private void OnDestroy()
+    {
+        Debug.Log($"デストロイ");
+        instances.Remove(this);
     }
 }
 

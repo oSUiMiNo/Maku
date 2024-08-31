@@ -16,6 +16,8 @@ public class MTConverter
     //[SerializeField]
     [SerializeField]
     protected List<PropNames_Orig_Dest> propNames_Orig_Dest = null; // 元のシェーダーから差し替えたシェーダーにコピーしたいプロパティ名
+    // エクスポートする際の保存先
+    public string exportDir = $"Assets/MTConverted/";
 
     // ターゲット
     GameObject target;
@@ -253,7 +255,7 @@ public class MTConverter
 #if UNITY_EDITOR
         List<string> completedMTPathes = new List<string>();
 
-        string directory = $"Assets/LiveApp/Resources/ConvertedVRM/{target.name}_URP/";
+        string directory = $"{exportDir}{target.name}_URP/";
         if (!Directory.Exists(directory)) Directory.CreateDirectory(directory);
 
         sets.ForEach(a =>

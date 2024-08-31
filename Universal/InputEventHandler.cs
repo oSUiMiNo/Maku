@@ -351,7 +351,7 @@ public class InputEventHandler : SingletonCompo<InputEventHandler>
     }
     protected sealed override void Update()
     {
-        Key();
+        //Key();
         KeyDown();
         KeyUp();
         Wheel();
@@ -359,6 +359,10 @@ public class InputEventHandler : SingletonCompo<InputEventHandler>
         DoubleClick();
     }
 
+    protected sealed override void FixedUpdate()
+    {
+        Key();
+    }
 
     void Wheel()
     {

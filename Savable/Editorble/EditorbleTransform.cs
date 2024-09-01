@@ -4,10 +4,14 @@ using Newtonsoft.Json;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
 using static InputEventHandler;
+using System.Runtime.InteropServices;
+
+public interface IEditable { }
 
 
 [System.Serializable]
-public class EditorbleTransform : SavableCompo
+public class EditorbleTransform : SavableCompo,
+    IEditable
 {
     public override List<SaveSystem.IFriendWith_SaveSystem> Instances { get; protected set; } = instances;
     private static List<SaveSystem.IFriendWith_SaveSystem> instances = new();
@@ -141,7 +145,8 @@ public class EditorbleTransform : SavableCompo
 
     void OnApplicationQuit()
     {
-        ResetFirstLoading();
+        //Debug.Log($"リセットファーストローディング");
+        //ResetFirstLoading();
     }
 
 
@@ -157,6 +162,10 @@ public class EditorbleTransform : SavableCompo
     {
         Debug.Log($"デストロイ");
         instances.Remove(this);
+        //foreach(var ins in Instances)
+        //{
+        //}
+        SaveSystem.UpdateAllIndex();
     }
 }
 

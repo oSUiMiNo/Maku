@@ -70,10 +70,16 @@ public class EditorblesHandler : SingletonCompo<EditorblesHandler>
         Debug.Log(dirs.Count());
         for (int i = 0; i < dirs.Count(); i++)
         {
+            Debug.Log(@$"{dirs[i]}");
+        }
+        for (int i = 0; i < dirs.Count(); i++)
+        {
             string newDirName = @$"{TrimStr_R(dirs[i], "__", false)}__{i}";
+            Debug.Log($"V‚µ‚¢ID0 {newDirName}");
             if (dirs[i] != newDirName) Directory.Move(@$"{dirs[i]}", newDirName);
             
             string newID = @$"{TrimStr_R(data.IDListDict[address][i], "__", false)}__{i}";
+            Debug.Log($"V‚µ‚¢ID1 {newID}");
             data.IDListDict[address][i] = newID;
             headers[i].id = newID;
         }

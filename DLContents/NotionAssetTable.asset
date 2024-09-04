@@ -12,4 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 0}
   m_Name: NotionAssetTable
   m_EditorClassIdentifier: MyPackageJSON::NotionAssetTable
-  assetNames: []
+  assetNames:
+  - 

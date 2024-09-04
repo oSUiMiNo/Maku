@@ -15,8 +15,8 @@ public class Player1 : SingletonCompo<Player1>
     {
         public override List<SaveSystem.IFriendWith_SaveSystem> Instances { get; protected set; } = instances;
         private static List<SaveSystem.IFriendWith_SaveSystem> instances = new();
-        public override string SaveFolderPath { get; set; } = $"{Application.persistentDataPath}/PlayerData";
-        
+        //public override string SaveFolderPath { get; set; } = $"{Application.persistentDataPath}/PlayerData";
+
         // 以下の書き方ではダメ？何で代入しているinstancesはスタティックじゃないといけないの？と思ったが、
         // 恐らく以下のように書くと本クラスのインスタンスが作られる度に管理用のInstancesが増えてしまうが、
         // 今回は１クラス１リストにしたかったため
@@ -53,8 +53,8 @@ public class Player1 : SingletonCompo<Player1>
 
     protected override void Start()
     {
-        p0 = new PlayerData();
-        p1 = new PlayerData();
+        p0 = new PlayerData() { SaveFolderPath = $"{Application.persistentDataPath}/PlayerData" };
+        p1 = new PlayerData() { SaveFolderPath = $"{Application.persistentDataPath}/PlayerData" };
 
         InputEventHandler.OnDown_S += () =>
         {

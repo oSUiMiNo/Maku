@@ -26,6 +26,7 @@ public class SaveSystem : SingletonCompo<SaveSystem>
         void SetFirstLoading(bool isLoadedAtFirst);
         void SetManagementDictionaty();
         void UpdateIndex();
+        List<IFriendWith_SaveSystem> GetInstances();
         List<IFriendWith_SaveSystem> GetAllInstances();
     }
     static IFriendWith_SaveSystem Friend(object obj)
@@ -55,6 +56,7 @@ public class SaveSystem : SingletonCompo<SaveSystem>
     }
     void OnApplicationQuit()
     {
+        Debug.Log($"クワイト");
         ResetSavables();
     }
 
@@ -316,15 +318,12 @@ public class SaveSystem : SingletonCompo<SaveSystem>
     {
         foreach (var a in SavableBaseTypes)
         {
-            Debug.Log($"後処理１{a}\n==================================");
-
+            Debug.Log($"インデックスアップデート{a}\n==================================");
             object obj = Activator.CreateInstance(a);
-            Debug.Log($"後処理２{obj} {Friend(obj)}");
-            List<IFriendWith_SaveSystem> savableInss = Friend(obj).GetAllInstances();
+            List<IFriendWith_SaveSystem> savableInss = Friend(obj).GetInstances();
 
             foreach (var b in savableInss)
             {
-                Debug.Log($"======= 後処理３ ======={b}");
                 b.UpdateIndex();
             }
         }
@@ -334,15 +333,15 @@ public class SaveSystem : SingletonCompo<SaveSystem>
     #region 後処理
     static void ResetSavables()
     {
-        Debug.Log($"後処理 ====================================================================");
-
         foreach (var a in SavableBaseTypes)
         {
-            Debug.Log($"後処理１{a}\n==================================");
+            Debug.Log($"後処理１{a}\n======================================================================");
 
             object obj = Activator.CreateInstance(a);
-            Debug.Log($"後処理２{obj} {Friend(obj)}");
-            List<IFriendWith_SaveSystem> savableInss = Friend(obj).GetAllInstances();
+            //List<IFriendWith_SaveSystem> savableInss = Friend(obj).GetAllInstances();
+            List<IFriendWith_SaveSystem> savableInss = Friend(obj).GetInstances();
+
+            Debug.Log($"後処理２{savableInss.Count}つ {obj} {Friend(obj)}");
 
             foreach (var b in savableInss)
             {
@@ -472,6 +471,7 @@ public abstract class Savable : MyExtention,
 
     void SaveSystem.IFriendWith_SaveSystem.ResetFirstLoading()
     {
+        Debug.Log($"リセットファーストローディング{_Path}");
         foreach (var a in InstancesListsManagementDictionaty.Values)
         {
             foreach (var b in a)
@@ -480,6 +480,11 @@ public abstract class Savable : MyExtention,
                 SaveSystem.Save((ISave)b);
             }
         }
+    }
+
+    List<SaveSystem.IFriendWith_SaveSystem> SaveSystem.IFriendWith_SaveSystem.GetInstances()
+    {
+        return Instances;
     }
 
     List<SaveSystem.IFriendWith_SaveSystem> SaveSystem.IFriendWith_SaveSystem.GetAllInstances()
@@ -641,6 +646,11 @@ public abstract class SavableCompo : MonoBehaviourMyExtention,
     //        }
     //    }
     //}
+
+    List<SaveSystem.IFriendWith_SaveSystem> SaveSystem.IFriendWith_SaveSystem.GetInstances()
+    {
+        return Instances;
+    }
 
     List<SaveSystem.IFriendWith_SaveSystem> SaveSystem.IFriendWith_SaveSystem.GetAllInstances()
     {
@@ -804,6 +814,11 @@ public abstract class SavableSingleton<SingletonType> : Singleton<SingletonType>
                 SaveSystem.Save((ISave)b);
             }
         }
+    }
+
+    List<SaveSystem.IFriendWith_SaveSystem> SaveSystem.IFriendWith_SaveSystem.GetInstances()
+    {
+        return Instances;
     }
 
     List<SaveSystem.IFriendWith_SaveSystem> SaveSystem.IFriendWith_SaveSystem.GetAllInstances()

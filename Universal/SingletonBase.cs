@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using System.Linq;
+using System.Reflection;
 
 
 
@@ -83,36 +84,59 @@ public class SingletonCompoSetter
 
     static void CreateSingletonObjects()
     {
-        ///<summary>
-        /// 「typeof(インターフェイス)」ではダメらしい。
-        /// また、「typeof(ジェネリッククラス)」だと型引数周りが上手いこと出来ない。
-        /// なので、SingletonCompo<SingletonType> を、空の抽象クラス NonGenericSingletonCompoBase で包んで
-        /// それを使って取得した。
-        /// </summary>
-        IEnumerable<Type> singletonClassesType;
-        singletonClassesType = System.Reflection.Assembly
-            .GetAssembly(typeof(NonGenericSingletonCompoBase))
-            .GetTypes()
-            .Where(t =>
+        /////<summary>
+        ///// 「typeof(インターフェイス)」ではダメらしい。
+        ///// また、「typeof(ジェネリッククラス)」だと型引数周りが上手いこと出来ない。
+        ///// なので、SingletonCompo<SingletonType> を、空の抽象クラス NonGenericSingletonCompoBase で包んで
+        ///// それを使って取得した。
+        ///// </summary>
+        //IEnumerable<Type> singletonClassesType;
+        //singletonClassesType = System.Reflection.Assembly
+        //    .GetAssembly(typeof(NonGenericSingletonCompoBase))
+        //    .GetTypes()
+        //    .Where(t =>
+        //    {
+        //        return
+        //            t.IsSubclassOf(typeof(NonGenericSingletonCompoBase)) &&
+        //            !t.IsAbstract &&    //コンポーネント化出来ない abstractクラスは除外。  
+        //            !t.ContainsGenericParameters;    // ジェネリッククラスは下の、インスタンス生成の処理を通せないので除外。
+        //        ///<summary>
+        //        /// 【注意】
+        //        /// 1 : 基底クラスでも、自身もコンポーネントになりうる場合は abstractクラスにしないのはまあ当然だが、
+        //        /// コンポーネント化せず、ただの基底クラスとしてのみ使う場合は、ちゃんと抽象クラスにする。
+        //        /// そうしないと ↑ ここではじけない。
+        //        /// それと、意味を考えても、基底クラスとしてのみ使うということは抽象化専門のクラスなわけだから、
+        //        /// abstract にした方が筋が通る。
+        //        /// 
+        //        /// 2 : シングルトンの基底クラスを作ろうとするとジェネリッククラスになるが、
+        //        /// 「 object obj = Activator.CreateInstance(ジェネリッククラス) 」はできないので、
+        //        /// はじく。
+        //        /// ただし、そもそもシングルトンの基底クラスは普通 abstract にしており、はじかれるんだけど。
+        //        /// </summary>
+        //    });
+
+
+        // 上記処理では他のアセンブリ内のスクリプトに適用されないので新調した
+        IEnumerable<Type> singletonClassesType = AppDomain.CurrentDomain.GetAssemblies() // 現在のアプリケーションドメイン内の全アセンブリを取得
+        .SelectMany(assembly =>
+        {
+            try
             {
-                return
-                    t.IsSubclassOf(typeof(NonGenericSingletonCompoBase)) &&
-                    !t.IsAbstract &&    //コンポーネント化出来ない abstractクラスは除外。  
-                    !t.ContainsGenericParameters;    // ジェネリッククラスは下の、インスタンス生成の処理を通せないので除外。
-                ///<summary>
-                /// 【注意】
-                /// 1 : 基底クラスでも、自身もコンポーネントになりうる場合は abstractクラスにしないのはまあ当然だが、
-                /// コンポーネント化せず、ただの基底クラスとしてのみ使う場合は、ちゃんと抽象クラスにする。
-                /// そうしないと ↑ ここではじけない。
-                /// それと、意味を考えても、基底クラスとしてのみ使うということは抽象化専門のクラスなわけだから、
-                /// abstract にした方が筋が通る。
-                /// 
-                /// 2 : シングルトンの基底クラスを作ろうとするとジェネリッククラスになるが、
-                /// 「 object obj = Activator.CreateInstance(ジェネリッククラス) 」はできないので、
-                /// はじく。
-                /// ただし、そもそもシングルトンの基底クラスは普通 abstract にしており、はじかれるんだけど。
-                /// </summary>
-            });
+                return assembly.GetTypes(); // アセンブリ内の全ての型を取得
+            }
+            catch (ReflectionTypeLoadException ex)
+            {
+                // 一部の型がロードできなかった場合でも処理を継続
+                return ex.Types.Where(t => t != null);
+            }
+        })
+        .Where(t =>
+        {
+            return t != null &&
+                   t.IsSubclassOf(typeof(NonGenericSingletonCompoBase)) && // NonGenericSingletonCompoBaseのサブクラスかどうか
+                   !t.IsAbstract && // 抽象クラスではない
+                   !t.ContainsGenericParameters; // ジェネリック型ではない
+        });
 
 
         foreach (var a in singletonClassesType)

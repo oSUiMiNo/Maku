@@ -143,11 +143,11 @@ public class EditorbleTransform : SavableCompo,
         };
     }
 
-    void OnApplicationQuit()
-    {
-        //Debug.Log($"リセットファーストローディング");
-        //ResetFirstLoading();
-    }
+    //void OnApplicationQuit()
+    //{
+    //    //Debug.Log($"リセットファーストローディング");
+    //    //ResetFirstLoading();
+    //}
 
 
     void LoadEditorble()

@@ -28,6 +28,7 @@ public class DownloadCatalogFromNotion : MonoBehaviour
     void Start()
     {
         InputEventHandler.OnDown_D += Execute;
+        InputEventHandler.OnDown_Q += async () => await CallNotionAPI_QueryFile("テストアセット2");
     }
 
 
@@ -157,7 +158,7 @@ public class DownloadCatalogFromNotion : MonoBehaviour
 
         // 検索の結果一意に絞れている場合はその要素たち(Notion DB のとある一行)を返す。
         // 該当が複数あった場合はその一覧を示す。
-        // ユーザーはネクストアクションとして、一覧の中から一意に絞り込める検索ワードを特定し彩度検索。
+        // ユーザーはネクストアクションとして、一覧の中から一意に絞り込める検索ワードを特定し再度検索。
         if(errements_Searched.Count() == 1)
         {
             var props = errements_Searched[0]["properties"];
@@ -180,6 +181,58 @@ public class DownloadCatalogFromNotion : MonoBehaviour
             }
             Debug.Log(assetsInfo);
             return null;
+        }
+    }
+
+
+
+    async UniTask<JToken> CallNotionAPI_QueryFile(string searchWord)
+    {
+        // クエリを構築
+        var queryPayload = new
+        {
+            filter = new
+            {
+                property = "アセット名",  // NotionのDBのプロパティ名
+                title = new
+                {
+                    contains = searchWord // 検索ワードを含むものをフィルタ
+                }
+            }
+        };
+
+        // JSON形式にシリアライズ
+        string jsonQuery = JsonConvert.SerializeObject(queryPayload);
+        byte[] jsonToSend = new System.Text.UTF8Encoding().GetBytes(jsonQuery);
+
+        using (UnityWebRequest request = new UnityWebRequest($"https://api.notion.com/v1/databases/{DatabaseID}/query", "POST"))
+        {
+            request.uploadHandler = new UploadHandlerRaw(jsonToSend);
+            request.downloadHandler = new DownloadHandlerBuffer();
+            request.SetRequestHeader("Authorization", $"Bearer {NotionAccessToken}");
+            request.SetRequestHeader("Content-Type", "application/json; charset=UTF-8");
+            request.SetRequestHeader("Notion-Version", "2022-02-22");
+
+            await request.SendWebRequest();
+
+            // エラー処理（省略）
+
+            string jsonStr = request.downloadHandler.text;
+
+            // パース
+            JObject responseObj = JObject.Parse(jsonStr);
+
+            // テーブルのフィルタリングされた要素
+            JArray elements = (JArray)responseObj["results"];
+            Debug.Log(elements.Count);
+            // elements の中身をログに表示
+            foreach (var element in elements)
+            {
+                Debug.Log(element.ToString());
+                Debug.Log($"ID: {element["id"]}, Name: {element["properties"]["アセット名"]["title"][0]["text"]["content"]}");
+            }
+
+            return elements;
         }
     }
 }

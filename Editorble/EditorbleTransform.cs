@@ -4,7 +4,6 @@ using Newtonsoft.Json;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
 using static InputEventHandler;
-using System.Runtime.InteropServices;
 
 public interface IEditable { }
 
@@ -36,15 +35,17 @@ public class EditorbleTransform : SavableCompo,
     public Vector3 BaseScale
     {
         get { return baseScale; }
-        set {
+        set
+        {
             baseScale = value;
             transform.localScale = baseScale;
         }
     }
-    public float Scale 
+    public float Scale
     {
         get { return scale; }
-        set {
+        set
+        {
             scale = value;
             if (Scale < 0.05f) scale = 0.05f;
             transform.localScale = baseScale * scale;
@@ -53,7 +54,8 @@ public class EditorbleTransform : SavableCompo,
     public Vector3 Position
     {
         get { return position; }
-        set {
+        set
+        {
             position = value;
             transform.localPosition = position;
         }
@@ -61,7 +63,8 @@ public class EditorbleTransform : SavableCompo,
     public Vector3 Rotation
     {
         get { return rotation; }
-        set {
+        set
+        {
             Vector3 diff = rotation - value;
             //Debug.Log($"ディフ {-diff.x}");
             if (diff.x != 0) transform.RotateAround(transform.position, Vector3.right, -diff.x);
@@ -123,7 +126,8 @@ public class EditorbleTransform : SavableCompo,
 
     private void Start()
     {
-        LoadEditorble();
+        //Debug.Log($"スタートトランス");
+        //LoadEditorble();
 
         OnDown_L += () =>
         {
@@ -148,14 +152,20 @@ public class EditorbleTransform : SavableCompo,
     //    //Debug.Log($"リセットファーストローディング");
     //    //ResetFirstLoading();
     //}
+    public void Init()
+    {
+        LoadEditorble();
+    }
 
 
-    void LoadEditorble()
+    public void LoadEditorble()
     {
         Load();
         transform.localScale = baseScale * scale;
         transform.localPosition = position;
-        transform.localRotation = Quaternion.Euler(rotation);
+        transform.RotateAround(transform.position, Vector3.right, rotation.x);
+        transform.RotateAround(transform.position, Vector3.up, rotation.y);
+        transform.RotateAround(transform.position, Vector3.forward, rotation.z);
     }
 
     private void OnDestroy()

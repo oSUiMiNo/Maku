@@ -63,6 +63,7 @@ public class Catalogs : SavableSingleton<Catalogs>
 [System.Serializable]
 public class Catalog
 {
+    [JsonProperty] public string Hash;
     [JsonProperty] public string Path_Catalog;
     [JsonProperty] public List<string> Paths_Group = new List<string>();
     [JsonProperty] public Dictionary<string, Addresses> Labels = new Dictionary<string, Addresses>();

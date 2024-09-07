@@ -55,6 +55,28 @@ public class Catalogs : SavableSingleton<Catalogs>
 
     public void Remove(string id)
     {
+        // 何故か {Application.persistentDataPath}/com.unity.addressables にhashとcatalogが複製されるのでそれも削除
+        if (Directory.Exists($"{Application.persistentDataPath}/com.unity.addressables"))
+        {
+            // ファイル一覧を取得
+            string[] hashFiles = Directory.GetFiles($"{Application.persistentDataPath}/com.unity.addressables", "*.hash");
+            Debug.Log("Files:");
+            foreach (string hashFile in hashFiles)
+            {
+                string hash = File.ReadAllText(hashFile);
+                if (hash == ContentsCatalogs[id].Hash)
+                {
+                    string catalogFile = hashFile.Replace("hash", ".json");
+                    File.Delete(hashFile);
+                    File.Delete(catalogFile);
+                }
+            }
+        }
+        else
+        {
+            Debug.LogError($"このフォルダはない {Application.persistentDataPath}/com.unity.addressables");
+        }
+
         ContentsCatalogs.Remove(id);
         Save();
     }

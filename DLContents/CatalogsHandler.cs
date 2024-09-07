@@ -58,15 +58,18 @@ public class Catalogs : SavableSingleton<Catalogs>
         // ‰½ŒÌ‚© {Application.persistentDataPath}/com.unity.addressables ‚Éhash‚Æcatalog‚ª•¡»‚³‚ê‚é‚Ì‚Å‚»‚ê‚àíœ
         if (Directory.Exists($"{Application.persistentDataPath}/com.unity.addressables"))
         {
+            Debug.Log($"íœ0");
             // ƒtƒ@ƒCƒ‹ˆê——‚ğæ“¾
             string[] hashFiles = Directory.GetFiles($"{Application.persistentDataPath}/com.unity.addressables", "*.hash");
             Debug.Log("Files:");
             foreach (string hashFile in hashFiles)
             {
+                Debug.Log($"íœ1");
                 string hash = File.ReadAllText(hashFile);
                 if (hash == ContentsCatalogs[id].Hash)
                 {
-                    string catalogFile = hashFile.Replace("hash", ".json");
+                    Debug.Log($"íœ2");
+                    string catalogFile = hashFile.Replace(".hash", ".json");
                     File.Delete(hashFile);
                     File.Delete(catalogFile);
                 }

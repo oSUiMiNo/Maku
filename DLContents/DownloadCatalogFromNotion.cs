@@ -35,13 +35,13 @@ public class DownloadCatalogFromNotion : MonoBehaviour
 
     async void Execute()
     {
-        if (!string.IsNullOrEmpty(assetName)) await CallNotionAPI_DowiloadFile(await CallNotionAPI_SearchFile(assetName));
+        if (!string.IsNullOrEmpty(assetName)) await CallNotionAPI_DowiloadFile(await CallNotionAPI_QueryFile(assetName));
         else
         {
             Debug.Log(NotionAssetTable.Ins == null);
             foreach (var a in NotionAssetTable.Ins.assetNames)
             {
-                await CallNotionAPI_DowiloadFile(await CallNotionAPI_SearchFile(a));
+                await CallNotionAPI_DowiloadFile(await CallNotionAPI_QueryFile(a));
                 Debug.Log(a);
             }
         }
@@ -216,6 +216,43 @@ public class DownloadCatalogFromNotion : MonoBehaviour
             await request.SendWebRequest();
 
             // エラー処理（省略）
+            switch (request.result)
+            {
+                case UnityWebRequest.Result.InProgress:
+                    Debug.Log("リクエスト中");
+                    break;
+
+                case UnityWebRequest.Result.Success:
+                    Debug.Log("リクエスト成功");
+                    break;
+
+                case UnityWebRequest.Result.ConnectionError:
+                    Debug.Log(
+                        @"サーバとの通信に失敗。
+                        リクエストが接続できなかった、
+                        セキュリティで保護されたチャネルを確立できなかったなど。");
+                    Debug.LogError(request.error);
+                    break;
+
+                case UnityWebRequest.Result.ProtocolError:
+                    Debug.Log(
+                        @"サーバがエラー応答を返した。
+                        サーバとの通信には成功したが、
+                        接続プロトコルで定義されているエラーを受け取った。");
+                    Debug.LogError(request.error);
+                    break;
+
+                case UnityWebRequest.Result.DataProcessingError:
+                    Debug.Log(
+                        @"データの処理中にエラーが発生。
+                        リクエストはサーバとの通信に成功したが、
+                        受信したデータの処理中にエラーが発生。
+                        データが破損しているか、正しい形式ではないなど。");
+                    Debug.LogError(request.error);
+                    break;
+
+                default: throw new ArgumentOutOfRangeException();
+            }
 
             string jsonStr = request.downloadHandler.text;
 

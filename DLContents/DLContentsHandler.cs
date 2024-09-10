@@ -7,10 +7,10 @@ using System.IO;
 
 
 
-public class CatalogsHandler : SingletonCompo<CatalogsHandler>
+public class DLContentsHandler : SingletonCompo<DLContentsHandler>
 {
     //public static Catalogs Data = new Catalogs();
-    public static Catalogs Data = Catalogs.Ins;
+    public static DLContents Data = DLContents.Ins;
 
     public override bool IsActive { get; protected set; } = true;
 
@@ -24,7 +24,7 @@ public class CatalogsHandler : SingletonCompo<CatalogsHandler>
 
 
 [System.Serializable]
-public class Catalogs : SavableSingleton<Catalogs>
+public class DLContents : SavableSingleton<DLContents>
 {
     #region ====== Savable ÇÃédçûÇ› ================================================
     public override List<SaveSystem.IFriendWith_SaveSystem> Instances { get; protected set; } = instances;

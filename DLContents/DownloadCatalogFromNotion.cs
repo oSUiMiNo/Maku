@@ -3,11 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 using System.Text.RegularExpressions;
 using Cysharp.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using UnityEditor.PackageManager.Requests;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -18,7 +20,9 @@ using UnityEngine.Networking;
 public class DownloadCatalogFromNotion : MonoBehaviour
 {
     private const string NotionAccessToken = "secret_OIxSWO69mxnD9FNbmL2US0pcsLWCUmsaglBZBCWPWrC";
-    private const string DatabaseID = "e8777c71cf694fa8bd135fb1d7cb1728";
+    //private const string DatabaseID = "e8777c71cf694fa8bd135fb1d7cb1728";
+    private const string DatabaseID = "ee761ae157e346b88ef3fd58ba9146d3";
+
 
 
     [SerializeField]
@@ -29,19 +33,23 @@ public class DownloadCatalogFromNotion : MonoBehaviour
     {
         InputEventHandler.OnDown_D += Execute;
         InputEventHandler.OnDown_Q += async () => await CallNotionAPI_QueryFile("テストアセット2");
+
     }
 
 
 
     async void Execute()
     {
-        if (!string.IsNullOrEmpty(assetName)) await CallNotionAPI_DowiloadFile(await CallNotionAPI_QueryFile(assetName));
+        await CallNotionAPI_DownloadFile(await CallNotionAPI_QueryFile("テストアセット2"));
+
+
+        if (!string.IsNullOrEmpty(assetName)) await CallNotionAPI_DownloadFile(await CallNotionAPI_QueryFile(assetName));
         else
         {
             Debug.Log(NotionAssetTable.Ins == null);
             foreach (var a in NotionAssetTable.Ins.assetNames)
             {
-                await CallNotionAPI_DowiloadFile(await CallNotionAPI_QueryFile(a));
+                await CallNotionAPI_DownloadFile(await CallNotionAPI_QueryFile(a));
                 Debug.Log(a);
             }
         }
@@ -49,20 +57,46 @@ public class DownloadCatalogFromNotion : MonoBehaviour
 
 
 
-    async UniTask CallNotionAPI_DowiloadFile(JToken contentObj)
+    async UniTask CallNotionAPI_DownloadFile(JToken contentObj)
     {
-        if (contentObj == null) return;
+        if (contentObj == null || !contentObj.Any()) return;
 
-        // データベースから取得したダウンロードリンク
-        string downloadURL = contentObj["カタログファイル"]["files"][0]["file"]["url"].ToString();
+        // contentObjはJArrayなので、まず最初の要素を取得する
+        var firstElement = contentObj[0];
 
-        // データベースから取得したファイル名
-        string fileName = contentObj["カタログファイル"]["files"][0]["name"].ToString();
+        string downloadURL = "";
+        string fileName = "";
 
-        // 新規作成するファイルのパスと名前
-        string newFilePath = @$"C:\Users\osuim\Downloads\{fileName}";
+        Debug.Log("First Element: " + firstElement.ToString());
 
-        //ファイルダウンロード
+        // properties にアクセス
+        var properties = firstElement["properties"] as JObject;
+
+        if (properties == null)
+        {
+            Debug.LogError("properties フィールドが見つかりません");
+            return;
+        }
+
+        // カタログファイルフィールドを確認
+        var catalogFileProperty = properties["カタログファイル"];
+        Debug.Log("Catalog File Property: " + catalogFileProperty?.ToString());
+
+        // カタログファイルが存在し、かつ files が JArray であることを確認
+        if (catalogFileProperty != null && catalogFileProperty["files"] is JArray catalogArray && catalogArray.Count > 0)
+        {
+            downloadURL = catalogArray[0]["file"]["url"].ToString();
+            fileName = catalogArray[0]["name"].ToString();
+        }
+        else
+        {
+            Debug.LogError("カタログファイルにアクセスできません");
+            return;
+        }
+
+        string newFilePath = @$"C:\Users\{Environment.UserName}\Downloads\{fileName}";
+
+        // ファイルダウンロード
         using (UnityWebRequest request = new UnityWebRequest(downloadURL))
         {
             request.downloadHandler = new DownloadHandlerBuffer();
@@ -70,28 +104,25 @@ public class DownloadCatalogFromNotion : MonoBehaviour
 
             if (request.isNetworkError || request.isHttpError)
             {
-                Debug.Log(request.error);
+                Debug.LogError(request.error);
             }
             else
             {
-                // jsonとかのテキストファイルならそのまま得ることも可能
-                Debug.Log(request.downloadHandler.text); //カタログの中身
-
-                // テキストファイル以外もダウンロードしたいのでバイナリデータから復元する方式にしたい
                 byte[] results = request.downloadHandler.data;
-
-                // バイトからファイル復元
                 using (FileStream fs = new FileStream(newFilePath, FileMode.Create, FileAccess.ReadWrite))
                 {
-                    // 新規ファイルにバイト配列の0文字目から最後まで書き込み
                     fs.Write(results, 0, results.Length);
                 }
+
+                Debug.Log($"ファイルが {newFilePath} に保存されました。");
             }
         }
     }
 
+    private void OnBecameInvisible()
+    {
 
-
+    }
 
     async UniTask<JToken> CallNotionAPI_SearchFile(string searchWord)
     {
@@ -273,5 +304,3 @@ public class DownloadCatalogFromNotion : MonoBehaviour
         }
     }
 }
-
-

@@ -7,10 +7,30 @@ using System.IO;
 
 
 
+public class NagesenContentsHandler : SingletonCompo<NagesenContentsHandler>
+{
+    //public static Catalogs Data = new Catalogs();
+    public static Catalogs Data = new Catalogs()
+    {
+        SaveFolderPath = @$"{Application.persistentDataPath}/NagesenContents"
+    };
+
+    public override bool IsActive { get; protected set; } = true;
+
+
+    protected override void Awake0()
+    {
+        Data.LoadFast();
+    }
+}
+
 public class DLContentsHandler : SingletonCompo<DLContentsHandler>
 {
     //public static Catalogs Data = new Catalogs();
-    public static DLContents Data = DLContents.Ins;
+    public static Catalogs Data = new Catalogs()
+    {
+        SaveFolderPath = @$"{Application.persistentDataPath}/DLContents"
+    };
 
     public override bool IsActive { get; protected set; } = true;
 
@@ -23,14 +43,16 @@ public class DLContentsHandler : SingletonCompo<DLContentsHandler>
 
 
 
+
+
 [System.Serializable]
-public class DLContents : SavableSingleton<DLContents>
+public class Catalogs : Savable//Singleton<DLContents>
 {
     #region ====== Savable ÇÃédçûÇ› ================================================
     public override List<SaveSystem.IFriendWith_SaveSystem> Instances { get; protected set; } = instances;
     private static List<SaveSystem.IFriendWith_SaveSystem> instances = new();
     // DBÇÃjsonÇï€ë∂Ç∑ÇÈÉpÉX
-    public override string SaveFolderPath { get; set; } = @$"{Application.persistentDataPath}/DLContents";
+    //public override string SaveFolderPath { get; set; } = @$"{Application.persistentDataPath}/DLContents";
     #endregion =======================================
 
     [JsonProperty] public Dictionary<string, Catalog> ContentsCatalogs = new Dictionary<string, Catalog>();

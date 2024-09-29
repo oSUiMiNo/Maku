@@ -35,7 +35,7 @@ public class MySlider : MyUI
     
 
     MousePosFromGameObject mousePosFromGameObject;
-    protected sealed override void Awake0()
+    protected sealed override async void Awake0()
     {
         //presenter = UIPresenter.Childlen[gameObject]; // 親クラスでやってるから要らなくね？
         backGround = transform.Find("Body/BackGround").gameObject;
@@ -53,19 +53,14 @@ public class MySlider : MyUI
         if (type == Type.Minus_Plus) CheckAddComponent<SpriteRenderer>(point_Zero).enabled = true;
         else CheckAddComponent<SpriteRenderer>(point_Zero).enabled = false;
 
-        Vector3 filScale = fill.transform.localScale;
-        if (type == Type.Min_Max)
-            filScale.x = handle.transform.localPosition.x * 5 / 11;
-        else
-            filScale.x = backGround.transform.localScale.x / 2;
 
-        fill.transform.localScale = filScale;
+        SetFill();
 
         On_Down.Subscribe(_ =>
         {
             //Debug.Log("ダウン");
             mousePosFromGameObject = new MousePosFromGameObject(handle, false);
-        });
+        }).AddTo(gameObject);
         On_Drag.Subscribe(_ =>
         {
             //Debug.Log("スライド");
@@ -74,7 +69,25 @@ public class MySlider : MyUI
             SetHandle(MousePos_World);
             SetFill();
             SetValue();
-        });
+        }).AddTo(gameObject);
+
+        Value_Float.Subscribe(async value =>
+        {
+            //handle.transform.localPosition = new Vector3(value, 0, 0);
+            //await Delay.Frame(1);
+            SetHandle(new Vector3(value, 0, 0));
+            SetFill();
+            SetValue();
+        }).AddTo(gameObject);
+
+        Value_Int.Subscribe(async value =>
+        {
+            //handle.transform.localPosition = new Vector3(value, 0, 0);
+            //await Delay.Frame(1);
+            SetHandle(new Vector3(value, 0, 0));
+            SetFill();
+            SetValue();
+        }).AddTo(gameObject);
 
         //Clicked.Subscribe(value => presenter.Clicked.Value = value);
 
@@ -83,7 +96,7 @@ public class MySlider : MyUI
         //    presenter.value_Float.Value = value;
         //    await presenter.Execute();    
         //});
-        
+
         //Value_Int.Skip(1).Subscribe(async value =>
         //{
         //    presenter.value_Int.Value = value;

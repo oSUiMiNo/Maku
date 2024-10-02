@@ -78,23 +78,23 @@ public class MySlider : MyUI
         }).AddTo(gameObject);
 
         // ‰Á•M
-        //Value_Float.Subscribe(async value =>
-        //{
-        //    //handle.transform.localPosition = new Vector3(value, 0, 0);
-        //    //await Delay.Frame(1);
-        //    SetHandle(new Vector3(value, 0, 0));
-        //    SetFill();
-        //    SetValue();
-        //}).AddTo(gameObject);
+        Value_Float.Subscribe(async value =>
+        {
+            //handle.transform.localPosition = new Vector3(value, 0, 0);
+            //await Delay.Frame(1);
+            SetHandle(new Vector3(value, 0, 0));
+            SetFill();
+            SetValue();
+        }).AddTo(gameObject);
         // ‰Á•M
-        //Value_Int.Subscribe(async value =>
-        //{
-        //    //handle.transform.localPosition = new Vector3(value, 0, 0);
-        //    //await Delay.Frame(1);
-        //    SetHandle(new Vector3(value, 0, 0));
-        //    SetFill();
-        //    SetValue();
-        //}).AddTo(gameObject);
+        Value_Int.Subscribe(async value =>
+        {
+            //handle.transform.localPosition = new Vector3(value, 0, 0);
+            //await Delay.Frame(1);
+            SetHandle(new Vector3(value, 0, 0));
+            SetFill();
+            SetValue();
+        }).AddTo(gameObject);
 
         //Clicked.Subscribe(value => presenter.Clicked.Value = value);
 

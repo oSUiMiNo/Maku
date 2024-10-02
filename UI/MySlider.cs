@@ -53,8 +53,14 @@ public class MySlider : MyUI
         if (type == Type.Minus_Plus) CheckAddComponent<SpriteRenderer>(point_Zero).enabled = true;
         else CheckAddComponent<SpriteRenderer>(point_Zero).enabled = false;
 
+        Vector3 filScale = fill.transform.localScale;
+        if (type == Type.Min_Max)
+            filScale.x = handle.transform.localPosition.x * 5 / 11;
+        else
+            filScale.x = backGround.transform.localScale.x / 2;
 
-        SetFill();
+        fill.transform.localScale = filScale;
+        //SetFill();@// ‰Á•M
 
         On_Down.Subscribe(_ =>
         {
@@ -71,23 +77,24 @@ public class MySlider : MyUI
             SetValue();
         }).AddTo(gameObject);
 
-        Value_Float.Subscribe(async value =>
-        {
-            //handle.transform.localPosition = new Vector3(value, 0, 0);
-            //await Delay.Frame(1);
-            SetHandle(new Vector3(value, 0, 0));
-            SetFill();
-            SetValue();
-        }).AddTo(gameObject);
-
-        Value_Int.Subscribe(async value =>
-        {
-            //handle.transform.localPosition = new Vector3(value, 0, 0);
-            //await Delay.Frame(1);
-            SetHandle(new Vector3(value, 0, 0));
-            SetFill();
-            SetValue();
-        }).AddTo(gameObject);
+        // ‰Á•M
+        //Value_Float.Subscribe(async value =>
+        //{
+        //    //handle.transform.localPosition = new Vector3(value, 0, 0);
+        //    //await Delay.Frame(1);
+        //    SetHandle(new Vector3(value, 0, 0));
+        //    SetFill();
+        //    SetValue();
+        //}).AddTo(gameObject);
+        // ‰Á•M
+        //Value_Int.Subscribe(async value =>
+        //{
+        //    //handle.transform.localPosition = new Vector3(value, 0, 0);
+        //    //await Delay.Frame(1);
+        //    SetHandle(new Vector3(value, 0, 0));
+        //    SetFill();
+        //    SetValue();
+        //}).AddTo(gameObject);
 
         //Clicked.Subscribe(value => presenter.Clicked.Value = value);
 

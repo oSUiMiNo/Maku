@@ -77,24 +77,28 @@ public class MySlider : MyUI
             SetValue();
         }).AddTo(gameObject);
 
-        // 加筆
-        Value_Float.Subscribe(async value =>
-        {
-            //handle.transform.localPosition = new Vector3(value, 0, 0);
-            //await Delay.Frame(1);
-            SetHandle(new Vector3(value, 0, 0));
-            SetFill();
-            SetValue();
-        }).AddTo(gameObject);
-        // 加筆
-        Value_Int.Subscribe(async value =>
-        {
-            //handle.transform.localPosition = new Vector3(value, 0, 0);
-            //await Delay.Frame(1);
-            SetHandle(new Vector3(value, 0, 0));
-            SetFill();
-            SetValue();
-        }).AddTo(gameObject);
+
+        // == ここ動かすと起動時にクラッシュする。原因調べてリファクタリング ========= 
+        //// 加筆
+        //Value_Float.Subscribe(async value =>
+        //{
+        //    //handle.transform.localPosition = new Vector3(value, 0, 0);
+        //    //await Delay.Frame(1);
+        //    SetHandle(new Vector3(value, 0, 0));
+        //    SetFill();
+        //    SetValue();
+        //}).AddTo(gameObject);
+        //// 加筆
+        //Value_Int.Subscribe(async value =>
+        //{
+        //    //handle.transform.localPosition = new Vector3(value, 0, 0);
+        //    //await Delay.Frame(1);
+        //    SetHandle(new Vector3(value, 0, 0));
+        //    SetFill();
+        //    SetValue();
+        //}).AddTo(gameObject);
+        // == ここ動かすと起動時にクラッシュする。原因調べてリファクタリング =========
+
 
         //Clicked.Subscribe(value => presenter.Clicked.Value = value);
 

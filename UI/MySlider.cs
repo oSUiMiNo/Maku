@@ -53,14 +53,14 @@ public class MySlider : MyUI
         if (type == Type.Minus_Plus) CheckAddComponent<SpriteRenderer>(point_Zero).enabled = true;
         else CheckAddComponent<SpriteRenderer>(point_Zero).enabled = false;
 
-        Vector3 filScale = fill.transform.localScale;
-        if (type == Type.Min_Max)
-            filScale.x = handle.transform.localPosition.x * 5 / 11;
-        else
-            filScale.x = backGround.transform.localScale.x / 2;
+        //Vector3 filScale = fill.transform.localScale;
+        //if (type == Type.Min_Max)
+        //    filScale.x = handle.transform.localPosition.x * 5 / 11;
+        //else
+        //    filScale.x = backGround.transform.localScale.x / 2;
 
-        fill.transform.localScale = filScale;
-        //SetFill();@// ‰Á•M
+        //fill.transform.localScale = filScale;
+        SetFill();@// ‰Á•M
 
         On_Down.Subscribe(_ =>
         {

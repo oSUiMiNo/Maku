@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using TMPro;
 using UnityEngine.UI;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.TextBox;
 
 public interface IMyExtention
 {
@@ -28,6 +29,10 @@ public interface IMyExtention
     string CropStr_R(string str, string splitter, bool containSplitter);
     // 右側切り落とし
     string TrimStr_R(string str, string splitter, bool containSplitter);
+
+
+    void SetLayerRecursive(GameObject go, string layerName);
+    void SetLayerRecursive(Transform parent, string layerName);
 }
 
 
@@ -219,6 +224,18 @@ public abstract class MonoBehaviourMyExtention : MonoBehaviour, IMyExtention
 
         return str.Substring(0, i + a);
     }
+
+
+    // 自分と子孫オブジェクトのレイヤーを変更
+    public void SetLayerRecursive(GameObject go, string layerName) { SetLayerRecursive(go.transform, layerName); }
+    public void SetLayerRecursive(Transform parent, string layerName)
+    {
+        foreach (Transform child in parent)
+        {
+            child.gameObject.layer = LayerMask.NameToLayer(layerName);
+            SetLayerRecursive(child, layerName);
+        }
+    }
 }
 
 
@@ -322,6 +339,15 @@ public class MyExtention : IMyExtention
     public string TrimStr_R(string str, string splitter, bool containSplitter)
     {
         return MyExtentionHandler.Compo.TrimStr_R(str, splitter, containSplitter);
+    }
+
+    public void SetLayerRecursive(GameObject go, string layerName) 
+    {
+        MyExtentionHandler.Compo.SetLayerRecursive(go, layerName);
+    }
+    public void SetLayerRecursive(Transform parent, string layerName)
+    {
+        MyExtentionHandler.Compo.SetLayerRecursive(parent, layerName);
     }
 }
 

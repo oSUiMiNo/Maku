@@ -5,7 +5,7 @@ using System;
 using System.Linq;
 using TMPro;
 using UnityEngine.UI;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.TextBox;
+
 
 public interface IMyExtention
 {
@@ -33,6 +33,10 @@ public interface IMyExtention
 
     void SetLayerRecursive(GameObject go, string layerName);
     void SetLayerRecursive(Transform parent, string layerName);
+
+
+    void SetActiveRecursive(Transform parent, bool activeState);
+    void SetActiveRecursive(GameObject parent, bool activeState);
 }
 
 
@@ -236,6 +240,15 @@ public abstract class MonoBehaviourMyExtention : MonoBehaviour, IMyExtention
             SetLayerRecursive(child, layerName);
         }
     }
+
+
+    // 自分と子孫オブジェクトのアクティブ状態を変更
+    public void SetActiveRecursive(Transform parent, bool activeState) { SetActiveRecursive(parent.gameObject, activeState); }
+    public void SetActiveRecursive(GameObject parent, bool activeState)
+    {
+        parent.gameObject.SetActive(true);
+        foreach (Transform child in transform) SetActiveRecursive(child.gameObject, activeState);
+    }
 }
 
 
@@ -341,6 +354,7 @@ public class MyExtention : IMyExtention
         return MyExtentionHandler.Compo.TrimStr_R(str, splitter, containSplitter);
     }
 
+
     public void SetLayerRecursive(GameObject go, string layerName) 
     {
         MyExtentionHandler.Compo.SetLayerRecursive(go, layerName);
@@ -348,6 +362,16 @@ public class MyExtention : IMyExtention
     public void SetLayerRecursive(Transform parent, string layerName)
     {
         MyExtentionHandler.Compo.SetLayerRecursive(parent, layerName);
+    }
+
+
+    public void SetActiveRecursive(Transform parent, bool active) 
+    {
+        MyExtentionHandler.Compo.SetActiveRecursive(parent, active); 
+    }
+    public void SetActiveRecursive(GameObject parent, bool active)
+    {
+        MyExtentionHandler.Compo.SetActiveRecursive(parent, active);
     }
 }
 

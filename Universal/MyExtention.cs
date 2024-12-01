@@ -250,16 +250,7 @@ public abstract class MonoBehaviourMyExtention : MonoBehaviour, IMyExtention
         parent.gameObject.SetActive(true);
         foreach (Transform child in transform)
         {
-            try
-            {
-                SetActiveRecursive(child.gameObject, activeState);
-            }
-            catch (Exception e)
-            {
-                Debug.LogAssertion($"{e}");
-                await Delay.Frame(1);
-                SetActiveRecursive(child.gameObject, activeState);
-            }
+            SetActiveRecursive(child.gameObject, activeState);
         }
     }
 }

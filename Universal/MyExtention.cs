@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using TMPro;
 using UnityEngine.UI;
+using Cysharp.Threading.Tasks;
 
 
 public interface IMyExtention
@@ -244,10 +245,22 @@ public abstract class MonoBehaviourMyExtention : MonoBehaviour, IMyExtention
 
     // 自分と子孫オブジェクトのアクティブ状態を変更
     public void SetActiveRecursive(Transform parent, bool activeState) { SetActiveRecursive(parent.gameObject, activeState); }
-    public void SetActiveRecursive(GameObject parent, bool activeState)
+    public async void SetActiveRecursive(GameObject parent, bool activeState)
     {
         parent.gameObject.SetActive(true);
-        foreach (Transform child in transform) SetActiveRecursive(child.gameObject, activeState);
+        foreach (Transform child in transform)
+        {
+            try
+            {
+                SetActiveRecursive(child.gameObject, activeState);
+            }
+            catch (Exception e)
+            {
+                Debug.LogAssertion($"{e}");
+                await Delay.Frame(1);
+                SetActiveRecursive(child.gameObject, activeState);
+            }
+        }
     }
 }
 

@@ -383,25 +383,53 @@ public class MyExtention : IMyExtention
 
 
 
+public static class StringExtention
+{
+    // Stringのトリミング
+    // 右側切り抜き
+    public static string CropStr_R(this string str, string splitter, bool containSplitter)
+    {
+        int i = str.IndexOf(splitter);
+        if (i < 0) return str;
+
+        int a;
+        if (containSplitter) a = 0;
+        else a = splitter.Length;
+
+        return str.Substring(i + a);
+    }
+    // 右側切り落とし
+    public static string TrimStr_R(this string str, string splitter, bool containSplitter)
+    {
+        var i = str.IndexOf(splitter);
+        if (i < 0) return str;
+
+        int a;
+        if (containSplitter) a = splitter.Length;
+        else a = 0;
+
+        return str.Substring(0, i + a);
+    }
+}
 
 
 
 
-/// <summary>
-/// 【使い方】
-/// 1: なにかの基底クラスにしたいクラスにこれを継承させておく。
-/// 
-/// 2: projectのAssetsフォルダ直下に、「csc.rsp」というファイルを追加。更にこれの中身のテキストを、
-/// 「-warnaserror+:0114」とだけ書いておく。
-/// これにより、派生クラスで Start() などを実装してしまった際に、エラーにしてくれるので、
-/// 誤って基底クラスでも派生クラスでも別の処理を書いたStart()を実装っしてしまって、
-/// 基底クラスの Start()などに書いた必要な処理が上書きされてしまうことを防げる。
-/// 
-/// 3: 派生先でも Start()相当の関数を使いたいのであれば、
-/// 基底クラスで SubStart() みたいな仮想メソッドを作り、基底クラスの Start()の中で呼んでおき、
-/// 派生クラスでオーバーライドする。
-/// </summary>
-public class SealableMonoBehaviourMyExtention : MonoBehaviourMyExtention
+    /// <summary>
+    /// 【使い方】
+    /// 1: なにかの基底クラスにしたいクラスにこれを継承させておく。
+    /// 
+    /// 2: projectのAssetsフォルダ直下に、「csc.rsp」というファイルを追加。更にこれの中身のテキストを、
+    /// 「-warnaserror+:0114」とだけ書いておく。
+    /// これにより、派生クラスで Start() などを実装してしまった際に、エラーにしてくれるので、
+    /// 誤って基底クラスでも派生クラスでも別の処理を書いたStart()を実装っしてしまって、
+    /// 基底クラスの Start()などに書いた必要な処理が上書きされてしまうことを防げる。
+    /// 
+    /// 3: 派生先でも Start()相当の関数を使いたいのであれば、
+    /// 基底クラスで SubStart() みたいな仮想メソッドを作り、基底クラスの Start()の中で呼んでおき、
+    /// 派生クラスでオーバーライドする。
+    /// </summary>
+    public class SealableMonoBehaviourMyExtention : MonoBehaviourMyExtention
 {
     protected virtual void Awake() { }
     protected virtual void Start() { }

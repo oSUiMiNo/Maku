@@ -6,6 +6,7 @@ using System.Linq;
 using TMPro;
 using UnityEngine.UI;
 using Cysharp.Threading.Tasks;
+using UniRx;
 
 
 public interface IMyExtention
@@ -454,6 +455,33 @@ public class MyCoroutineHandler : SingletonCompo<MyCoroutineHandler>
     }
 }
 
+public static class ObservableExtensions
+{
+    // メッセージの値が指定したものと一致していたら定期実行開始。異なっていたら終了
+    // 定期実行の間隔は秒数指定。何も渡さなければフレーム毎の実行となる
+    public static IObservable<long> UpdateWhileEqualTo<T>(
+      this IObservable<T> source,
+      T expectedValue,
+      float sec = 0)
+    {
+        if (sec == 0)
+            return source
+                .Select(value =>
+                    EqualityComparer<T>.Default.Equals(value, expectedValue) ?
+                    Observable.EveryUpdate() :
+                    Observable.Empty<long>()
+                )
+                .Switch();
+        else
+            return source
+                .Select(value =>
+                    EqualityComparer<T>.Default.Equals(value, expectedValue) ?
+                    Observable.Interval(TimeSpan.FromSeconds(sec)) :
+                    Observable.Empty<long>()
+                )
+                .Switch();
+    }
+}
 
 
 

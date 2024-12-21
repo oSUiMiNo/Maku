@@ -2,11 +2,6 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
-using System.Threading;
-using System;
-using UniRx;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 public class Test_PyAPI : MonoBehaviour
 {
@@ -16,7 +11,7 @@ public class Test_PyAPI : MonoBehaviour
     {
         py = new PyAPI(
             @"C:\Users\osuim\AppData\Local\Programs\Python\Python312\python.exe",
-            @"C:\Users\osuim\Documents\Unity\Maku\Maku\Packages\Maku\Python\PythonAssets"
+            @"C:\Users\osuim\Documents\Unity\Maku\Maku\Packages\Maku\PythonAPI\PythonAssets"
         );
 
         await Exe();
@@ -26,7 +21,7 @@ public class Test_PyAPI : MonoBehaviour
 
     private async void Count()
     {
-        for(int i = 0; i <= 10; i++)
+        for (int i = 0; i <= 10; i++)
         {
             Debug.Log(i);
             await Delay.Second(1);
@@ -43,13 +38,13 @@ public class Test_PyAPI : MonoBehaviour
         inputJObj["CPU"] = "Intel";
         inputJObj["Drives"] = new JArray("HDD", "SSD");
         Debug.Log(inputJObj);
-        
+
         // List‚É—v‘f’Ç‰Á
         JArray drivesArray = (JArray)inputJObj["Drives"];
         drivesArray.Add("USB");
         Debug.Log(inputJObj);
 
-        JObject outputJObj = await py.Exe("Test_PyAPI.py", inputJObj);
+        JObject outputJObj = await py.Exe("Test_PyAPI.py", inputJObj, 10);
         Debug.Log($"Œ‹‰ÊF{outputJObj}");
     }
 }

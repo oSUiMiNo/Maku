@@ -45,7 +45,7 @@ public class PyAPI
         }
         else
         {
-            Debug.LogAssertion("–ß‚è’l‚ª‹ó‚¾‚Á‚½");
+            Debug.Log("–ß‚è’l‚ª‹ó‚¾‚Á‚½");
             return null;
         }
     }

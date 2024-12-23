@@ -40,7 +40,17 @@ public class PyAPI
         string output = await process.RunAsync(timeout);
         if (!string.IsNullOrEmpty(output))
         {
-            JObject outputJObj = JObject.Parse(output);
+            JObject outputJObj = new JObject();
+            try
+            {
+                outputJObj = JObject.Parse(output);
+                return outputJObj;
+            }
+            catch
+            {
+                Debug.Log("–ß‚è’l‚ªJson‚Å‚Í‚È‚¢");
+                outputJObj["Value"] = output;
+            }
             return outputJObj;
         }
         else

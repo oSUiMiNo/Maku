@@ -4,6 +4,8 @@ using UnityEngine;
 using Cysharp.Threading.Tasks;
 using System.Threading;
 using System.IO;
+using System.Text.RegularExpressions;
+using System;
 
 public class PyAPI
 {
@@ -32,6 +34,7 @@ public class PyAPI
             StartInfo = new System.Diagnostics.ProcessStartInfo(PyExeFile)
             {
                 UseShellExecute = false,
+                CreateNoWindow = false,
                 RedirectStandardOutput = true,
                 Arguments = $"{pyFile} {sendData}"
             }
@@ -40,18 +43,44 @@ public class PyAPI
         string output = await process.RunAsync(timeout);
         if (!string.IsNullOrEmpty(output))
         {
-            JObject outputJObj = new JObject();
-            try
+            Debug.Log($"Raw Python Output:\n{output}"); // 生の出力をログ出力
+
+            // 改行コードを統一 (非常に重要)
+            output = output.Replace("\r\n", "\n").Replace("\r", "\n");
+
+            // 正規表現パターン
+            string pattern = @"JSON_OUTPUT_START(.*?)JSON_OUTPUT_END";
+
+            // 正規表現でJSON文字列を抽出
+            Match match = Regex.Match(output, pattern); // .* を追加
+
+
+            if (match.Success)
             {
-                outputJObj = JObject.Parse(output);
-                return outputJObj;
+                string jsonString = match.Groups[1].Value;
+                try
+                {
+                    JObject outputJObj = JObject.Parse(jsonString);
+                    return outputJObj;
+                }
+                catch (JsonReaderException ex)
+                {
+                    Debug.LogError($"JSONパースエラー: {ex.Message}");
+                    Debug.LogError($"JSON文字列: {jsonString}");
+                    return null;
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError($"予期せぬエラー: {ex.Message}");
+                    Debug.LogError($"JSON文字列: {jsonString}");
+                    return null;
+                }
             }
-            catch
+            else
             {
-                Debug.Log("戻り値がJsonではない");
-                outputJObj["Value"] = output;
+                Debug.LogError("JSON出力が見つかりませんでした。");
+                return null;
             }
-            return outputJObj;
         }
         else
         {

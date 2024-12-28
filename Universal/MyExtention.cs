@@ -418,8 +418,8 @@ public static class StringExtentions
 public static class GameObjectExtentions
 {
     // 自分と子孫オブジェクトのレイヤーを変更
-    public static void SetLayerRecursive(GameObject parent, string layerName) { SetLayerRecursive(parent.transform, layerName); }
-    public static void SetLayerRecursive(Transform parent, string layerName)
+    public static void SetLayerRecursive(this GameObject parent, string layerName) { SetLayerRecursive(parent.transform, layerName); }
+    public static void SetLayerRecursive(this Transform parent, string layerName)
     {
         foreach (Transform child in parent)
         {
@@ -429,8 +429,8 @@ public static class GameObjectExtentions
     }
 
 
-    public static void SetActiveRecursive(GameObject parent, bool activeState) { SetActiveRecursive(parent.transform, activeState); }
-    public static async void SetActiveRecursive(Transform parent, bool activeState)
+    public static void SetActiveRecursive(this GameObject parent, bool activeState) { SetActiveRecursive(parent.transform, activeState); }
+    public static async void SetActiveRecursive(this Transform parent, bool activeState)
     {
         parent.gameObject.SetActive(activeState);
         foreach (Transform child in parent)

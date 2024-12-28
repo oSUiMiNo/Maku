@@ -9,6 +9,7 @@ using Cysharp.Threading.Tasks;
 using UniRx;
 
 
+
 public interface IMyExtention
 {
     T CheckAddComponent<T>(GameObject obj) where T : Component;
@@ -26,19 +27,19 @@ public interface IMyExtention
     void TransReset_Local(Transform transform);
     void TransReset_World(Transform transform);
 
-    // Stringのトリミング
-    // 右側切り抜き
-    string CropStr_R(string str, string splitter, bool containSplitter);
-    // 右側切り落とし
-    string TrimStr_R(string str, string splitter, bool containSplitter);
+    //// Stringのトリミング
+    //// 右側切り抜き
+    //string CropStr_R(string str, string splitter, bool containSplitter);
+    //// 右側切り落とし
+    //string TrimStr_R(string str, string splitter, bool containSplitter);
 
 
-    void SetLayerRecursive(GameObject go, string layerName);
-    void SetLayerRecursive(Transform parent, string layerName);
+    //void SetLayerRecursive(GameObject go, string layerName);
+    //void SetLayerRecursive(Transform parent, string layerName);
 
 
-    void SetActiveRecursive(Transform parent, bool activeState);
-    void SetActiveRecursive(GameObject parent, bool activeState);
+    //void SetActiveRecursive(Transform parent, bool activeState);
+    //void SetActiveRecursive(GameObject parent, bool activeState);
 }
 
 
@@ -205,55 +206,55 @@ public abstract class MonoBehaviourMyExtention : MonoBehaviour, IMyExtention
         );
     }
 
-    // Stringのトリミング
-    // 右側切り抜き
-    public string CropStr_R(string str, string splitter, bool containSplitter)
-    {
-        int i = str.IndexOf(splitter);
-        if (i < 0) return str;
+    //// Stringのトリミング
+    //// 右側切り抜き
+    //public string CropStr_R(string str, string splitter, bool containSplitter)
+    //{
+    //    int i = str.IndexOf(splitter);
+    //    if (i < 0) return str;
 
-        int a;
-        if (containSplitter) a = 0;
-        else a = splitter.Length;
+    //    int a;
+    //    if (containSplitter) a = 0;
+    //    else a = splitter.Length;
 
-        return str.Substring(i + a);
-    }
-    // 右側切り落とし
-    public string TrimStr_R(string str, string splitter, bool containSplitter)
-    {
-        var i = str.IndexOf(splitter);
-        if (i < 0) return str;
+    //    return str.Substring(i + a);
+    //}
+    //// 右側切り落とし
+    //public string TrimStr_R(string str, string splitter, bool containSplitter)
+    //{
+    //    var i = str.IndexOf(splitter);
+    //    if (i < 0) return str;
 
-        int a;
-        if (containSplitter) a = splitter.Length;
-        else a = 0;
+    //    int a;
+    //    if (containSplitter) a = splitter.Length;
+    //    else a = 0;
 
-        return str.Substring(0, i + a);
-    }
-
-
-    // 自分と子孫オブジェクトのレイヤーを変更
-    public void SetLayerRecursive(GameObject go, string layerName) { SetLayerRecursive(go.transform, layerName); }
-    public void SetLayerRecursive(Transform parent, string layerName)
-    {
-        foreach (Transform child in parent)
-        {
-            child.gameObject.layer = LayerMask.NameToLayer(layerName);
-            SetLayerRecursive(child, layerName);
-        }
-    }
+    //    return str.Substring(0, i + a);
+    //}
 
 
-    // 自分と子孫オブジェクトのアクティブ状態を変更
-    public void SetActiveRecursive(Transform parent, bool activeState) { SetActiveRecursive(parent.gameObject, activeState); }
-    public async void SetActiveRecursive(GameObject parent, bool activeState)
-    {
-        parent.gameObject.SetActive(true);
-        foreach (Transform child in transform)
-        {
-            SetActiveRecursive(child.gameObject, activeState);
-        }
-    }
+    //// 自分と子孫オブジェクトのレイヤーを変更
+    //public void SetLayerRecursive(GameObject go, string layerName) { SetLayerRecursive(go.transform, layerName); }
+    //public void SetLayerRecursive(Transform parent, string layerName)
+    //{
+    //    foreach (Transform child in parent)
+    //    {
+    //        child.gameObject.layer = LayerMask.NameToLayer(layerName);
+    //        SetLayerRecursive(child, layerName);
+    //    }
+    //}
+
+
+    //// 自分と子孫オブジェクトのアクティブ状態を変更
+    //public void SetActiveRecursive(Transform parent, bool activeState) { SetActiveRecursive(parent.gameObject, activeState); }
+    //public async void SetActiveRecursive(GameObject parent, bool activeState)
+    //{
+    //    parent.gameObject.SetActive(true);
+    //    foreach (Transform child in transform)
+    //    {
+    //        SetActiveRecursive(child.gameObject, activeState);
+    //    }
+    //}
 }
 
 
@@ -347,44 +348,44 @@ public class MyExtention : IMyExtention
         MyExtentionHandler.Compo.TransReset_World(transform);
     }
 
-    // Stringのトリミング
-    // 右側切り抜き
-    public string CropStr_R(string str, string splitter, bool containSplitter)
-    {
-        return MyExtentionHandler.Compo.CropStr_R(str, splitter, containSplitter);
-    }
-    // 右側切り落とし
-    public string TrimStr_R(string str, string splitter, bool containSplitter)
-    {
-        return MyExtentionHandler.Compo.TrimStr_R(str, splitter, containSplitter);
-    }
+    //// Stringのトリミング
+    //// 右側切り抜き
+    //public string CropStr_R(string str, string splitter, bool containSplitter)
+    //{
+    //    return MyExtentionHandler.Compo.CropStr_R(str, splitter, containSplitter);
+    //}
+    //// 右側切り落とし
+    //public string TrimStr_R(string str, string splitter, bool containSplitter)
+    //{
+    //    return MyExtentionHandler.Compo.TrimStr_R(str, splitter, containSplitter);
+    //}
 
 
-    public void SetLayerRecursive(GameObject go, string layerName) 
-    {
-        MyExtentionHandler.Compo.SetLayerRecursive(go, layerName);
-    }
-    public void SetLayerRecursive(Transform parent, string layerName)
-    {
-        MyExtentionHandler.Compo.SetLayerRecursive(parent, layerName);
-    }
+    //public void SetLayerRecursive(GameObject go, string layerName) 
+    //{
+    //    MyExtentionHandler.Compo.SetLayerRecursive(go, layerName);
+    //}
+    //public void SetLayerRecursive(Transform parent, string layerName)
+    //{
+    //    MyExtentionHandler.Compo.SetLayerRecursive(parent, layerName);
+    //}
 
 
-    public void SetActiveRecursive(Transform parent, bool active) 
-    {
-        MyExtentionHandler.Compo.SetActiveRecursive(parent, active); 
-    }
-    public void SetActiveRecursive(GameObject parent, bool active)
-    {
-        MyExtentionHandler.Compo.SetActiveRecursive(parent, active);
-    }
+    //public void SetActiveRecursive(Transform parent, bool active) 
+    //{
+    //    MyExtentionHandler.Compo.SetActiveRecursive(parent, active); 
+    //}
+    //public void SetActiveRecursive(GameObject parent, bool active)
+    //{
+    //    MyExtentionHandler.Compo.SetActiveRecursive(parent, active);
+    //}
 }
 
 
 
 
 
-public static class StringExtention
+public static class StringExtentions
 {
     // Stringのトリミング
     // 右側切り抜き
@@ -410,6 +411,32 @@ public static class StringExtention
         else a = 0;
 
         return str.Substring(0, i + a);
+    }
+}
+
+
+public static class GameObjectExtentions
+{
+    // 自分と子孫オブジェクトのレイヤーを変更
+    public static void SetLayerRecursive(GameObject parent, string layerName) { SetLayerRecursive(parent.transform, layerName); }
+    public static void SetLayerRecursive(Transform parent, string layerName)
+    {
+        foreach (Transform child in parent)
+        {
+            child.gameObject.layer = LayerMask.NameToLayer(layerName);
+            SetLayerRecursive(child, layerName);
+        }
+    }
+
+
+    public static void SetActiveRecursive(GameObject parent, bool activeState) { SetActiveRecursive(parent.transform, activeState); }
+    public static async void SetActiveRecursive(Transform parent, bool activeState)
+    {
+        parent.gameObject.SetActive(activeState);
+        foreach (Transform child in parent)
+        {
+            SetActiveRecursive(child, activeState);
+        }
     }
 }
 

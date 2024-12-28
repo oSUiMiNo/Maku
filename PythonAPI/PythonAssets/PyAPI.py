@@ -2,7 +2,7 @@ import sys
 import json
 
 
-def APIIn():
+def APIn():
     if len(sys.argv) > 1:
             try:
                 arg = sys.argv[1]
@@ -16,6 +16,6 @@ def APIIn():
         print("外部からの引数無し")
 
 
-def APIOut(outputJobj):
+def APOut(outputJobj):
      outputJson = json.dumps(outputJobj, ensure_ascii=False)
      print(f"JSON_OUTPUT_START{outputJson}JSON_OUTPUT_END") # プレフィックスとサフィックスで囲む

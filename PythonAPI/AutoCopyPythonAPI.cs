@@ -2,17 +2,23 @@ using UnityEngine;
 using UnityEditor;
 using System.IO;
 
-public class AutoCopyPythonAssets : AssetPostprocessor
+[InitializeOnLoad]
+public class AutoCopyPythonAPI : AssetPostprocessor
 {
     private const string sourceFilePath = "Packages/jp.maku.maku_utillity/PythonAPI/PythonAssets/PyAPI.py";
     private const string destinationFolderName = "PythonAssets";
     private const string destinationFileName = "PyAPI.py";
 
-    private static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths)
+    static AutoCopyPythonAPI()
     {
-        // アセットの変更に関わらず、常にコピーを試みる
         CopyAsset();
     }
+
+    //private static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths)
+    //{
+    //    // アセットの変更に関わらず、常にコピーを試みる
+    //    CopyAsset();
+    //}
 
     private static void CopyAsset()
     {

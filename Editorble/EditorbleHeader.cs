@@ -33,7 +33,8 @@ public class EditorbleHeader : MonoBehaviourMyExtention
     {
         //ExistingContentIDList.Add(id);
         //int index = int.Parse(CropStr_R(id, "__", false)) - 1;
-        int index = int.Parse(CropStr_R(id, "__", false));
+        //int index = int.Parse(CropStr_R(id, "__", false));
+        int index = int.Parse(id.CropStr_R("__", false));
         Debug.Log($"セットID　＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝");
         Debug.Log($"{address}");
         Debug.Log($"{address}_{index}");

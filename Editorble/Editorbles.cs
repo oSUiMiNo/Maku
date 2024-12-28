@@ -65,7 +65,8 @@ public class EditorblesHandler : SingletonCompo<EditorblesHandler>
         }
         headers = newHeaders;
 
-        string address = TrimStr_R(id, "__", false);
+        //string address = TrimStr_R(id, "__", false);
+        string address = id.TrimStr_R("__", false);
         string[] dirs = Directory.GetDirectories(@$"{data.SaveFolderPath}");
         Debug.Log(dirs.Count());
         for (int i = 0; i < dirs.Count(); i++)
@@ -74,11 +75,13 @@ public class EditorblesHandler : SingletonCompo<EditorblesHandler>
         }
         for (int i = 0; i < dirs.Count(); i++)
         {
-            string newDirName = @$"{TrimStr_R(dirs[i], "__", false)}__{i}";
+            //string newDirName = @$"{TrimStr_R(dirs[i], "__", false)}__{i}";
+            string newDirName = @$"{dirs[i].TrimStr_R("__", false)}__{i}";
             Debug.Log($"V‚µ‚¢ID0 {newDirName}");
             if (dirs[i] != newDirName) Directory.Move(@$"{dirs[i]}", newDirName);
-            
-            string newID = @$"{TrimStr_R(data.IDListDict[address][i], "__", false)}__{i}";
+
+            //string newID = @$"{TrimStr_R(data.IDListDict[address][i], "__", false)}__{i}";
+            string newID = @$"{data.IDListDict[address][i].TrimStr_R("__", false)}__{i}";
             Debug.Log($"V‚µ‚¢ID1 {newID}");
             data.IDListDict[address][i] = newID;
             headers[i].id = newID;

@@ -5,17 +5,15 @@ import os
 
 
 if __name__ == "__main__":
+    # 自分が配置されているディレクトリに移動
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
     print("AAA")
 
     input = APIIn()
-    if input is None: # Noneチェックを追加
-        sys.exit(1) # エラー終了
-
     input["Battery"] += 10
     input["Memory"] = "16 GB"
 
-    # time.sleep(5)
+    time.sleep(2)
 
     APIOut(input)

@@ -7,6 +7,7 @@ using TMPro;
 using UnityEngine.UI;
 using Cysharp.Threading.Tasks;
 using UniRx;
+using static PlasticGui.LaunchDiffParameters;
 
 
 
@@ -421,6 +422,7 @@ public static class GameObjectExtentions
     public static void SetLayerRecursive(this GameObject parent, string layerName) { SetLayerRecursive(parent.transform, layerName); }
     public static void SetLayerRecursive(this Transform parent, string layerName)
     {
+        parent.gameObject.layer = LayerMask.NameToLayer(layerName);
         foreach (Transform child in parent)
         {
             child.gameObject.layer = LayerMask.NameToLayer(layerName);

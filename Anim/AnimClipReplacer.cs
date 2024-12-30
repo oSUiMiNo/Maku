@@ -1,21 +1,32 @@
+using System.Security.Cryptography.X509Certificates;
 using UnityEngine;
 
 public class AnimClipReplacer
 {
-    Animator Animator { get; set; }
-    string StateName { get; set; }
+    public Animator Animator { get; private set; }
+    public string StateName { get; private set; }
+    public AnimationClip DefaultClip { get; private set; }
+    public AnimationClip CurrentClip => overrideController[StateName];
     AnimatorOverrideController overrideController { get; set; }
-    public bool Exe(AnimationClip newClip) => AllocateClip(StateName, newClip);
 
 
-    public AnimClipReplacer(Animator animator, string clipName)
+    public AnimClipReplacer(Animator animator, string stateName)
     {
         Animator = animator;
-        StateName = clipName;
+        StateName = stateName;
         // AnimationOverrideControllerの生成と割り当て
         overrideController = new AnimatorOverrideController(Animator.runtimeAnimatorController);
         Animator.runtimeAnimatorController = overrideController;
+        // 対象ステートの存在確認
+        if (overrideController[stateName] == null)
+            Debug.LogAssertion($"ステート {stateName} は存在しない");
+        // デフォルトのクリップを保存
+        DefaultClip = CurrentClip;
     }
+
+
+    public bool Exe(AnimationClip newClip) => AllocateClip(StateName, newClip);
+    public void Reset() => Exe(DefaultClip);
 
 
     bool AllocateClip(string stateName, AnimationClip newClip)
@@ -27,7 +38,7 @@ public class AnimClipReplacer
         }
         if (overrideController[stateName] == null)
         {
-            Debug.LogWarning($"ステート {stateName} は存在しない");
+            Debug.LogAssertion($"ステート {stateName} は存在しない");
             return false;
         }
         else

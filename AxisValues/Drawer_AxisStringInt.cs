@@ -27,7 +27,7 @@ namespace Maku.AxisValues
     [CustomPropertyDrawer(typeof(AxisStringInt))]
     public class Drawer_StringIntPair : PropertyDrawer
     {
-        static readonly GUIContent LABEL_STRING = new GUIContent("String");
+        static readonly GUIContent LABEL_STRING = new GUIContent("Str");
         static readonly GUIContent LABEL_INT = new GUIContent("Int");
 
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)

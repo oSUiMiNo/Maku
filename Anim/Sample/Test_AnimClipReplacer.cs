@@ -40,11 +40,15 @@ public class Test_AnimClipReplacer : MonoBehaviour
         // AddressableAsset化したクリップ差し替え
         if (Input.GetKeyDown(KeyCode.D))
         {
-            if (replacer.Exe(await Addressables.LoadAssetAsync<AnimationClip>("RUN00_F").Task))
-                Debug.Log($"差し替え：ステート[RUN00_F] <== Addressable[RUN00_F]");
-            else
             if (replacer.Exe(await Addressables.LoadAssetAsync<AnimationClip>("SitDown").Task))
+            {
                 Debug.Log($"差し替え：ステート[RUN00_F] <== Addressable[SitDown]");
+            }
+            else
+            {
+                replacer.Reset();
+                Debug.Log($"差し替え：ステート[RUN00_F] <== リセット");
+            }
         }
     }
 }

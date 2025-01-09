@@ -106,6 +106,9 @@ public static class ProcessExtentions
         process.EnableRaisingEvents = true;
         process.Exited += (sender, args) =>
         {
+            string error = process.StandardError.ReadToEnd(); // ÉGÉâÅ[ì«éÊÇË
+            if (!string.IsNullOrEmpty(error)) Debug.LogError($"PowerShell Error: {error}");
+
             output = process.StandardOutput.ReadToEnd();
             process.Dispose();
         };

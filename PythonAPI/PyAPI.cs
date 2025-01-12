@@ -12,10 +12,10 @@ public class PyAPI
     string PyExeFile;
     string PyDir;
 
-    public PyAPI(string pyExeFile, string pyDir)
+    public PyAPI(string pyDir, string pyExeFile = "")
     {
-        PyExeFile = pyExeFile;
         PyDir = pyDir;
+        if (string.IsNullOrEmpty(pyExeFile)) PyExeFile = $"{pyDir}/.venv/Scripts/python.exe";
     }
 
 

@@ -1,21 +1,50 @@
 import sys
 import json
+import os
 
 
-def APIn():
+# 更新するファイルのパス
+LogPath = ""
+
+
+def APInit():
+    global LogPath
+    # Assets 直下にログ用txtファイルがある
+    LogPath = f"{os.getcwd()}/Assets/PyLog.txt"
+    Log(f"カレント {os.getcwd()}")
+    # 自分が配置されているディレクトリに移動
+    os.chdir(os.path.dirname(os.path.abspath(__file__)))
+    Log(f"カレント {os.getcwd()}")
+    
+
+
+def APIIn():
     if len(sys.argv) > 1:
             try:
                 arg = sys.argv[1]
                 inputJObj = json.loads(arg)
                 return inputJObj
             except json.JSONDecodeError:
-                print("JSON形式の引数ではありません。")
+                Log("JSON形式の引数ではありません。")
             except Exception as e:
-                print(f"エラーが発生しました: {e}")
+                Log(f"エラーが発生しました: {e}")
     else:
-        print("外部からの引数無し")
+        Log("外部からの引数無し")
 
 
-def APOut(outputJobj):
+
+def APIOut(outputJobj):
      outputJson = json.dumps(outputJobj, ensure_ascii=False)
-     print(f"JSON_OUTPUT_START{outputJson}JSON_OUTPUT_END") # プレフィックスとサフィックスで囲む
+     Log(f"JSON_OUTPUT_START{outputJson}JSON_OUTPUT_END") # プレフィックスとサフィックスで囲む
+
+
+
+def Log(msg):
+    if os.path.exists(LogPath):
+        # print("ある")
+        # ファイルに追記
+        with open(LogPath, "a", encoding="utf-8") as file:
+            file.write(f"___\n{msg}\n")
+    else:
+        # ファイルが存在しない場合はコンソールに出力
+        print(msg)

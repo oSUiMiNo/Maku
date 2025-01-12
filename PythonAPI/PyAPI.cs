@@ -16,6 +16,7 @@ public class PyAPI
     {
         PyDir = pyDir;
         if (string.IsNullOrEmpty(pyExeFile)) PyExeFile = $"{pyDir}/.venv/Scripts/python.exe";
+        Debug.Log("実行ファイル" + PyExeFile);
     }
 
 

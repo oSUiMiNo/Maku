@@ -487,7 +487,6 @@ public class MyCoroutineHandler : SingletonCompo<MyCoroutineHandler>
 
 public static class ObservableExtensions
 {
-
     // メッセージの値が指定したものと一致していたら定期実行開始。異なっていたら終了
     // 定期実行の間隔は秒数指定(最短0.001s)。何も渡さなければフレーム毎の実行となる
     public static IObservable<long> UpdateWhileEqualTo<T>(
@@ -495,11 +494,11 @@ public static class ObservableExtensions
         T expectedValue,
         float sec = 0f )
     {
-        // インターバルの下限を設定
+        // インターバルの下限設定
         float interval = sec;
         if (sec <= 0) interval = 0;
         else
-        if (sec <= 0.001f) interval = 0.001f;
+        if (sec <= 0.02f) interval = 0.02f;
 
         // フレーム毎発火
         if (interval == 0)
@@ -511,14 +510,7 @@ public static class ObservableExtensions
                 )
                 .Switch();
         // 秒数毎発火
-        // Observable.Intervalの方が軽いがフレームベースで時間を計る
-        // エディタだとフレームが安定しないので大きめの時間のみ
         else
-# if UNITY_EDITOR
-        if (interval >= 10f)
-#else
-        if (interval >= 0.1f)
-#endif
             return source
                 .Select(value =>
                     EqualityComparer<T>.Default.Equals(value, expectedValue) ?
@@ -526,27 +518,38 @@ public static class ObservableExtensions
                         Observable.Empty<long>()
                 )
                 .Switch();
-        // 極小秒数毎発火
-        else
-            return source
-                .Select(value =>
-                    EqualityComparer<T>.Default.Equals(value, expectedValue) ?
-                        CreateStopwatchInterval(interval) :
-                        Observable.Empty<long>()
-                )
-                .Switch()
-                .ObserveOnMainThread();
     }
 
 
+    // UpdateWhileEqualToは1フレームより短い秒数を測れない
+    // こちらは短く測れる(下限0.001)がスレッドプールでやるのでフレームに依存するUnityのAPIが使えない(例 Time.time)
+    public static IObservable<long> TimerWhileEqualTo<T>(
+        this IObservable<T> source,
+        T expectedValue,
+        float sec = 0.001f)
+    {
+        // インターバルの下限設定
+        float interval = sec;
+        if (sec <= 0.001f) interval = 0.001f;
+
+        // 極小秒数毎発火
+        return source
+            .Select(value =>
+                EqualityComparer<T>.Default.Equals(value, expectedValue) ?
+                    ObservableStopwatch(interval) :
+                    Observable.Empty<long>()
+            )
+            .Switch();
+    }
+
     // Stopwatchを使い、フレームレートに依存せず「指定秒」でOnNextを繰り返す。
-    private static IObservable<long> CreateStopwatchInterval(float sec)
+    private static IObservable<long> ObservableStopwatch(float sec)
     {
         return Observable.Create<long>(observer =>
         {
             var cts = new CancellationTokenSource();
 
-            UniTask.RunOnThreadPool(async () =>
+            UniTask.RunOnThreadPool(() =>
             {
                 var interval = TimeSpan.FromSeconds(sec);
                 long count = 0;
@@ -573,7 +576,6 @@ public static class ObservableExtensions
                     observer.OnCompleted();
                 }
             }, cancellationToken: cts.Token).Forget();
-
             return Disposable.Create(() => cts.Cancel());
         });
     }

@@ -6,20 +6,34 @@ using UnityEngine;
 // 使用例
 public class Ex_ObservableExtention : MonoBehaviour
 {
-    public ReactiveProperty<bool> Flag = new ReactiveProperty<bool>(true);
-    private System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
+    public ReactiveProperty<bool> A = new ReactiveProperty<bool>(true);
+    System.Diagnostics.Stopwatch stopwatch0 = new System.Diagnostics.Stopwatch();
+    System.Diagnostics.Stopwatch stopwatch1 = new System.Diagnostics.Stopwatch();
+
 
 
     void Start()
     {
-        Flag.UpdateWhileEqualTo(true, 0.1f)
+        A.TimerWhileEqualTo(true, 0.01f)
+        //.ObserveOnMainThread()
         .Subscribe(_ =>
         {
-            Debug.Log($"{stopwatch.Elapsed.TotalSeconds:F8}");
-            stopwatch.Reset();
-            stopwatch.Start();
+            B();
+            Debug.Log($"A {stopwatch0.Elapsed.TotalSeconds:F8}");
+            stopwatch0.Reset();
+            stopwatch0.Start();
         }).AddTo(this);
-        stopwatch.Start();  // 呼び出し側で計測したいならここからStart
+
+        stopwatch0.Start();
+        stopwatch1.Start();
+
+    }
+
+    void B()
+    {
+        Debug.Log($"B {stopwatch1.Elapsed.TotalSeconds:F8}");
+        stopwatch1.Reset();
+        stopwatch1.Start();
     }
 
 

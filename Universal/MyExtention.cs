@@ -6,8 +6,9 @@ using System.Linq;
 using TMPro;
 using UnityEngine.UI;
 using Cysharp.Threading.Tasks;
+using System.Threading;
 using UniRx;
-using static PlasticGui.LaunchDiffParameters;
+using System.Diagnostics.CodeAnalysis;
 
 
 
@@ -486,31 +487,99 @@ public class MyCoroutineHandler : SingletonCompo<MyCoroutineHandler>
 
 public static class ObservableExtensions
 {
+
     // メッセージの値が指定したものと一致していたら定期実行開始。異なっていたら終了
-    // 定期実行の間隔は秒数指定。何も渡さなければフレーム毎の実行となる
+    // 定期実行の間隔は秒数指定(最短0.001s)。何も渡さなければフレーム毎の実行となる
     public static IObservable<long> UpdateWhileEqualTo<T>(
-      this IObservable<T> source,
-      T expectedValue,
-      float sec = 0)
+        this IObservable<T> source,
+        T expectedValue,
+        float sec = 0f )
     {
-        if (sec == 0)
+        // インターバルの下限を設定
+        float interval = sec;
+        if (sec <= 0) interval = 0;
+        else
+        if (sec <= 0.001f) interval = 0.001f;
+
+        // フレーム毎発火
+        if (interval == 0)
             return source
                 .Select(value =>
                     EqualityComparer<T>.Default.Equals(value, expectedValue) ?
-                    Observable.EveryUpdate() :
-                    Observable.Empty<long>()
+                        Observable.EveryUpdate() :
+                        Observable.Empty<long>()
                 )
                 .Switch();
+        // 秒数毎発火
+        // Observable.Intervalの方が軽いがフレームベースで時間を計る
+        // エディタだとフレームが安定しないので大きめの時間のみ
+        else
+# if UNITY_EDITOR
+        if (interval >= 10f)
+#else
+        if (interval >= 0.1f)
+#endif
+            return source
+                .Select(value =>
+                    EqualityComparer<T>.Default.Equals(value, expectedValue) ?
+                        Observable.Interval(TimeSpan.FromSeconds(sec)) :
+                        Observable.Empty<long>()
+                )
+                .Switch();
+        // 極小秒数毎発火
         else
             return source
                 .Select(value =>
                     EqualityComparer<T>.Default.Equals(value, expectedValue) ?
-                    Observable.Interval(TimeSpan.FromSeconds(sec)) :
-                    Observable.Empty<long>()
+                        CreateStopwatchInterval(interval) :
+                        Observable.Empty<long>()
                 )
+                .ObserveOnMainThread()
                 .Switch();
     }
+
+
+    // Stopwatchを使い、フレームレートに依存せず「指定秒」でOnNextを繰り返す。
+    private static IObservable<long> CreateStopwatchInterval(float sec)
+    {
+        return Observable.Create<long>(observer =>
+        {
+            var cts = new CancellationTokenSource();
+
+            UniTask.RunOnThreadPool(async () =>
+            {
+                var interval = TimeSpan.FromSeconds(sec);
+                long count = 0;
+                var stopwatch = new System.Diagnostics.Stopwatch();
+                try
+                {
+                    stopwatch.Start();
+                    while (!cts.IsCancellationRequested)
+                    if (stopwatch.Elapsed.TotalSeconds >= interval.TotalSeconds)
+                    {
+                        observer.OnNext(count++);
+                        // 無限ループのスレッドが独占対策でCPUスイッチ
+                        Thread.Sleep(0);
+                        stopwatch.Reset();
+                        stopwatch.Start();
+                    }
+                }
+                catch (OperationCanceledException)
+                {
+                    // キャンセル時は何もしない
+                }
+                finally
+                {
+                    observer.OnCompleted();
+                }
+            }, cancellationToken: cts.Token).Forget();
+
+            return Disposable.Create(() => cts.Cancel());
+        });
+    }
 }
+
+
 
 public static class ListExtentions
 {

@@ -534,8 +534,8 @@ public static class ObservableExtensions
                         CreateStopwatchInterval(interval) :
                         Observable.Empty<long>()
                 )
-                .ObserveOnMainThread()
-                .Switch();
+                .Switch()
+                .ObserveOnMainThread();
     }
 
 

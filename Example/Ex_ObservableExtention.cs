@@ -26,8 +26,8 @@ public class Ex_ObservableExtention : MonoBehaviour
 
         stopwatch0.Start();
         stopwatch1.Start();
-
     }
+
 
     void B()
     {

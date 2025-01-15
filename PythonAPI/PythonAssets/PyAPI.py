@@ -20,7 +20,8 @@ def APInit():
     
 
 
-def APIIn():
+def APIn():
+    APInit()
     if len(sys.argv) > 1:
             try:
                 arg = sys.argv[1]
@@ -35,7 +36,7 @@ def APIIn():
 
 
 
-def APIOut(outputJobj):
+def APOut(outputJobj):
      outputJson = json.dumps(outputJobj, ensure_ascii=False)
      Log(f"JSON_OUTPUT_START{outputJson}JSON_OUTPUT_END") # プレフィックスとサフィックスで囲む
 
@@ -53,7 +54,7 @@ def Log(msg):
         with open(LogPath, "a", encoding="utf-8") as file:
             file.write( 
                         f"___\n{msg}\n"
-                        f"./{caller_file}:{caller_line}")
+                        f"(at ./{caller_file}:{caller_line})")
     else:
         # ファイルが存在しない場合はコンソールに出力
         print(msg)

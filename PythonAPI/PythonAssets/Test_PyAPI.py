@@ -1,19 +1,12 @@
-import sys
-from PyAPI import APIIn, APIOut
+from PyAPI import APIn, APOut, Log 
 import time
-import os
+apIn = APIn()
 
 
 if __name__ == "__main__":
-    # 自分が配置されているディレクトリに移動
-    os.chdir(os.path.dirname(os.path.abspath(__file__)))
-
-    print("AAA")
-
-    input = APIIn()
-    input["Battery"] += 10
-    input["Memory"] = "16 GB"
+    apIn["Battery"] += 10
+    apIn["Memory"] = "16 GB"
 
     time.sleep(2)
 
-    APIOut(input)
+    APOut(input)

@@ -50,14 +50,10 @@ public class PyCreator : Editor
         // 初期コードを書き込む (from PyAPI import APIIn, APIOut を追加)
         using (StreamWriter writer = new StreamWriter(filePath))
         {
-            writer.WriteLine("from PyAPI import APIIn, APIOut");
-            writer.WriteLine("import os");
+            writer.WriteLine("from PyAPI import APIn, APOut, Log ");
+            writer.WriteLine("apIn = APIn()");
             writer.WriteLine("");
             writer.WriteLine("if __name__ == \"__main__\":");
-            writer.WriteLine("    # 自分が配置されているディレクトリに移動");
-            writer.WriteLine("    os.chdir(os.path.dirname(os.path.abspath(__file__)))");
-            writer.WriteLine("    # PyAPIからインプットを取得");
-            writer.WriteLine("    input = APIIn()");
             writer.WriteLine("    ");
         }
     }

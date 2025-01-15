@@ -18,13 +18,14 @@ public class PyAPI
         if (string.IsNullOrEmpty(pyExeFile)) PyExeFile = $"{pyDir}/.venv/Scripts/python.exe";
         else PyExeFile = pyExeFile ;
     }
-    
 
-    public async UniTask<JObject> Exe(string pyFileName, JObject inputJObj = null, float timeout = 0)
+
+    public async UniTask<JObject> Exe(string pyFileName, float timeout = 0) {
+        return await Exe(pyFileName, new JObject(), timeout);
+    }
+
+    public async UniTask<JObject> Exe(string pyFileName, JObject inputJObj, float timeout = 0)
     {
-        // inputJObj が null の場合空の JObject を作成
-        inputJObj ??= new JObject();
-
         // Pythonファイルパス
         string pyFile = @$"{PyDir}\{pyFileName}";
         if (!File.Exists(PyExeFile)) Debug.LogError($"次の実行ファイルは無い{PyExeFile}");

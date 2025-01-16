@@ -1,6 +1,8 @@
 import sys
 import json
 import os
+import threading
+import time
 from inspect import stack
 from pathlib import Path
 
@@ -11,6 +13,11 @@ RootPah = ""
 
 
 def APInit():
+     # UTF-8 再設定 (必要に応じて)
+    if hasattr(sys.stdin, "reconfigure"):
+        sys.stdin.reconfigure(encoding='utf-8')
+        sys.stdout.reconfigure(encoding='utf-8')
+        
     global LogPath, RootPah
     # Assets 直下にログ用txtファイルがある
     LogPath = f"{Path.cwd()}/Assets/PyLog.txt"
@@ -60,3 +67,18 @@ def Log(msg):
         print(msg)
 
 
+
+# 新しいスレッドを作成して関数を割り当て
+def Idle(fnc):
+    threading.Thread(target=idle, args=[fnc]).start()
+def idle(fnc):
+    # メインループ（C#からの入力を処理）
+    for arg in sys.stdin:
+        try:
+            inputJObj = json.loads(arg.strip())
+            fnc(inputJObj)
+        except json.JSONDecodeError:
+            Log("JSON形式の引数ではありません。")
+        except Exception as e:
+            Log(f"エラーが発生しました: {e}")
+        time.sleep(0.001)

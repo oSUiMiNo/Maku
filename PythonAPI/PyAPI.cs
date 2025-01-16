@@ -6,6 +6,7 @@ using System.Threading;
 using System.IO;
 using System.Text.RegularExpressions;
 using System;
+using System.Text;
 
 public class PyAPI
 {
@@ -18,6 +19,35 @@ public class PyAPI
         if (string.IsNullOrEmpty(pyExeFile)) PyExeFile = $"{pyDir}/.venv/Scripts/python.exe";
         else PyExeFile = pyExeFile ;
     }
+
+
+
+    public async UniTask<System.Diagnostics.Process> Idle(string pyFileName, float timeout = 0)
+    {
+        // Pythonファイルパス
+        string pyFile = @$"{PyDir}\{pyFileName}";
+        if (!File.Exists(PyExeFile)) Debug.LogError($"次の実行ファイルは無い{PyExeFile}");
+        if (!File.Exists(pyFile)) Debug.LogError($"次のPyファイルは無い{pyFile}");
+
+        await UniTask.SwitchToThreadPool();
+        System.Diagnostics.Process process = new System.Diagnostics.Process
+        {
+            StartInfo = new System.Diagnostics.ProcessStartInfo(PyExeFile)
+            {
+                Arguments = $"{pyFile}",
+                UseShellExecute = false, // シェルを使用しない
+                RedirectStandardOutput = true, // 標準出力をリダイレクト
+                RedirectStandardInput = true, // 標準入力をリダイレクト
+                RedirectStandardError = true, // 標準エラーをリダイレクト
+                CreateNoWindow = true, // PowerShellウィンドウを表示しない
+            }
+        };
+
+        process.Start();
+        await UniTask.SwitchToMainThread();
+        return process;
+    }
+
 
 
     public async UniTask<JObject> Exe(string pyFileName, float timeout = 0) {
@@ -38,10 +68,12 @@ public class PyAPI
         {
             StartInfo = new System.Diagnostics.ProcessStartInfo(PyExeFile)
             {
-                UseShellExecute = false,
-                CreateNoWindow = false,
-                RedirectStandardOutput = true,
-                Arguments = $"{pyFile} {sendData}"
+                Arguments = $"{pyFile} {sendData}",
+                UseShellExecute = false, // シェルを使用しない
+                RedirectStandardOutput = true, // 標準出力をリダイレクト
+                RedirectStandardInput = true, // 標準入力をリダイレクト
+                RedirectStandardError = true, // 標準エラーをリダイレクト
+                CreateNoWindow = true, // PowerShellウィンドウを表示しない
             }
         };
 
@@ -98,6 +130,24 @@ public class PyAPI
 
 public static class ProcessExtentions
 {
+    public static async UniTask Send(this System.Diagnostics.Process process, JObject inputJObj)
+    {
+        await UniTask.SwitchToThreadPool();
+
+        string sendData = JsonConvert.SerializeObject(inputJObj);
+        var inputWriter = process.StandardInput;
+        //var outputReader = process.StandardOutput;
+        inputWriter.WriteLine(sendData);
+        inputWriter.Flush();
+
+        // ReadToEnd() を高速で呼ぶと重すぎてやばい。後で出力もtxtの方式にする
+        //var output = outputReader.ReadToEnd();
+        await UniTask.SwitchToMainThread();
+        //return output;
+    }
+
+
+
     public static UniTask<string> RunAsync(this System.Diagnostics.Process process, float timeout = 0)
     {
         var cts = new CancellationTokenSource();
@@ -105,7 +155,8 @@ public static class ProcessExtentions
         string output = "";
 
         if (timeout != 0)
-            UniTask.RunOnThreadPool(() => process.Cancel(timeout, cts.Token));
+            UniTask.RunOnThreadPool(() => process.Cancel(timeout, cts.Token)).Forget();
+            //UniTask.RunOnThreadPool(() => process.Cancel(timeout, cts.Token));
 
         // Exited イベントを有効にする
         process.EnableRaisingEvents = true;
@@ -129,17 +180,28 @@ public static class ProcessExtentions
         return exited.Task;
     }
 
+
+
     public static async void Cancel(this System.Diagnostics.Process process, float timeout, CancellationToken cancellationToken)
     {
         try
         {
             await UniTask.WaitForSeconds(timeout, false, PlayerLoopTiming.Update, cancellationToken);
             Debug.LogAssertion("タイムアウト");
-            process.Dispose();
+            process.PerfectKill();
         }
         catch
         {
             Debug.Log("タイムアウトがキャンセルされた");
         }
     }
+
+
+
+    public static void PerfectKill(this System.Diagnostics.Process process)
+    {
+        process.Kill();
+        process.Dispose();
+    }
+
 }

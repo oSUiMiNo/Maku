@@ -10,6 +10,7 @@ from pathlib import Path
 # 更新するファイルのパス
 LogPath = ""
 RootPah = ""
+OutPath = ""
 
 
 def APInit():
@@ -18,16 +19,20 @@ def APInit():
         sys.stdin.reconfigure(encoding='utf-8')
         sys.stdout.reconfigure(encoding='utf-8')
         
-    global LogPath, RootPah
+    global LogPath, RootPah, OutPath
+    # ルートパス一応保存しとく
+    RootPah = Path.cwd()
     # Assets 直下にログ用txtファイルがある
     LogPath = f"{Path.cwd()}/Assets/PyLog.txt"
-    RootPah = Path.cwd()
     # 自分が配置されているディレクトリに移動
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
-    
+
 
 
 def APIn():
+    global OutPath
+    # アウトプット用にC#によって呼び出し元.pyと同じディレクトリに [自分のファイル名.json] が作成されている。
+    OutPath = f"{Path(stack()[1].filename).with_suffix(".txt")}"
     APInit()
     if len(sys.argv) > 1:
             try:
@@ -43,9 +48,16 @@ def APIn():
 
 
 
+# def APOut(outputJobj):
+#      outputJson = json.dumps(outputJobj, ensure_ascii=False)
+#      Log(f"JSON_OUTPUT_START{outputJson}JSON_OUTPUT_END") # プレフィックスとサフィックスで囲む
 def APOut(outputJobj):
-     outputJson = json.dumps(outputJobj, ensure_ascii=False)
-     Log(f"JSON_OUTPUT_START{outputJson}JSON_OUTPUT_END") # プレフィックスとサフィックスで囲む
+    outputJson = json.dumps(outputJobj, ensure_ascii=False)
+    if os.path.exists(OutPath):
+        with open(OutPath, "a", encoding="utf-8") as file:
+            file.write(f"___\n{outputJson}\n")
+    else:
+        return outputJobj
 
 
 
@@ -74,6 +86,8 @@ def Idle(fnc):
 def idle(fnc):
     # メインループ（C#からの入力を処理）
     for arg in sys.stdin:
+        if arg.strip() == "Close":
+            break
         try:
             inputJObj = json.loads(arg.strip())
             fnc(inputJObj)

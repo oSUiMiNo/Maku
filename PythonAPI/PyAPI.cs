@@ -6,67 +6,70 @@ using System.Threading;
 using System.IO;
 using System.Text.RegularExpressions;
 using System;
-using System.Text;
+using System.Collections.Generic;
+using UniRx;
 
-public class PyAPI
+
+public class PyAPIHandler : SingletonCompo<PyAPIHandler>
 {
-    string PyExeFile;
-    string PyDir;
+    static string LogPath => $"{Application.dataPath}/PyLog.txt"; // 監視するファイルのパス
+    static SharedLog Log = new SharedLog(LogPath);
+    static BoolReactiveProperty Readable = new BoolReactiveProperty(true);
 
-    public PyAPI(string pyDir, string pyExeFile = "")
+    protected sealed override void Awake0()
     {
-        PyDir = pyDir;
-        if (string.IsNullOrEmpty(pyExeFile)) PyExeFile = $"{pyDir}/.venv/Scripts/python.exe";
-        else PyExeFile = pyExeFile ;
-    }
-
-
-
-    public async UniTask<System.Diagnostics.Process> Idle(string pyFileName, float timeout = 0)
-    {
-        // Pythonファイルパス
-        string pyFile = @$"{PyDir}\{pyFileName}";
-        if (!File.Exists(PyExeFile)) Debug.LogError($"次の実行ファイルは無い{PyExeFile}");
-        if (!File.Exists(pyFile)) Debug.LogError($"次のPyファイルは無い{pyFile}");
-
-        await UniTask.SwitchToThreadPool();
-        System.Diagnostics.Process process = new System.Diagnostics.Process
+        Readable.TimerWhileEqualTo(true, 1f).Subscribe(_ =>
         {
-            StartInfo = new System.Diagnostics.ProcessStartInfo(PyExeFile)
-            {
-                Arguments = $"{pyFile}",
-                UseShellExecute = false, // シェルを使用しない
-                RedirectStandardOutput = true, // 標準出力をリダイレクト
-                RedirectStandardInput = true, // 標準入力をリダイレクト
-                RedirectStandardError = true, // 標準エラーをリダイレクト
-                CreateNoWindow = true, // PowerShellウィンドウを表示しない
-            }
-        };
-
-        process.Start();
-        await UniTask.SwitchToMainThread();
-        return process;
-    }
-
-
-
-    public async UniTask<JObject> Exe(string pyFileName, float timeout = 0) {
-        return await Exe(pyFileName, new JObject(), timeout);
-    }
-
-    public async UniTask<JObject> Exe(string pyFileName, JObject inputJObj, float timeout = 0)
-    {
-        // Pythonファイルパス
-        string pyFile = @$"{PyDir}\{pyFileName}";
-        if (!File.Exists(PyExeFile)) Debug.LogError($"次の実行ファイルは無い{PyExeFile}");
-        if (!File.Exists(pyFile)) Debug.LogError($"次のPyファイルは無い{pyFile}");
-
-        // ["] を [\""] にエスケープしたJson
-        string sendData = JsonConvert.SerializeObject(inputJObj).Replace("\"", "\\\"\"");
-
-        var process = new System.Diagnostics.Process
+            Log.ReadLogFileAsync().Forget();
+        }).AddTo(this);
+        Log.OnLog.Subscribe(msg =>
         {
-            StartInfo = new System.Diagnostics.ProcessStartInfo(PyExeFile)
+            Debug.Log(msg);
+        }).AddTo(this);
+    }
+
+    private void OnApplicationQuit()
+    {
+        PyAPI.CloseAll();
+        Log.Close();
+    }
+
+    private void OnDestroy()
+    {
+        PyAPI.CloseAll();
+        Log.Close();
+    }
+}
+
+
+
+public class PyFnc
+{
+    static BoolReactiveProperty Readable = new BoolReactiveProperty(true);
+    System.Diagnostics.Process process;
+    SharedLog Output;
+    public IObservable<JObject> OnOut => Output.OnLog
+    .Select(msg =>
+    {
+        try
+        {
+            return JObject.Parse(msg);
+        }
+        catch (Exception ex)
+        {
+            // エラー処理 (必要に応じて)
+            Debug.LogError($"JSONパースエラー: {ex.Message}");
+            return null;
+        }
+    })
+    .Where(JO => JO != null);
+
+    public PyFnc(string pyInterpFile, string pyFile, string sendData = "")
+    {
+        // 実行用プロセス作成
+        process = new System.Diagnostics.Process
+        {
+            StartInfo = new System.Diagnostics.ProcessStartInfo(pyInterpFile)
             {
                 Arguments = $"{pyFile} {sendData}",
                 UseShellExecute = false, // シェルを使用しない
@@ -77,85 +80,127 @@ public class PyAPI
             }
         };
 
-        string output = await process.RunAsync(timeout);
-        if (!string.IsNullOrEmpty(output))
+        // アウトプット用ファイル作成;
+        Output = new SharedLog($"{pyFile.Replace(".py", ".txt")}");
+        Readable.TimerWhileEqualTo(true, 0.01f).Subscribe(_ =>
         {
-            Debug.Log($"Raw Python Output:\n{output}"); // 生の出力をログ出力
+            Output.ReadLogFileAsync().Forget();
+        });
+    }
 
-            // 改行コードを統一 (非常に重要)
-            output = output.Replace("\r\n", "\n").Replace("\r", "\n");
+    public void Start()
+    {
+        process.Start();
+    }
 
-            // 正規表現パターン
-            string pattern = @"JSON_OUTPUT_START(.*?)JSON_OUTPUT_END";
+    public async void Close()
+    {
+        await process.Command("Close");
+        process.PerfectKill();
+        Output.Close();
+    }
 
-            // 正規表現でJSON文字列を抽出
-            Match match = Regex.Match(output, pattern); // .* を追加
+    public async UniTask Exe(JObject inputJObj)
+    {
+        await process.Exe(inputJObj);
+    }
+
+    public async UniTask<string> RunAsync(float timeout = 0)
+    {
+        return await process.RunAsync(timeout, () => Output.Close());
+    }
+}
 
 
-            if (match.Success)
-            {
-                string jsonString = match.Groups[1].Value;
-                try
-                {
-                    JObject outputJObj = JObject.Parse(jsonString);
-                    return outputJObj;
-                }
-                catch (JsonReaderException ex)
-                {
-                    Debug.LogError($"JSONパースエラー: {ex.Message}");
-                    Debug.LogError($"JSON文字列: {jsonString}");
-                    return null;
-                }
-                catch (Exception ex)
-                {
-                    Debug.LogError($"予期せぬエラー: {ex.Message}");
-                    Debug.LogError($"JSON文字列: {jsonString}");
-                    return null;
-                }
-            }
-            else
-            {
-                Debug.LogError("JSON出力が見つかりませんでした。");
-                return null;
-            }
-        }
-        else
+
+
+public class PyAPI
+{
+    string PyInterpFile;
+    string PyDir;
+    static List<PyFnc> IdlongFncs = new List<PyFnc>();
+
+    public PyAPI(string pyDir, string pyInterpFile = "")
+    {
+        PyDir = pyDir;
+        if (string.IsNullOrEmpty(pyInterpFile)) PyInterpFile = $"{pyDir}/.venv/Scripts/python.exe";
+        else PyInterpFile = pyInterpFile ;
+    }
+
+
+    public static void CloseAll()
+    { 
+        foreach (var fnc in IdlongFncs)
         {
-            Debug.Log("戻り値が空だった");
-            return null;
+            fnc.Close();
         }
+    }
+
+
+    public PyFnc Idle(string pyFileName, float timeout = 0)
+    {
+        // Pythonファイルパス
+        string pyFile = @$"{PyDir}\{pyFileName}";
+        if (!File.Exists(PyInterpFile)) Debug.LogError($"次の実行ファイルは無い{PyInterpFile}");
+        if (!File.Exists(pyFile)) Debug.LogError($"次のPyファイルは無い{pyFile}");
+
+        PyFnc pyFnc = new PyFnc(PyInterpFile, pyFile);
+        IdlongFncs.Add(pyFnc);
+        pyFnc.Start();
+
+        return pyFnc;
+    }
+
+
+    public async UniTask<JObject> Exe(string pyFileName, float timeout = 0) {
+        return await Exe(pyFileName, new JObject(), timeout);
+    }
+
+    public async UniTask<JObject> Exe(string pyFileName, JObject inputJObj, float timeout = 0)
+    {
+        // Pythonファイルパス
+        string pyFile = @$"{PyDir}\{pyFileName}";
+        if (!File.Exists(PyInterpFile)) Debug.LogError($"次の実行ファイルは無い{PyInterpFile}");
+        if (!File.Exists(pyFile)) Debug.LogError($"次のPyファイルは無い{pyFile}");
+
+        // ["] を [\""] にエスケープしたJson
+        string sendData = JsonConvert.SerializeObject(inputJObj).Replace("\"", "\\\"\"");
+        PyFnc pyFnc = new PyFnc(PyInterpFile, pyFile, sendData);
+        string output = await pyFnc.RunAsync(timeout);
+
+        return null;
     }
 }
 
 
 public static class ProcessExtentions
 {
-    public static async UniTask Send(this System.Diagnostics.Process process, JObject inputJObj)
+    public static async UniTask Exe(this System.Diagnostics.Process process, JObject inputJObj)
     {
-        await UniTask.SwitchToThreadPool();
-
         string sendData = JsonConvert.SerializeObject(inputJObj);
         var inputWriter = process.StandardInput;
-        //var outputReader = process.StandardOutput;
         inputWriter.WriteLine(sendData);
         inputWriter.Flush();
+    }
 
-        // ReadToEnd() を高速で呼ぶと重すぎてやばい。後で出力もtxtの方式にする
-        //var output = outputReader.ReadToEnd();
-        await UniTask.SwitchToMainThread();
-        //return output;
+
+    public static async UniTask Command(this System.Diagnostics.Process process, string command)
+    {
+        var inputWriter = process.StandardInput;
+        inputWriter.WriteLine(command);
+        inputWriter.Flush();
     }
 
 
 
-    public static UniTask<string> RunAsync(this System.Diagnostics.Process process, float timeout = 0)
+    public static UniTask<string> RunAsync(this System.Diagnostics.Process process, float timeout = 0, Action fncOnDispose = null)
     {
         var cts = new CancellationTokenSource();
         var exited = new UniTaskCompletionSource<string>();
         string output = "";
 
         if (timeout != 0)
-            UniTask.RunOnThreadPool(() => process.Cancel(timeout, cts.Token)).Forget();
+            UniTask.RunOnThreadPool(() => process.Cancel(timeout, cts.Token, fncOnDispose)).Forget();
             //UniTask.RunOnThreadPool(() => process.Cancel(timeout, cts.Token));
 
         // Exited イベントを有効にする
@@ -182,13 +227,14 @@ public static class ProcessExtentions
 
 
 
-    public static async void Cancel(this System.Diagnostics.Process process, float timeout, CancellationToken cancellationToken)
+    public static async void Cancel(this System.Diagnostics.Process process, float timeout, CancellationToken cancellationToken, Action fncOnDispose = null)
     {
         try
         {
             await UniTask.WaitForSeconds(timeout, false, PlayerLoopTiming.Update, cancellationToken);
             Debug.LogAssertion("タイムアウト");
             process.PerfectKill();
+            fncOnDispose?.Invoke();
         }
         catch
         {

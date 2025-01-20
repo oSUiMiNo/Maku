@@ -219,49 +219,96 @@ public static class ProcessExtentions
 
 
 
-    public static UniTask<string> RunAsync(this System.Diagnostics.Process process, float timeout = 0, Action fncOnDispose = null)
+    //public static UniTask<string> RunAsync(this System.Diagnostics.Process process, float timeout = 0, Action fncOnDispose = null)
+    //{
+    //    var cts = new CancellationTokenSource();
+    //    var exited = new UniTaskCompletionSource<string>();
+    //    string output = "";
+
+    //    if (timeout != 0)
+    //        UniTask.RunOnThreadPool(() => process.Timeout(timeout, cts.Token)).Forget();
+
+    //    // Exited イベントを有効にする
+    //    process.EnableRaisingEvents = true;
+    //    process.Exited += (sender, args) =>
+    //    {
+    //        string error = process.StandardError.ReadToEnd(); // エラー読取り
+    //        if (!string.IsNullOrEmpty(error)) Debug.LogError($"PowerShell Error: {error}");
+
+    //        output = process.StandardOutput.ReadToEnd();
+    //        process.Dispose();
+    //    };
+
+    //    process.Disposed += (sender, args) =>
+    //    {
+    //        exited.TrySetResult(output);
+    //        cts.Cancel();
+    //        fncOnDispose?.Invoke();
+    //    };
+
+    //    process.Start();
+
+    //    return exited.Task;
+    //}
+
+
+    public static UniTask<string> RunAsync(this System.Diagnostics.Process process, float timeout = 0, Action fncOnDispose = null, CancellationToken externalCT = default)
     {
         var cts = new CancellationTokenSource();
+        // 外部トークンと内部トークンをリンク
+        using var linkedCTS = CancellationTokenSource.CreateLinkedTokenSource(externalCT, cts.Token);
         var exited = new UniTaskCompletionSource<string>();
         string output = "";
 
         if (timeout != 0)
-            UniTask.RunOnThreadPool(() => process.Timeout(timeout, cts.Token)).Forget();
+            UniTask.RunOnThreadPool(() => process.Timeout(timeout, linkedCTS.Token)).Forget();
 
-        // Exited イベントを有効にする
         process.EnableRaisingEvents = true;
         process.Exited += (sender, args) =>
         {
-            string error = process.StandardError.ReadToEnd(); // エラー読取り
+            string error = process.StandardError.ReadToEnd();
             if (!string.IsNullOrEmpty(error)) Debug.LogError($"PowerShell Error: {error}");
 
             output = process.StandardOutput.ReadToEnd();
-            process.Dispose();
+            process.Dispose(); // PerfectKill()でDispose済みなら不要
         };
 
         process.Disposed += (sender, args) =>
         {
             exited.TrySetResult(output);
-            cts.Cancel();
+            linkedCTS.Cancel(); // リンクされたCTSをキャンセル
             fncOnDispose?.Invoke();
         };
 
         process.Start();
+
+        try
+        {
+            exited.Task.AttachExternalCancellation(linkedCTS.Token); // 外部キャンセルを反映
+        }
+        catch (OperationCanceledException)
+        {
+            // 外部からキャンセルされた場合の処理
+            Debug.Log("外部から処理がキャンセルされた");
+            process.PerfectKill();
+
+            throw; // 必要に応じて例外を再スロー
+        }
 
         return exited.Task;
     }
 
 
 
-    public static async void Timeout(this System.Diagnostics.Process process, float timeout, CancellationToken cancellationToken)
+    public static async void Timeout(this System.Diagnostics.Process process, float timeout, CancellationToken cT)
     {
         try
         {
-            await UniTask.WaitForSeconds(timeout, false, PlayerLoopTiming.Update, cancellationToken);
+            await UniTask.WaitForSeconds(timeout, false, PlayerLoopTiming.Update, cT);
             Debug.LogAssertion("タイムアウト");
             process.PerfectKill();
         }
-        catch
+        catch (OperationCanceledException)
         {
             Debug.Log("タイムアウトがキャンセルされた");
         }

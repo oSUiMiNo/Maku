@@ -29,7 +29,7 @@ public class Test_PyLoop : MonoBehaviour
         .TimerWhileEqualTo(true, 1)
         .Subscribe(_ =>
         {
-            pyFnc.Exe(input).Forget();
+            pyFnc.Exe(input);
         }).AddTo(this);
 
 

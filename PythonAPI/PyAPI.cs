@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 using System;
 using System.Collections.Generic;
 using UniRx;
+using UnityEngine.Animations;
 
 
 public class PyAPIHandler : SingletonCompo<PyAPIHandler>
@@ -59,9 +60,13 @@ public class PyAPIHandler : SingletonCompo<PyAPIHandler>
 
 public class PyFnc
 {
-    System.Diagnostics.Process process;
+    //System.Diagnostics.Process process;
     string OutPath; // 監視するファイルのパス
     SharedLog Output;
+
+    List<System.Diagnostics.Process> children = new List<System.Diagnostics.Process>();
+
+
     IObservable<long> OnRead => logActive.TimerWhileEqualTo(Output.isActive, 0.01f);
     static BoolReactiveProperty logActive = new BoolReactiveProperty(true);
     public IObservable<JObject> OnOut => Output.OnLog
@@ -80,22 +85,45 @@ public class PyFnc
     })
     .Where(JO => JO != null);
 
-    public PyFnc(string pyInterpFile, string pyFile, string sendData = "")
+    PyFnc(string pyInterpFile, string pyFile, string sendData = "")
     {
-        // 実行用プロセス作成
-        process = new System.Diagnostics.Process
+        //// 実行用プロセス作成
+        //process = new System.Diagnostics.Process
+        //{
+        //    StartInfo = new System.Diagnostics.ProcessStartInfo(pyInterpFile)
+        //    {
+        //        Arguments = $"{pyFile} {sendData}",
+        //        UseShellExecute = false, // シェルを使用しない
+        //        RedirectStandardOutput = true, // 標準出力をリダイレクト
+        //        RedirectStandardInput = true, // 標準入力をリダイレクト
+        //        RedirectStandardError = true, // 標準エラーをリダイレクト
+        //        CreateNoWindow = true, // PowerShellウィンドウを表示しない
+        //    }
+        //};
+    }
+
+    public static async UniTask<PyFnc> Create(string pyInterpFile, string pyFile, string sendData = "", int count = 1)
+    {
+        var newFnc = new PyFnc(pyInterpFile, pyFile, sendData);
+        if (count <= 0) count = 1;
+        for(int i = 0; i < count; i++)
         {
-            StartInfo = new System.Diagnostics.ProcessStartInfo(pyInterpFile)
+            newFnc.children.Add(new System.Diagnostics.Process
             {
-                Arguments = $"{pyFile} {sendData}",
-                UseShellExecute = false, // シェルを使用しない
-                RedirectStandardOutput = true, // 標準出力をリダイレクト
-                RedirectStandardInput = true, // 標準入力をリダイレクト
-                RedirectStandardError = true, // 標準エラーをリダイレクト
-                CreateNoWindow = true, // PowerShellウィンドウを表示しない
-            }
-        };
-        InitLog(pyFile);
+                StartInfo = new System.Diagnostics.ProcessStartInfo(pyInterpFile)
+                {
+                    Arguments = $"{pyFile} {sendData}",
+                    UseShellExecute = false, // シェルを使用しない
+                    RedirectStandardOutput = true, // 標準出力をリダイレクト
+                    RedirectStandardInput = true, // 標準入力をリダイレクト
+                    RedirectStandardError = true, // 標準エラーをリダイレクト
+                    CreateNoWindow = true, // PowerShellウィンドウを表示しない
+                }
+            });
+        }
+        await UniTask.Delay(1);
+        newFnc.InitLog(pyFile);
+        return newFnc;
     }
 
     void InitLog(string pyFile)
@@ -113,25 +141,43 @@ public class PyFnc
 
     public void Start()
     {
-        process.Start();
+        foreach (var child in children)
+        {
+            child.Start();
+        }
+        //process.Start();
     }
 
     public async void Close()
     {
-        process.Command("Close");
-        process.PerfectKill();
         Output.Close();
         logActive.Dispose();
+        foreach (var child in children)
+        {
+            child.Command("Close");
+            child.PerfectKill();
+        }
+        //process.Command("Close");
+        //process.PerfectKill();
     }
 
-    public void Exe(JObject inputJObj)
+    static int currentIndex = 0;
+
+    public void Exe(JObject inJO)
     {
-        process.Exe(inputJObj);
+        //process.Exe(inJO);
+        children[currentIndex].Exe(inJO);
+        if (currentIndex == children.Count - 1) currentIndex = 0;
+        else currentIndex++;
     }
 
     public async UniTask<string> RunAsync(float timeout = 0)
     {
-        return await process.RunAsync(timeout, () => Output.Close());
+        string output = await children[currentIndex].RunAsync(timeout, () => Output.Close());
+        if (currentIndex == children.Count - 1) currentIndex = 0;
+        else currentIndex++;
+        return output;
+        //return await process.RunAsync(timeout, () => Output.Close());
     }
 }
 
@@ -161,14 +207,17 @@ public class PyAPI
     }
 
 
-    public PyFnc Idle(string pyFileName, float timeout = 0)
+    public async UniTask<PyFnc> Idle(string pyFileName, float timeout = 0, int count = 1)
     {
         // Pythonファイルパス
         string pyFile = @$"{PyDir}\{pyFileName}";
         if (!File.Exists(PyInterpFile)) Debug.LogError($"次の実行ファイルは無い{PyInterpFile}");
         if (!File.Exists(pyFile)) Debug.LogError($"次のPyファイルは無い{pyFile}");
 
-        PyFnc pyFnc = new PyFnc(PyInterpFile, pyFile);
+        //PyFnc pyFnc = new PyFnc(PyInterpFile, pyFile);
+        PyFnc pyFnc;
+        if (count <= 1) pyFnc = await PyFnc.Create(PyInterpFile, pyFile);
+        else pyFnc = await PyFnc.Create(PyInterpFile, pyFile, count: count);
         IdlongFncs.Add(pyFnc);
         pyFnc.Start();
 
@@ -189,7 +238,8 @@ public class PyAPI
 
         // ["] を [\""] にエスケープしたJson
         string sendData = JsonConvert.SerializeObject(inputJObj).Replace("\"", "\\\"\"");
-        PyFnc pyFnc = new PyFnc(PyInterpFile, pyFile, sendData);
+        //PyFnc pyFnc = new PyFnc(PyInterpFile, pyFile, sendData);
+        PyFnc pyFnc = await PyFnc.Create(PyInterpFile, pyFile, sendData);
         IdlongFncs.Add(pyFnc);
         string output = await pyFnc.RunAsync(timeout);
         IdlongFncs.Remove(pyFnc);

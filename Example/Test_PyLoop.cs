@@ -24,7 +24,7 @@ public class Test_PyLoop : MonoBehaviour
         input["Data0"] = "‚ ‚ ‚ ‚ ‚ ‚ ‚ ‚ ‚ ‚ ‚ ";
         input["Data1"] = "‚¢‚¢‚¢‚¢‚¢‚¢‚¢‚¢‚¢‚¢";
 
-        pyFnc = py.Idle("Test_Idle.py");
+        pyFnc = await py.Idle("Test_Idle.py", 3);
         a
         .TimerWhileEqualTo(true, 1)
         .Subscribe(_ =>

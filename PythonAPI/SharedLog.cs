@@ -11,11 +11,13 @@ public class SharedLog
     string LogPath; // 監視するファイルのパス
     DateTime lastWriteTime;
     public Subject<string> OnLog = new Subject<string>();
+    public bool isActive = false;
 
     public SharedLog(string logPath)
     {
         LogPath = logPath;
         CreateLogFileAsync().Forget();
+        isActive = true;
     }
 
 
@@ -66,22 +68,22 @@ public class SharedLog
 
 
 
-    public async UniTask ReadLogFileAsync()
+    public void ReadLogFile()
     {
         //await UniTask.SwitchToThreadPool();
         //Debug.Log("ログ読み取り");
-        if (!File.Exists(LogPath))
-            try
-            {
-                File.Create(LogPath).Close();
-                Debug.LogWarning($"ログファイルが削除されたため再作成: {LogPath}");
-                lastWriteTime = File.GetLastWriteTime(LogPath);
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"ログファイル再作成失敗: {e.Message}");
-                return;
-            }
+        //if (!File.Exists(LogPath))
+        //    try
+        //    {
+        //        File.Create(LogPath).Close();
+        //        Debug.LogWarning($"ログファイルが削除されたため再作成: {LogPath}");
+        //        lastWriteTime = File.GetLastWriteTime(LogPath);
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        Debug.LogError($"ログファイル再作成失敗: {e.Message}");
+        //        return;
+        //    }
 
         DateTime currentWriteTime = File.GetLastWriteTime(LogPath);
 
@@ -153,9 +155,10 @@ public class SharedLog
 
 
     // ログファイル削除
-    public async void Close()
+    public void Close()
     {
-        await UniTask.SwitchToThreadPool();
+        isActive = false;
+        //await UniTask.SwitchToThreadPool();
         if (File.Exists(LogPath))
         try
         {
@@ -166,6 +169,6 @@ public class SharedLog
         {
             Debug.LogError($"終了時のログファイル削除に失敗: {e.Message}");
         }
-        await UniTask.SwitchToMainThread();
+        //await UniTask.SwitchToMainThread();
     }
 }

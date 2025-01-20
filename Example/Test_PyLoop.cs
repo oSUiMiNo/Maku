@@ -17,7 +17,7 @@ public class Test_PyLoop : MonoBehaviour
 
     async void Start()
     {
-        py.Exe("LogTest.py").Forget();
+        py.Exe("LogTest.py", 7).Forget();
 
 
         JObject input = new JObject();

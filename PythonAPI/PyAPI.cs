@@ -2,6 +2,7 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
+using System.Threading.Tasks;
 using System.Threading;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -14,30 +15,41 @@ public class PyAPIHandler : SingletonCompo<PyAPIHandler>
 {
     static string LogPath => $"{Application.dataPath}/PyLog.txt"; // 監視するファイルのパス
     static SharedLog Log = new SharedLog(LogPath);
-    static BoolReactiveProperty Readable = new BoolReactiveProperty(true);
+    //IObservable<long> OnRead => existLog.UpdateWhileEqualTo(File.Exists(LogPath), 0.05f);
+    IObservable<long> OnRead => logActive.TimerWhileEqualTo(Log.isActive, 0.05f);
+    static BoolReactiveProperty logActive = new BoolReactiveProperty(true);
 
     protected sealed override void Awake0()
     {
-        Readable.TimerWhileEqualTo(true, 0.011f).Subscribe(_ =>
+        OnRead.Subscribe(_ =>
         {
-            Log.ReadLogFileAsync().Forget();
+            if (!File.Exists(LogPath)) return; // なんかオペレータをすり抜けるのでブロックしとく
+            Debug.Log($"ログ {File.Exists(LogPath)}");
+            Log.ReadLogFile();
         }).AddTo(this);
+
         Log.OnLog.Subscribe(msg =>
         {
             Debug.Log(msg);
         }).AddTo(this);
     }
 
-    private void OnApplicationQuit()
+    private async void OnApplicationQuit()
     {
         PyAPI.CloseAll();
+        // 終了後に待ちたいのでここはDelay.Secondではだめ
+        await UniTask.Delay(1);
         Log.Close();
+        Debug.Log("ログ　くわいと");
     }
 
-    private void OnDestroy()
+    private async void OnDestroy()
     {
         PyAPI.CloseAll();
+        // 終了後に待ちたいのでここはDelay.Secondではだめ
+        await UniTask.Delay(1);
         Log.Close();
+        Debug.Log("ログ　ですとろい");
     }
 }
 
@@ -45,9 +57,11 @@ public class PyAPIHandler : SingletonCompo<PyAPIHandler>
 
 public class PyFnc
 {
-    static BoolReactiveProperty Readable = new BoolReactiveProperty(true);
     System.Diagnostics.Process process;
+    string OutPath; // 監視するファイルのパス
     SharedLog Output;
+    IObservable<long> OnRead => logActive.TimerWhileEqualTo(Output.isActive, 0.01f);
+    static BoolReactiveProperty logActive = new BoolReactiveProperty(true);
     public IObservable<JObject> OnOut => Output.OnLog
     .Select(msg =>
     {
@@ -79,13 +93,20 @@ public class PyFnc
                 CreateNoWindow = true, // PowerShellウィンドウを表示しない
             }
         };
+        InitLog(pyFile);
+    }
 
+    void InitLog(string pyFile)
+    {
         // アウトプット用ファイル作成;
-        Output = new SharedLog($"{pyFile.Replace(".py", ".txt")}");
-        Readable.TimerWhileEqualTo(true, 0.01f).Subscribe(_ =>
+        OutPath = $"{pyFile.Replace("\\", "/").Replace(".py", ".txt")}";
+        Output = new SharedLog(OutPath);
+        OnRead.Subscribe(_ =>
         {
-            Output.ReadLogFileAsync().Forget();
-        });
+            if (!File.Exists(OutPath)) return; // なんかオペレータをすり抜けるのでブロックしとく
+            Debug.Log($"ログ{File.Exists(OutPath)} {Path.GetFileName(OutPath)}");
+            Output.ReadLogFile();
+        }).AddTo(PyAPIHandler.Compo);
     }
 
     public void Start()
@@ -166,7 +187,9 @@ public class PyAPI
         // ["] を [\""] にエスケープしたJson
         string sendData = JsonConvert.SerializeObject(inputJObj).Replace("\"", "\\\"\"");
         PyFnc pyFnc = new PyFnc(PyInterpFile, pyFile, sendData);
+        IdlongFncs.Add(pyFnc);
         string output = await pyFnc.RunAsync(timeout);
+        IdlongFncs.Remove(pyFnc);
 
         return null;
     }
@@ -200,8 +223,7 @@ public static class ProcessExtentions
         string output = "";
 
         if (timeout != 0)
-            UniTask.RunOnThreadPool(() => process.Cancel(timeout, cts.Token, fncOnDispose)).Forget();
-            //UniTask.RunOnThreadPool(() => process.Cancel(timeout, cts.Token));
+            UniTask.RunOnThreadPool(() => process.Timeout(timeout, cts.Token)).Forget();
 
         // Exited イベントを有効にする
         process.EnableRaisingEvents = true;
@@ -218,6 +240,7 @@ public static class ProcessExtentions
         {
             exited.TrySetResult(output);
             cts.Cancel();
+            fncOnDispose?.Invoke();
         };
 
         process.Start();
@@ -227,14 +250,13 @@ public static class ProcessExtentions
 
 
 
-    public static async void Cancel(this System.Diagnostics.Process process, float timeout, CancellationToken cancellationToken, Action fncOnDispose = null)
+    public static async void Timeout(this System.Diagnostics.Process process, float timeout, CancellationToken cancellationToken)
     {
         try
         {
             await UniTask.WaitForSeconds(timeout, false, PlayerLoopTiming.Update, cancellationToken);
             Debug.LogAssertion("タイムアウト");
             process.PerfectKill();
-            fncOnDispose?.Invoke();
         }
         catch
         {

@@ -118,15 +118,15 @@ public class PyFnc
 
     public async void Close()
     {
-        await process.Command("Close");
+        process.Command("Close");
         process.PerfectKill();
         Output.Close();
         logActive.Dispose();
     }
 
-    public async UniTask Exe(JObject inputJObj)
+    public void Exe(JObject inputJObj)
     {
-        await process.Exe(inputJObj);
+        process.Exe(inputJObj);
     }
 
     public async UniTask<string> RunAsync(float timeout = 0)
@@ -201,7 +201,7 @@ public class PyAPI
 
 public static class ProcessExtentions
 {
-    public static async UniTask Exe(this System.Diagnostics.Process process, JObject inputJObj)
+    public static void Exe(this System.Diagnostics.Process process, JObject inputJObj)
     {
         string sendData = JsonConvert.SerializeObject(inputJObj);
         var inputWriter = process.StandardInput;
@@ -210,7 +210,7 @@ public static class ProcessExtentions
     }
 
 
-    public static async UniTask Command(this System.Diagnostics.Process process, string command)
+    public static void Command(this System.Diagnostics.Process process, string command)
     {
         var inputWriter = process.StandardInput;
         inputWriter.WriteLine(command);

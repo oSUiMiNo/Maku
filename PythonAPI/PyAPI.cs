@@ -24,7 +24,7 @@ public class PyAPIHandler : SingletonCompo<PyAPIHandler>
         OnRead.Subscribe(_ =>
         {
             if (!File.Exists(LogPath)) return; // なんかオペレータをすり抜けるのでブロックしとく
-            Debug.Log($"ログ {File.Exists(LogPath)}");
+            //Debug.Log($"ログ {File.Exists(LogPath)}");
             Log.ReadLogFile();
         }).AddTo(this);
 
@@ -40,7 +40,7 @@ public class PyAPIHandler : SingletonCompo<PyAPIHandler>
         // 終了後に待ちたいのでここはDelay.Secondではだめ
         await UniTask.Delay(1);
         Log.Close();
-        Debug.Log("ログ　くわいと");
+        //Debug.Log("ログ　くわいと");
     }
 
     private async void OnDestroy()
@@ -49,7 +49,7 @@ public class PyAPIHandler : SingletonCompo<PyAPIHandler>
         // 終了後に待ちたいのでここはDelay.Secondではだめ
         await UniTask.Delay(1);
         Log.Close();
-        Debug.Log("ログ　ですとろい");
+        //Debug.Log("ログ　ですとろい");
     }
 }
 
@@ -104,7 +104,7 @@ public class PyFnc
         OnRead.Subscribe(_ =>
         {
             if (!File.Exists(OutPath)) return; // なんかオペレータをすり抜けるのでブロックしとく
-            Debug.Log($"ログ{File.Exists(OutPath)} {Path.GetFileName(OutPath)}");
+            //Debug.Log($"ログ{File.Exists(OutPath)} {Path.GetFileName(OutPath)}");
             Output.ReadLogFile();
         }).AddTo(PyAPIHandler.Compo);
     }

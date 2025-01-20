@@ -18,7 +18,7 @@ public class PyAPIHandler : SingletonCompo<PyAPIHandler>
 
     protected sealed override void Awake0()
     {
-        Readable.TimerWhileEqualTo(true, 1f).Subscribe(_ =>
+        Readable.TimerWhileEqualTo(true, 0.011f).Subscribe(_ =>
         {
             Log.ReadLogFileAsync().Forget();
         }).AddTo(this);

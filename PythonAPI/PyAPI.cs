@@ -40,6 +40,7 @@ public class PyAPIHandler : SingletonCompo<PyAPIHandler>
         // 終了後に待ちたいのでここはDelay.Secondではだめ
         await UniTask.Delay(1);
         Log.Close();
+        logActive.Dispose();
         //Debug.Log("ログ　くわいと");
     }
 
@@ -49,6 +50,7 @@ public class PyAPIHandler : SingletonCompo<PyAPIHandler>
         // 終了後に待ちたいのでここはDelay.Secondではだめ
         await UniTask.Delay(1);
         Log.Close();
+        logActive.Dispose();
         //Debug.Log("ログ　ですとろい");
     }
 }
@@ -119,6 +121,7 @@ public class PyFnc
         await process.Command("Close");
         process.PerfectKill();
         Output.Close();
+        logActive.Dispose();
     }
 
     public async UniTask Exe(JObject inputJObj)

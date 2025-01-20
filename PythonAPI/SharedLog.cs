@@ -158,6 +158,7 @@ public class SharedLog
     public void Close()
     {
         isActive = false;
+        OnLog.Dispose();
         //await UniTask.SwitchToThreadPool();
         if (File.Exists(LogPath))
         try

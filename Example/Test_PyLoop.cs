@@ -47,7 +47,7 @@ public class Test_PyLoop : MonoBehaviour
         JObject inJO = new JObject();
         inJO["Data0"] = "あああああああああああ";
         inJO["Data1"] = "いいいいいいいいいい";
-        PyFnc Test_Idle = await py.Idle("Test_Idle.py", count: 3);
+        PyFnc Test_Idle = await py.Idle("Test_Idle.py", count: 20);
 
         await Delay.Second(7);
 
@@ -57,33 +57,33 @@ public class Test_PyLoop : MonoBehaviour
             Debug.Log(await Test_Idle.Exe(inJO));
         }).AddTo(this);
 
-        await Delay.Second(7);
-        await Delay.Second(3);
+        await Delay.Second(5);
         Test_Idle.Close();
         a.Value = false;
         a.Dispose();
     }
 
 
+    // アイドリングプロセスを高速で繰り返し実行する場合はバックグラウンドでやる
     async void Test_IdleBG()
     {
         JObject inJO = new JObject();
         inJO["Data0"] = "あああああああああああ";
         inJO["Data1"] = "いいいいいいいいいい";
-        PyFnc Test_Idle = await py.Idle("Test_Idle.py", count: 3);
+        PyFnc Test_Idle = await py.Idle("Test_Idle.py", count: 20);
 
         Test_Idle.OnOut.Subscribe(JO =>
         {
             Debug.Log($"{JO}");
         }).AddTo(this);
 
-        a.TimerWhileEqualTo(true, 1f)
+        a.TimerWhileEqualTo(true, 0.1f)
         .Subscribe(_ =>
         {
             Test_Idle.ExeBG(inJO);
         }).AddTo(this);
 
-        await Delay.Second(10);
+        await Delay.Second(5);
         Test_Idle.Close();
         a.Value = false;
         a.Dispose();

@@ -52,6 +52,7 @@ public class PyFnc
 {
     static List<PyFnc> IdolingFncs = new List<PyFnc>();
 
+    public string FncName { get; private set; } 
     public string OutPath { get; private set; } // 監視するファイルのパス
     SharedLog Output;
 
@@ -121,19 +122,26 @@ public class PyFnc
 
     public async void Close()
     {
+        await UniTask.SwitchToThreadPool();
         // 実行後即クローズされた場合アウトプットが受取れなかったりするので待つ
         await UniTask.Delay(1);
         //foreach (var child in children) child.Command("Close");
         cts.Cancel();
         Output.Close();
         logActive.Dispose();
-        foreach (var child in children) child.PerfectKill();
+        for(int i = 0; i < children.Count; i++ )
+        {
+            children[i].PerfectKill();
+            Debug.Log($"クローズ {FncName}{i}");
+        }
         IdolingFncs.Remove(this);
         GC.Collect();
+        await UniTask.SwitchToMainThread();
     }
 
     void InitLog(string pyFile)
     {
+        FncName = Path.GetFileName(pyFile);
         // アウトプット用ファイル作成;
         OutPath = $"{pyFile.Replace("\\", "/").Replace(".py", ".txt")}";
         Output = new SharedLog(OutPath);
@@ -306,7 +314,6 @@ public static class ProcessExtentions
             StreamWriter inputWriter = process.StandardInput;
             inputWriter.WriteLine(sendData);
             inputWriter.Flush();
-            //GC.Collect();
             await UniTask.SwitchToMainThread();
         }
         catch { }

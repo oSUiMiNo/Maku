@@ -18,7 +18,7 @@ public class Test_PyLoop : MonoBehaviour
     {
         //LogTest();
         //LogTestBG();
-        Test_Idle();
+        //Test_Idle();
         //Test_IdleBG();
     }
 

@@ -15,7 +15,6 @@ public class PyAPIHandler : SingletonCompo<PyAPIHandler>
 {
     static string LogPath => $"{Application.dataPath}/PyLog.txt"; // 監視するファイルのパス
     static SharedLog Log = new SharedLog(LogPath);
-    //IObservable<long> OnRead => logActive.TimerWhileEqualTo(Log.isActive, 0.05f);
     IObservable<long> OnRead => logActive.UpdateWhileEqualTo(Log.isActive, 0.05f);
     static BoolReactiveProperty logActive = new BoolReactiveProperty(true);
 

@@ -38,10 +38,6 @@ public class Test_PyLoop : MonoBehaviour
             Debug.Log(JO);
         });
         LogTest.ExeBG();
-        // バックグラウンドの場合は手動でクローズ
-        //// 実行後即クローズされた場合アウトプットが受取れなかったりするので待つ
-        //await UniTask.Delay(1);
-        //LogTest.Close(1); 
     }
 
 
@@ -60,8 +56,10 @@ public class Test_PyLoop : MonoBehaviour
             Debug.Log(await Test_Idle.Exe(inJO));
         }).AddTo(this);
 
+        // アイドリング関数は手動でクローズ
+        Test_Idle.Close(5000);
+
         await Delay.Second(5);
-        Test_Idle.Close(0);
         a.Value = false;
         a.Dispose();
     }
@@ -86,8 +84,10 @@ public class Test_PyLoop : MonoBehaviour
             Test_Idle.ExeBG(inJO);
         }).AddTo(this);
 
+        // アイドリング関数は手動でクローズ
+        Test_Idle.Close(5000);
+
         await Delay.Second(5);
-        Test_Idle.Close(0);
         a.Value = false;
         a.Dispose();
     }

@@ -56,7 +56,7 @@ public class SaveSystem : SingletonCompo<SaveSystem>
     }
     void OnApplicationQuit()
     {
-        Debug.Log($"クワイト");
+        //Debug.Log($"クワイト");
         ResetSavables();
     }
 
@@ -105,7 +105,7 @@ public class SaveSystem : SingletonCompo<SaveSystem>
         {
             object obj = Activator.CreateInstance(a);
             Friend(obj).SetManagementDictionaty();
-            Debug.Log(a);
+            //Debug.Log(a);
         }
     }
     #endregion
@@ -318,7 +318,7 @@ public class SaveSystem : SingletonCompo<SaveSystem>
     {
         foreach (var a in SavableBaseTypes)
         {
-            Debug.Log($"インデックスアップデート{a}\n==================================");
+            //Debug.Log($"インデックスアップデート{a}\n==================================");
             object obj = Activator.CreateInstance(a);
             List<IFriendWith_SaveSystem> savableInss = Friend(obj).GetInstances();
 
@@ -335,17 +335,17 @@ public class SaveSystem : SingletonCompo<SaveSystem>
     {
         foreach (var a in SavableBaseTypes)
         {
-            Debug.Log($"後処理１{a}\n======================================================================");
+            //Debug.Log($"後処理１{a}\n======================================================================");
 
             object obj = Activator.CreateInstance(a);
             //List<IFriendWith_SaveSystem> savableInss = Friend(obj).GetAllInstances();
             List<IFriendWith_SaveSystem> savableInss = Friend(obj).GetInstances();
 
-            Debug.Log($"後処理２{savableInss.Count}つ {obj} {Friend(obj)}");
+            //Debug.Log($"後処理２{savableInss.Count}つ {obj} {Friend(obj)}");
 
             foreach (var b in savableInss)
             {
-                Debug.Log($"======= 後処理３ ======={b}");
+                //Debug.Log($"======= 後処理３ ======={b}");
                 b.ResetFirstLoading();
             }
             //if (a.BaseType.Name == "SavableCompo")
@@ -466,12 +466,12 @@ public abstract class Savable : MyExtention,
             Debug.Log($"{this} はアプリを起動後に少なくとも１回ロードされたようです");
         }
 
-        Debug.Log($"{IsLoadedAtFirst}");
+        //Debug.Log($"{IsLoadedAtFirst}");
     }
 
     void SaveSystem.IFriendWith_SaveSystem.ResetFirstLoading()
     {
-        Debug.Log($"リセットファーストローディング{_Path}");
+        //Debug.Log($"リセットファーストローディング{_Path}");
         foreach (var a in InstancesListsManagementDictionaty.Values)
         {
             foreach (var b in a)
@@ -503,7 +503,7 @@ public abstract class Savable : MyExtention,
     public void Save()
     {
         SaveSystem.Save(this);
-        Debug.Log("------セーブした------");
+        //Debug.Log("------セーブした------");
     }
     public void Load()
     {
@@ -529,7 +529,7 @@ public abstract class Savable : MyExtention,
         ////管理リスト更新
         Instances[InstanceNumber] = this;  //いらないかも
 
-        Debug.Log("------ロードした------");
+        //Debug.Log("------ロードした------");
     }
 
     void SaveSystem.IFriendWith_SaveSystem.UpdateIndex()
@@ -800,12 +800,12 @@ public abstract class SavableSingleton<SingletonType> : Singleton<SingletonType>
             Debug.Log($"{this} はアプリを起動後に少なくとも１回ロードされたようです");
         }
 
-        Debug.Log($"{IsLoadedAtFirst}");
+        //Debug.Log($"{IsLoadedAtFirst}");
     }
 
     void SaveSystem.IFriendWith_SaveSystem.ResetFirstLoading()
     {
-        Debug.Log($"リセットファーストローディング{_Path}");
+        //Debug.Log($"リセットファーストローディング{_Path}");
         foreach (var a in InstancesListsManagementDictionaty.Values)
         {
             foreach (var b in a)
@@ -862,7 +862,7 @@ public abstract class SavableSingleton<SingletonType> : Singleton<SingletonType>
 
         ////管理リスト更新
         Instances[InstanceNumber] = this;  //いらないかも
-        Debug.Log("------ロードした------");
+        //Debug.Log("------ロードした------");
     }
 
     void SaveSystem.IFriendWith_SaveSystem.UpdateIndex()

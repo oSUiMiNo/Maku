@@ -44,8 +44,8 @@ public class Test_PyAPI : MonoBehaviour
         drivesArray.Add("USB");
         Debug.Log(inputJObj);
 
-        JObject outputJObj = await py.Exe("Test_PyAPI.py", inputJObj, 10);
-        Debug.Log($"åãâ ÅF{outputJObj}");
+        //JObject outputJObj = await py.Exe("Test_PyAPI.py", inputJObj, 10);
+        //Debug.Log($"åãâ ÅF{outputJObj}");
     }
 }
 

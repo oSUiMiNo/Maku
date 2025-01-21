@@ -12,31 +12,81 @@ public class Test_PyLoop : MonoBehaviour
         @"C:\Users\osuim\Documents\MyPJT\VEnvs\.venv\Scripts\python.exe"
     );
 
-    PyFnc pyFnc;
     BoolReactiveProperty a = new BoolReactiveProperty( true );
 
-    async void Start()
+    void Start()
     {
-        py.Exe("LogTest.py", 7).Forget();
+        //LogTest();
+        //LogTestBG();
+        Test_Idle();
+        //Test_IdleBG();
+    }
 
 
-        JObject input = new JObject();
-        input["Data0"] = "あああああああああああ";
-        input["Data1"] = "いいいいいいいいいい";
+    async void LogTest()
+    {
+        PyFnc LogTest = await py.Wait("LogTest.py", 6);
+        Debug.Log(await LogTest.Exe());
+    }
 
-        pyFnc = await py.Idle("Test_Idle.py", 3);
-        a
-        .TimerWhileEqualTo(true, 1)
+
+    async void LogTestBG()
+    {
+        PyFnc LogTest = await py.Wait("LogTest.py", 6);
+        LogTest.OnOut.Subscribe(JO =>
+        {
+            Debug.Log(JO);
+        });
+        LogTest.ExeBG();
+        LogTest.Close(); // バックグラウンドの場合は手動でクローズ
+    }
+
+
+    async void Test_Idle()
+    {
+        JObject inJO = new JObject();
+        inJO["Data0"] = "あああああああああああ";
+        inJO["Data1"] = "いいいいいいいいいい";
+        PyFnc Test_Idle = await py.Idle("Test_Idle.py", count: 3);
+
+        await Delay.Second(7);
+
+        a.TimerWhileEqualTo(true, 0.1f)
+        .Subscribe(async _ =>
+        {
+            Debug.Log(await Test_Idle.Exe(inJO));
+        }).AddTo(this);
+
+        await Delay.Second(7);
+        await Delay.Second(3);
+        Test_Idle.Close();
+        a.Value = false;
+        a.Dispose();
+    }
+
+
+    async void Test_IdleBG()
+    {
+        JObject inJO = new JObject();
+        inJO["Data0"] = "あああああああああああ";
+        inJO["Data1"] = "いいいいいいいいいい";
+        PyFnc Test_Idle = await py.Idle("Test_Idle.py", count: 3);
+
+        Test_Idle.OnOut.Subscribe(JO =>
+        {
+            Debug.Log($"{JO}");
+        }).AddTo(this);
+
+        a.TimerWhileEqualTo(true, 1f)
         .Subscribe(_ =>
         {
-            pyFnc.Exe(input);
+            Test_Idle.ExeBG(inJO);
         }).AddTo(this);
 
-
-        pyFnc.OnOut.Subscribe(JO =>
-        {
-            Debug.Log($"{JO["Data1"]}");
-        }).AddTo(this);
+        await Delay.Second(3);
+        Test_Idle.Close();
+        a.Value = false;
+        a.Dispose();
     }
 }
     

@@ -51,13 +51,13 @@ def APIn():
 # def APOut(outputJobj):
 #      outputJson = json.dumps(outputJobj, ensure_ascii=False)
 #      Log(f"JSON_OUTPUT_START{outputJson}JSON_OUTPUT_END") # プレフィックスとサフィックスで囲む
-def APOut(outputJobj):
-    outputJson = json.dumps(outputJobj, ensure_ascii=False)
+def APOut(outJO):
     if os.path.exists(OutPath):
+        outJ = json.dumps(outJO, ensure_ascii=False)
         with open(OutPath, "a", encoding="utf-8") as file:
-            file.write(f"___\n{outputJson}\n")
+            file.write( f"___\n{outJ}\n")
     else:
-        return outputJobj
+        return outJO
 
 
 
@@ -89,10 +89,16 @@ def idle(fnc):
         if arg.strip() == "Close":
             break
         try:
-            inputJObj = json.loads(arg.strip())
-            fnc(inputJObj)
+            inJO = json.loads(arg.strip())
+            # Log(f"受け取ったデータ: {inJO}")
+            fnc(inJO)
         except json.JSONDecodeError:
             Log("JSON形式の引数ではありません。")
         except Exception as e:
+            # errorPos = ""
+            # for callerFrame in stack():
+            #     callerFile = Path(callerFrame.filename).relative_to(RootPah).as_posix()
+            #     callerLine = callerFrame.lineno
+            #     errorPos += f"\n(at ./{callerFile}:{callerLine})"
             Log(f"エラーが発生しました: {e}")
         time.sleep(0.001)

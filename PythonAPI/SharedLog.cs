@@ -68,9 +68,9 @@ public class SharedLog
 
 
 
-    public void ReadLogFile()
+    public async void ReadLogFile()
     {
-        //await UniTask.SwitchToThreadPool();
+        await UniTask.SwitchToThreadPool();
         //Debug.Log("ログ読み取り");
         //if (!File.Exists(LogPath))
         //    try
@@ -106,18 +106,7 @@ public class SharedLog
                         string trimmedLog = log.Trim();
                         if (!string.IsNullOrEmpty(trimmedLog))
                         {
-                            //Logs.Add(trimmedLog);
                             OnLog.OnNext(trimmedLog);
-                            //try
-                            //{
-                            //    // ログを出力
-                            //    Debug.Log(trimmedLog);
-                            //}
-                            //catch
-                            //{
-                            //    // 処理失敗時は未処理部分に保持
-                            //    unprocessedLogs += "___\n" + log + "\n";
-                            //}
                         }
                     }
                 }
@@ -148,18 +137,20 @@ public class SharedLog
                 Debug.LogError($"ログ読み取りエラー: {e.Message}");
             }
         }
-        //await UniTask.SwitchToMainThread();
+        await UniTask.SwitchToMainThread();
     }
 
 
 
 
     // ログファイル削除
-    public void Close()
+    public async void Close()
     {
+        await UniTask.SwitchToThreadPool();
         isActive = false;
+        OnLog.OnCompleted();
+        await UniTask.Delay(1000);
         OnLog.Dispose();
-        //await UniTask.SwitchToThreadPool();
         if (File.Exists(LogPath))
         try
         {
@@ -170,6 +161,7 @@ public class SharedLog
         {
             Debug.LogError($"終了時のログファイル削除に失敗: {e.Message}");
         }
-        //await UniTask.SwitchToMainThread();
+        GC.Collect();
+        await UniTask.SwitchToMainThread();
     }
 }

@@ -21,8 +21,8 @@ public class EditorblesHandler : SingletonCompo<EditorblesHandler>
   
     protected override void Awake0()
     {
-        Debug.Log($"パーシステント {Application.persistentDataPath}");
-        Debug.Log($"{data}");
+        //Debug.Log($"パーシステント {Application.persistentDataPath}");
+        //Debug.Log($"{data}");
         LoadFast();
     }
 
@@ -35,7 +35,7 @@ public class EditorblesHandler : SingletonCompo<EditorblesHandler>
         {
             foreach (var id in IDList)
             {
-                Debug.Log($"{id}");
+                //Debug.Log($"{id}");
                 if (!Directory.Exists($"{data.SaveFolderPath}/{id}"))
                 {
                     Debug.Log($"ない　{id}");

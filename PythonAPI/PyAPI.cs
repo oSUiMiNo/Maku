@@ -34,11 +34,12 @@ public class PyAPIHandler : SingletonCompo<PyAPIHandler>
     }
 
     private void OnApplicationQuit() => Close();
-    private void OnDestroy() => Close();
+    private void OnDestroy() => Close(); // パッケージインポート先で実行されてない
     async void Close()
     {
         Debug.Log("PyAPI クローズ");
-        PyFnc.CloseAll();
+        // 終了時はは待ち時間0じゃないとパッケージ利用先で実行されない
+        PyFnc.CloseAll(0);
         logActive.Dispose();
         // 終了後に待ちたいのでここはDelay.Secondではだめ
         await UniTask.Delay(1);
@@ -111,21 +112,21 @@ public class PyFnc
         return newFnc;
     }
 
-    public static void CloseAll()
+    public static void CloseAll(int waittMilliSecond)
     {
         foreach (var fnc in IdolingFncs)
         {
-            fnc.Close();
+            fnc.Close(waittMilliSecond);
         }
         IdolingFncs.Clear();
     }
 
-    public async void Close()
+    public async void Close(int waittMilliSecond)
     {
         await UniTask.SwitchToThreadPool();
         // 実行後即クローズされた場合アウトプットが受取れなかったりするので待つ
-        await UniTask.Delay(1);
-        //foreach (var child in children) child.Command("Close");
+        // ただしアプリ終了時は待つとパッケージ利用先では呼ばれないので最後はは待たない
+        await UniTask.Delay(waittMilliSecond);
         cts.Cancel();
         Output.Close();
         logActive.Dispose();
@@ -213,12 +214,12 @@ public class PyFnc
         await UniTask.WaitUntil(() => outJO != null);
         onOut.Dispose();
 
-        Close();
         return outJO;
     }
     public void ExeBG()
     {
         RunAsync();
+        Close(100);
         GC.Collect();
     }
 
@@ -234,7 +235,6 @@ public class PyFnc
         {
             //Debug.Log("キャンセル");
         }
-        Close();
         if (currentChildIndex == children.Count - 1) currentChildIndex = 0;
         else currentChildIndex++;
     }

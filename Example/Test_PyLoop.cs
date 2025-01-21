@@ -84,7 +84,7 @@ public class Test_PyLoop : MonoBehaviour
         }).AddTo(this);
 
         await Delay.Second(10);
-        //Test_Idle.Close();
+        Test_Idle.Close();
         a.Value = false;
         a.Dispose();
     }

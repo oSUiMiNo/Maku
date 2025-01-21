@@ -149,8 +149,8 @@ public class SharedLog
         await UniTask.SwitchToThreadPool();
         isActive = false;
         OnLog.OnCompleted();
-        await UniTask.Delay(1000);
-        OnLog.Dispose();
+        //OnLog.Dispose();
+        await UniTask.Delay(1);
         if (File.Exists(LogPath))
         try
         {

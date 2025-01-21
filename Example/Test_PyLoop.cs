@@ -19,7 +19,7 @@ public class Test_PyLoop : MonoBehaviour
         //LogTest();
         //LogTestBG();
         //Test_Idle();
-        //Test_IdleBG();
+        Test_IdleBG();
     }
 
 
@@ -83,8 +83,8 @@ public class Test_PyLoop : MonoBehaviour
             Test_Idle.ExeBG(inJO);
         }).AddTo(this);
 
-        await Delay.Second(3);
-        Test_Idle.Close();
+        await Delay.Second(10);
+        //Test_Idle.Close();
         a.Value = false;
         a.Dispose();
     }

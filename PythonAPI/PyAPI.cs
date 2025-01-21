@@ -38,6 +38,7 @@ public class PyAPIHandler : SingletonCompo<PyAPIHandler>
     private void OnDestroy() => Close();
     async void Close()
     {
+        Debug.Log("PyAPI クローズ");
         PyFnc.CloseAll();
         logActive.Dispose();
         // 終了後に待ちたいのでここはDelay.Secondではだめ
@@ -63,7 +64,6 @@ public class PyFnc
     BoolReactiveProperty logActive = new BoolReactiveProperty(true);
 
     float Timeout = 0;
-
 
     public IObservable<JObject> OnOut => Output.OnLog
     .Select(msg =>

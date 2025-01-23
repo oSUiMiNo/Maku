@@ -136,7 +136,7 @@ public class PyFnc
         }).AddTo(PyAPIHandler.Compo);
         if (!ThreadIsMain) await UniTask.SwitchToThreadPool();
         await UniTask.WaitUntil(() => loadedCount >= (int)(count * 0.7));
-        Debug.Log($"{FncName} 7割のプロセスがロード完了".Cyan());
+        Debug.Log($"{FncName} 7割のプロセスがロード完了".Magenta());
         onOut.Dispose();
     }
 

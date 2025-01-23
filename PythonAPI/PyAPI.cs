@@ -137,10 +137,11 @@ public class PyFnc
     // 全プロセスの7割以上がロード完了するまで待つ
     async UniTask WaitLoad(int count)
     {
-        Output.OnLog.Subscribe(_ =>
-        {
-            Debug.Log("ああああああああああ0");
-        });
+        Debug.Log("ロード待ち開始");
+        //Output.OnLog.Subscribe(_ =>
+        //{
+        //    Debug.Log("ああああああああああ0");
+        //});
         // AddTo の中身はGOかCompoなのでメインスレッドじゃないとだめ
         bool ThreadIsMain = false;
         if (Thread.CurrentThread.ManagedThreadId == 1) ThreadIsMain = true;

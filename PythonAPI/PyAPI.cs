@@ -135,7 +135,7 @@ public class PyFnc
 
 
     // 全プロセスの7割以上がロード完了するまで待つ
-    async UniTask WaitLoad(int count)
+    public async UniTask WaitLoad(int count)
     {
         Debug.Log("ロード待ち開始");
         //Output.OnLog.Subscribe(_ =>

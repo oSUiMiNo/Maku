@@ -77,7 +77,26 @@ public class PyFnc
             return null;
         }
     })
-    .Where(JO => JO != null);
+    .Where(JO => JO != null)
+    .Where(JO => JO["Loaded"] != null);
+
+    public IObservable<JObject> OnLoaded => Output.OnLog
+    .Select(msg =>
+    {
+        try
+        {
+            return JObject.Parse(msg);
+        }
+        catch (Exception ex)
+        {
+            // エラー処理 (必要に応じて)
+            Debug.LogError($"JSONパースエラー: {ex.Message}");
+            return null;
+        }
+    })
+    .Where(JO => JO != null)
+    .Where(JO => JO["Loaded"] == null);
+
 
     int loadedCount;
     public static async UniTask<PyFnc> Create(string pyInterpFile, string pyFile, string sendData = "", int count = 1, float timeout = 0)
@@ -112,12 +131,10 @@ public class PyFnc
         newFnc.InitLog(pyFile);
 
         // 全プロセスの7割以上がロード完了するまで待つ
-        newFnc.OnOut.Subscribe(JO =>
+        newFnc.OnLoaded
+        .Subscribe(JO =>
         {
-            if (JO["Loaded"] != null)
-            {
-                newFnc.loadedCount++;
-            }
+            newFnc.loadedCount++;
         }).AddTo(PyAPIHandler.Compo);
         await UniTask.WaitUntil(() => newFnc.loadedCount >= (int)(count * 0.7));
 

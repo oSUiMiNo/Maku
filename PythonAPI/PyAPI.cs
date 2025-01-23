@@ -80,6 +80,22 @@ public class PyFnc
     .Where(JO => JO != null)
     .Where(JO => JO["Loaded"] == null);
 
+    public IObservable<JObject> OnLoad => Output.OnLog
+    .Select(msg =>
+    {
+        try
+        {
+            return JObject.Parse(msg);
+        }
+        catch (Exception ex)
+        {
+            // エラー処理 (必要に応じて)
+            Debug.LogError($"JSONパースエラー: {ex.Message}");
+            return null;
+        }
+    })
+    .Where(JO => JO != null)
+    .Where(JO => JO["Loaded"] != null);
 
 
     public static async UniTask<PyFnc> Create(string pyInterpFile, string pyFile, string sendData = "", int count = 1, float timeout = 0)
@@ -128,12 +144,11 @@ public class PyFnc
         if (Thread.CurrentThread.ManagedThreadId == 1) ThreadIsMain = true;
         if (!ThreadIsMain) await UniTask.SwitchToMainThread();
         int loadedCount = 0;
-        IDisposable onOut = OnOut
-        .Where(JO => JO["Loaded"] != null)
-        .Subscribe(JO =>
-        {
-            loadedCount++;
-        }).AddTo(PyAPIHandler.Compo);
+        IDisposable onOut = OnLoad
+         .Subscribe(JO =>
+         {
+             loadedCount++;
+         }).AddTo(PyAPIHandler.Compo);
         if (!ThreadIsMain) await UniTask.SwitchToThreadPool();
         await UniTask.WaitUntil(() => loadedCount >= (int)(count * 0.7));
         //Debug.Log($"{FncName} 7割のプロセスがロード完了".Magenta());

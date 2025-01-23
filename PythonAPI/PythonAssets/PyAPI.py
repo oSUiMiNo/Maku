@@ -5,6 +5,8 @@ import threading
 import time
 from inspect import stack
 from pathlib import Path
+from typing import List
+from concurrent.futures import ThreadPoolExecutor
 
 
 # 更新するファイルのパス
@@ -64,41 +66,71 @@ def APOut(outJO):
 def Log(msg):
     if os.path.exists(LogPath):
         # スタックの呼び出し元情報を取得（スタックの1つ上）
-        caller_frame = stack()[1]
+        callerFrame = stack()[1]
         # 呼び出し元ファイルの相対パス
-        caller_file = Path(caller_frame.filename).relative_to(RootPah).as_posix()
+        callerFile = Path(callerFrame.filename).relative_to(RootPah).as_posix()
         # 呼び出し元の行番号
-        caller_line = caller_frame.lineno
+        callerLine = callerFrame.lineno
         # ファイルに追記
         with open(LogPath, "a", encoding="utf-8") as file:
             file.write( 
                         f"___\n{msg}\n"
-                        f"(at ./{caller_file}:{caller_line})")
+                        f"(at ./{callerFile}:{callerLine})")
     else:
         # ファイルが存在しない場合はコンソールに出力
         print(msg)
 
 
 
-# 新しいスレッドを作成して関数を割り当て
 def Idle(fnc):
-    threading.Thread(target=idle, args=[fnc]).start()
-def idle(fnc):
     # メインループ（C#からの入力を処理）
-    for arg in sys.stdin:
-        if arg.strip() == "Close":
-            break
-        try:
-            inJO = json.loads(arg.strip())
-            # Log(f"受け取ったデータ: {inJO}")
-            fnc(inJO)
-        except json.JSONDecodeError:
-            Log("JSON形式の引数ではありません。")
-        except Exception as e:
-            # errorPos = ""
-            # for callerFrame in stack():
-            #     callerFile = Path(callerFrame.filename).relative_to(RootPah).as_posix()
-            #     callerLine = callerFrame.lineno
-            #     errorPos += f"\n(at ./{callerFile}:{callerLine})"
-            Log(f"エラーが発生しました: {e}")
-        time.sleep(0.001)
+    with ThreadPoolExecutor(max_workers=5) as executor:
+        for arg in sys.stdin:
+            if arg.strip() == "Close":
+                break
+            
+            executor.submit(Exe, arg, fnc)
+            time.sleep(0.001)
+
+
+        
+def Exe(arg, fnc):
+    try:
+        inJO: dict = json.loads(arg.strip())
+        # Log(f"受け取ったデータ: {inJO}")
+        # Log(f"受取ったデータタイプ {type(inJO)}")
+        # Log(f"受取った数 {len(inJO["Data"])}")
+        fnc(inJO)
+    except json.JSONDecodeError:
+        Log(f"JSONパースエラー {arg.strip()}")
+    except Exception as e:
+        exception_type, exception_object, exception_traceback = sys.exc_info()
+        fileName = exception_traceback.tb_frame.f_code.co_filename
+        lineNo = exception_traceback.tb_lineno
+        Log(f"エラー:, {e} {fileName} _ {lineNo}")
+
+
+
+# # 新しいスレッドを作成して関数を割り当て
+# def Idle(fnc):
+#     global Threads
+#     threading.Thread(target=idle, args=[fnc]).start()
+# def idle(fnc):
+#     # メインループ（C#からの入力を処理）
+#     for arg in sys.stdin:
+#         if arg.strip() == "Close":
+#             break
+#         try:
+#             inJO: dict = json.loads(arg.strip())
+#             # Log(f"受け取ったデータ: {inJO}")
+#             # Log(f"受取ったデータタイプ {type(inJO)}")
+#             # Log(f"受取った数 {len(inJO["Data"])}")
+#             fnc(inJO)
+#         except json.JSONDecodeError:
+#             Log("JSON形式の引数ではありません。")
+#         except Exception as e:
+#             exception_type, exception_object, exception_traceback = sys.exc_info()
+#             fileName = exception_traceback.tb_frame.f_code.co_filename
+#             lineNo = exception_traceback.tb_lineno
+#             Log(f"エラー:, {e} {fileName} _ {lineNo}")
+#         time.sleep(0.001)

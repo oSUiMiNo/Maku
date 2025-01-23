@@ -77,25 +77,9 @@ public class PyFnc
             return null;
         }
     })
-    .Where(JO => JO != null);
-    //.Where(JO => JO["Loaded"] == null);
+    .Where(JO => JO != null)
+    .Where(JO => JO["Loaded"] == null);
 
-    //public IObservable<JObject> OnLoaded => Output.OnLog
-    //.Select(msg =>
-    //{
-    //    try
-    //    {
-    //        return JObject.Parse(msg);
-    //    }
-    //    catch (Exception ex)
-    //    {
-    //        // エラー処理 (必要に応じて)
-    //        Debug.LogError($"JSONパースエラー: {ex.Message}");
-    //        return null;
-    //    }
-    //})
-    //.Where(JO => JO != null)
-    //.Where(JO => JO["Loaded"] != null);
 
 
     public static async UniTask<PyFnc> Create(string pyInterpFile, string pyFile, string sendData = "", int count = 1, float timeout = 0)
@@ -128,41 +112,31 @@ public class PyFnc
         Debug.Log(log);
         await UniTask.Delay(1);
         newFnc.InitLog(pyFile);
-        await newFnc.WaitLoad(count);
+        // Create 内でawait すると何故か onOut が発火しない
+        //await newFnc.WaitLoad(count);
         await UniTask.SwitchToMainThread();
         return newFnc;
     }
 
 
     // 全プロセスの7割以上がロード完了するまで待つ
+    // Create 内でawait すると何故か onOut が発火しない
     public async UniTask WaitLoad(int count)
     {
-        Debug.Log("ロード待ち開始");
-        //Output.OnLog.Subscribe(_ =>
-        //{
-        //    Debug.Log("ああああああああああ0");
-        //});
         // AddTo の中身はGOかCompoなのでメインスレッドじゃないとだめ
         bool ThreadIsMain = false;
         if (Thread.CurrentThread.ManagedThreadId == 1) ThreadIsMain = true;
         if (!ThreadIsMain) await UniTask.SwitchToMainThread();
         int loadedCount = 0;
-        //OnLoaded
-        //.Subscribe(JO =>
-        //{
-        //    loadedCount++;
-        //    Debug.Log("ああああああああああ1");
-        //}).AddTo(PyAPIHandler.Compo);
         IDisposable onOut = OnOut
         .Where(JO => JO["Loaded"] != null)
         .Subscribe(JO =>
         {
             loadedCount++;
-            Debug.Log("ああああああああああ1");
         }).AddTo(PyAPIHandler.Compo);
         if (!ThreadIsMain) await UniTask.SwitchToThreadPool();
         await UniTask.WaitUntil(() => loadedCount >= (int)(count * 0.7));
-        Debug.Log("7割のプロセスがロード完了".Cyan());
+        Debug.Log($"{FncName} 7割のプロセスがロード完了".Cyan());
         onOut.Dispose();
     }
 

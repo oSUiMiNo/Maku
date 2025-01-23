@@ -129,7 +129,7 @@ public class PyFnc
         await UniTask.Delay(1);
         newFnc.InitLog(pyFile);
         // Create “à‚Åawait ‚·‚é‚Æ‰½ŒÌ‚© onOut ‚ª”­‰Î‚µ‚È‚¢
-        //await newFnc.WaitLoad(count);
+        await newFnc.WaitLoad(count);
         await UniTask.SwitchToMainThread();
         return newFnc;
     }

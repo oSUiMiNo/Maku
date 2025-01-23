@@ -53,6 +53,7 @@ public class PyFnc
 
     public string FncName { get; private set; }
     public string OutPath { get; private set; } // 監視するファイルのパス
+    float Timeout = 0;
     SharedLog Output;
 
     int currentChildIndex = 0;
@@ -61,8 +62,6 @@ public class PyFnc
 
     IObservable<long> OnRead => logActive.TimerWhileEqualTo(Output.isActive, 0.01f);
     BoolReactiveProperty logActive = new BoolReactiveProperty(true);
-
-    float Timeout = 0;
 
     public IObservable<JObject> OnOut => Output.OnLog
     .Select(msg =>
@@ -80,7 +79,7 @@ public class PyFnc
     })
     .Where(JO => JO != null);
 
-
+    int loadedCount;
     public static async UniTask<PyFnc> Create(string pyInterpFile, string pyFile, string sendData = "", int count = 1, float timeout = 0)
     {
         await UniTask.SwitchToThreadPool();
@@ -111,6 +110,17 @@ public class PyFnc
         Debug.Log(log);
         await UniTask.Delay(1);
         newFnc.InitLog(pyFile);
+
+        // 全プロセスの7割以上がロード完了するまで待つ
+        newFnc.OnOut.Subscribe(JO =>
+        {
+            if (JO["Loaded"] != null)
+            {
+                newFnc.loadedCount++;
+            }
+        }).AddTo(PyAPIHandler.Compo);
+        await UniTask.WaitUntil(() => newFnc.loadedCount >= (int)(count * 0.7));
+
         await UniTask.SwitchToMainThread();
         return newFnc;
     }

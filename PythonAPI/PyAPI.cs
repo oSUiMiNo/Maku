@@ -35,7 +35,7 @@ public class PyAPIHandler : SingletonCompo<PyAPIHandler>
     private void OnDestroy() => Close(); // パッケージインポート先で実行されてない
     async void Close()
     {
-        Debug.Log("PyAPI クローズ");
+        Debug.Log("PyAPIクローズ");
         // 終了時はは待ち時間0じゃないとパッケージ利用先で実行されない
         PyFnc.CloseAll(0);
         logActive.Dispose();
@@ -128,11 +128,13 @@ public class PyFnc
         cts.Cancel();
         Output.Close();
         logActive.Dispose();
+        string log = $"Pyfncクローズ:{FncName} - プロセス ";
         for (int i = 0; i < children.Count; i++)
         {
             children[i].PerfectKill();
-            Debug.Log($"クローズ {FncName}{i}");
+            log += $", {i.ToString()}";
         }
+        Debug.Log(log);
         IdolingFncs.Remove(this);
         GC.Collect();
         await UniTask.SwitchToMainThread();

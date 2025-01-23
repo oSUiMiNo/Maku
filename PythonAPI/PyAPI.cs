@@ -98,7 +98,6 @@ public class PyFnc
     .Where(JO => JO["Loaded"] != null);
 
 
-    int loadedCount;
     public static async UniTask<PyFnc> Create(string pyInterpFile, string pyFile, string sendData = "", int count = 1, float timeout = 0)
     {
         await UniTask.SwitchToThreadPool();
@@ -129,20 +128,30 @@ public class PyFnc
         Debug.Log(log);
         await UniTask.Delay(1);
         newFnc.InitLog(pyFile);
-        Debug.Log("ロード待ち開始0");
-        // 全プロセスの7割以上がロード完了するまで待つ
-        newFnc.OnLoaded
-        .Subscribe(JO =>
-        {
-            Debug.Log("ロード完了".Red());
-            newFnc.loadedCount++;
-        }).AddTo(PyAPIHandler.Compo);
-        Debug.Log("ロード待ち開始1");
-        await UniTask.WaitUntil(() => newFnc.loadedCount >= (int)(count * 0.7));
-        Debug.Log("7割がロード完了".Cyan());
+        await newFnc.WaitLoad(count);
         await UniTask.SwitchToMainThread();
         return newFnc;
     }
+
+
+    // 全プロセスの7割以上がロード完了するまで待つ
+    async UniTask WaitLoad(int count)
+    {
+        // AddTo の中身はGOかCompoなのでメインスレッドじゃないとだめ
+        bool ThreadIsMain = false;
+        if (Thread.CurrentThread.ManagedThreadId == 1) ThreadIsMain = true;
+        if (!ThreadIsMain) await UniTask.SwitchToMainThread();
+        int loadedCount = 0;
+        OnLoaded
+        .Subscribe(JO =>
+        {
+            loadedCount++;
+        });//.AddTo(PyAPIHandler.Compo);
+        await UniTask.WaitUntil(() => loadedCount >= (int)(count * 0.7));
+        Debug.Log("7割のプロセスがロード完了".Cyan());
+        if (!ThreadIsMain) await UniTask.SwitchToThreadPool();
+    }
+
 
     public static void CloseAll(int waittMilliSecond)
     {

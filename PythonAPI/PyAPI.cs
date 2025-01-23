@@ -129,7 +129,7 @@ public class PyFnc
         Debug.Log(log);
         await UniTask.Delay(1);
         newFnc.InitLog(pyFile);
-        Debug.Log("ロード待ち開始");
+        Debug.Log("ロード待ち開始0");
         // 全プロセスの7割以上がロード完了するまで待つ
         newFnc.OnLoaded
         .Subscribe(JO =>
@@ -137,6 +137,7 @@ public class PyFnc
             Debug.Log("ロード完了".Red());
             newFnc.loadedCount++;
         }).AddTo(PyAPIHandler.Compo);
+        Debug.Log("ロード待ち開始1");
         await UniTask.WaitUntil(() => newFnc.loadedCount >= (int)(count * 0.7));
         Debug.Log("7割がロード完了".Cyan());
         await UniTask.SwitchToMainThread();

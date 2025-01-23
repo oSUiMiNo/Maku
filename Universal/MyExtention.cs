@@ -418,19 +418,19 @@ public static class StringExtentions
     // --------------------------------
     // •¶Žš‚ÌŒ©‚½–Ú
     // --------------------------------
-    public static string HexCode(this string str, string hexCode) => string.Format("<color={0}>{1}</color>", hexCode, str);
-    public static string Red(this string str) => str.HexCode("red");
-    public static string Green(this string str) => str.HexCode("green");
-    public static string Blue(this string str) => str.HexCode("blue");
-    public static string Black(this string str) => str.HexCode("black");
-    public static string White(this string str) => str.HexCode("white");
-    public static string Gray(this string str) => str.HexCode("gray");
-    public static string Yellow(this string str) => str.HexCode("yellow");
-    public static string Magenta(this string str) => str.HexCode("magenta");
-    public static string Cyan(this string str) => str.HexCode("cyan");
-    public static string Orange(this string str) => str.HexCode("orange");
-    public static string Purple(this string str) => str.HexCode("purple");
-    public static string Brown(this string str) => str.HexCode("brown");
+    public static string HexColor(this string str, string hexCode) => string.Format("<color={0}>{1}</color>", hexCode, str);
+    public static string Red(this string str) => str.HexColor("red");
+    public static string Green(this string str) => str.HexColor("green");
+    public static string Blue(this string str) => str.HexColor("blue");
+    public static string Black(this string str) => str.HexColor("black");
+    public static string White(this string str) => str.HexColor("white");
+    public static string Gray(this string str) => str.HexColor("#808080");
+    public static string Yellow(this string str) => str.HexColor("yellow");
+    public static string Magenta(this string str) => str.HexColor("#FF00FF");
+    public static string Cyan(this string str) => str.HexColor("#00FFFF");
+    public static string Orange(this string str) => str.HexColor("orange");
+    public static string Purple(this string str) => str.HexColor("purple");
+    public static string Brown(this string str) => str.HexColor("#A52A2A");
     public static string Size(this string str, int size) => string.Format("<size={0}>{1}</size>", size, str);
     public static string Large(this string str) => str.Size(16);
     public static string Medium(this string str) => str.Size(11);

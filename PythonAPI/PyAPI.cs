@@ -27,7 +27,7 @@ public class PyAPIHandler : SingletonCompo<PyAPIHandler>
 
         Log.OnLog.Subscribe(msg =>
         {
-            Debug.Log(msg.Green());
+            Debug.Log(msg.HexColor("#90E3C4"));
         }).AddTo(this);
     }
 

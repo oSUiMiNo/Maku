@@ -87,6 +87,10 @@ public class PyFnc
         var newFnc = new PyFnc();
         IdolingFncs.Add(newFnc);
 
+        newFnc.FncName = Path.GetFileName(pyFile);
+        newFnc.Timeout = timeout;
+
+        string log = $"PyFnc起動:{newFnc.FncName} - プロセス ";
         if (count <= 0) count = 1;
         for (int i = 0; i < count; i++)
         {
@@ -102,8 +106,8 @@ public class PyFnc
                     CreateNoWindow = true, // PowerShellウィンドウを表示しない
                 }
             });
+            log += $", {i.ToString()}";
         }
-        newFnc.Timeout = timeout;
         await UniTask.Delay(1);
         newFnc.InitLog(pyFile);
         await UniTask.SwitchToMainThread();
@@ -128,7 +132,7 @@ public class PyFnc
         cts.Cancel();
         Output.Close();
         logActive.Dispose();
-        string log = $"Pyfncクローズ:{FncName} - プロセス ";
+        string log = $"PyFncクローズ:{FncName} - プロセス ";
         for (int i = 0; i < children.Count; i++)
         {
             children[i].PerfectKill();
@@ -142,7 +146,6 @@ public class PyFnc
 
     void InitLog(string pyFile)
     {
-        FncName = Path.GetFileName(pyFile);
         // アウトプット用ファイル作成;
         OutPath = $"{pyFile.Replace("\\", "/").Replace(".py", ".txt")}";
         Output = new SharedLog(OutPath);

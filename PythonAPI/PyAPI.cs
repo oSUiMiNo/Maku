@@ -129,7 +129,7 @@ public class PyFnc
         Debug.Log(log);
         await UniTask.Delay(1);
         newFnc.InitLog(pyFile);
-
+        Debug.Log("ロード待ち開始");
         // 全プロセスの7割以上がロード完了するまで待つ
         newFnc.OnLoaded
         .Subscribe(JO =>

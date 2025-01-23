@@ -78,7 +78,7 @@ public class PyFnc
         }
     })
     .Where(JO => JO != null)
-    .Where(JO => JO["Loaded"] != null);
+    .Where(JO => JO["Loaded"] == null);
 
     public IObservable<JObject> OnLoaded => Output.OnLog
     .Select(msg =>
@@ -95,7 +95,7 @@ public class PyFnc
         }
     })
     .Where(JO => JO != null)
-    .Where(JO => JO["Loaded"] == null);
+    .Where(JO => JO["Loaded"] != null);
 
 
     int loadedCount;

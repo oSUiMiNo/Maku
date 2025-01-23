@@ -108,6 +108,7 @@ public class PyFnc
             });
             log += $", {i.ToString()}";
         }
+        Debug.Log(log);
         await UniTask.Delay(1);
         newFnc.InitLog(pyFile);
         await UniTask.SwitchToMainThread();

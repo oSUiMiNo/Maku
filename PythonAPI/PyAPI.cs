@@ -134,10 +134,11 @@ public class PyFnc
         newFnc.OnLoaded
         .Subscribe(JO =>
         {
+            Debug.Log("ロード完了".Red());
             newFnc.loadedCount++;
         }).AddTo(PyAPIHandler.Compo);
         await UniTask.WaitUntil(() => newFnc.loadedCount >= (int)(count * 0.7));
-
+        Debug.Log("7割がロード完了".Cyan());
         await UniTask.SwitchToMainThread();
         return newFnc;
     }

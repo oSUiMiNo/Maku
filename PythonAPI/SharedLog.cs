@@ -6,6 +6,7 @@ using Newtonsoft.Json.Linq;
 using Cysharp.Threading.Tasks;
 using UniRx;
 
+
 public class SharedLog
 {
     string LogPath; // 監視するファイルのパス

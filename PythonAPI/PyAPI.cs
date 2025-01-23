@@ -2,13 +2,11 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
-using System.Threading.Tasks;
 using System.Threading;
 using System.IO;
 using System;
 using System.Collections.Generic;
 using UniRx;
-using static Codice.Client.Commands.WkTree.WorkspaceTreeNode;
 
 
 public class PyAPIHandler : SingletonCompo<PyAPIHandler>
@@ -29,7 +27,7 @@ public class PyAPIHandler : SingletonCompo<PyAPIHandler>
 
         Log.OnLog.Subscribe(msg =>
         {
-            Debug.Log(msg);
+            Debug.Log(msg.Blue());
         }).AddTo(this);
     }
 
@@ -53,7 +51,7 @@ public class PyFnc
 {
     static List<PyFnc> IdolingFncs = new List<PyFnc>();
 
-    public string FncName { get; private set; } 
+    public string FncName { get; private set; }
     public string OutPath { get; private set; } // 監視するファイルのパス
     SharedLog Output;
 
@@ -82,7 +80,7 @@ public class PyFnc
     })
     .Where(JO => JO != null);
 
-    
+
     public static async UniTask<PyFnc> Create(string pyInterpFile, string pyFile, string sendData = "", int count = 1, float timeout = 0)
     {
         await UniTask.SwitchToThreadPool();
@@ -130,7 +128,7 @@ public class PyFnc
         cts.Cancel();
         Output.Close();
         logActive.Dispose();
-        for(int i = 0; i < children.Count; i++ )
+        for (int i = 0; i < children.Count; i++)
         {
             children[i].PerfectKill();
             Debug.Log($"クローズ {FncName}{i}");
@@ -164,8 +162,9 @@ public class PyFnc
         }
     }
 
-
+    // -------------------------------------------
     // Idle 中の関数を実行
+    // -------------------------------------------
     public async UniTask<JObject> Exe(JObject inJO)
     {
         JObject outJO = null;
@@ -191,11 +190,12 @@ public class PyFnc
         children[currentChildIndex].Exe(inJO);
         if (currentChildIndex == children.Count - 1) currentChildIndex = 0;
         else currentChildIndex++;
-        GC.Collect();
+        //GC.Collect();
     }
 
-
+    // -------------------------------------------
     // Wait 中の関数を実行
+    // -------------------------------------------
     public async UniTask<JObject> Exe()
     {
         JObject outJO = null;
@@ -216,27 +216,18 @@ public class PyFnc
 
         return outJO;
     }
-    public void ExeBG()
-    {
-        RunAsync();
-        Close(100);
-        GC.Collect();
-    }
-
-
-    async void RunAsync()
+    public async void ExeBG()
     {
         try
         {
             // Close するために待機する
             await children[currentChildIndex].RunAsync(Timeout, () => Output.Close(), cts.Token);
         }
-        catch (OperationCanceledException)
-        {
-            //Debug.Log("キャンセル");
-        }
+        catch (OperationCanceledException) { }
         if (currentChildIndex == children.Count - 1) currentChildIndex = 0;
         else currentChildIndex++;
+        Close(100);
+        GC.Collect();
     }
 }
 
@@ -248,31 +239,36 @@ public class PyAPI
     string PyInterpFile;
     string PyDir;
 
+
     public PyAPI(string pyDir, string pyInterpFile = "")
     {
         PyDir = pyDir;
         if (string.IsNullOrEmpty(pyInterpFile)) PyInterpFile = $"{pyDir}/.venv/Scripts/python.exe";
-        else PyInterpFile = pyInterpFile ;
+        else PyInterpFile = pyInterpFile;
     }
 
 
+    // -------------------------------------------
+    // 高速実行したい関数を作成してアイドリングさせる
+    // -------------------------------------------
     public async UniTask<PyFnc> Idle(string pyFileName, int count = 1)
     {
         // Pythonファイルパス
         string pyFile = @$"{PyDir}\{pyFileName}";
         if (!File.Exists(PyInterpFile)) Debug.LogError($"次の実行ファイルは無い{PyInterpFile}");
         if (!File.Exists(pyFile)) Debug.LogError($"次のPyファイルは無い{pyFile}");
-
         PyFnc pyFnc;
         if (count <= 1) pyFnc = await PyFnc.Create(PyInterpFile, pyFile);
         else pyFnc = await PyFnc.Create(PyInterpFile, pyFile, count: count);
-        //IdlongFncs.Add(pyFnc);
         pyFnc.Start();
-
+        GC.Collect();
         return pyFnc;
     }
 
 
+    // -------------------------------------------
+    // １ショット実行する関数を作成して待機させる
+    // -------------------------------------------
     public async UniTask<PyFnc> Wait(string pyFileName, float timeout = 0)
     {
         return await Wait(pyFileName, new JObject(), timeout);
@@ -283,18 +279,12 @@ public class PyAPI
         string pyFile = @$"{PyDir}\{pyFileName}";
         if (!File.Exists(PyInterpFile)) Debug.LogError($"次の実行ファイルは無い{PyInterpFile}");
         if (!File.Exists(pyFile)) Debug.LogError($"次のPyファイルは無い{pyFile}");
-
         // ["] を [\""] にエスケープしたJson
         string sendData = JsonConvert.SerializeObject(inJO).Replace("\"", "\\\"\"");
-
         PyFnc pyFnc = await PyFnc.Create(PyInterpFile, pyFile, sendData);
-        //GC.Collect();
+        GC.Collect();
         return pyFnc;
-        //return new PyFnc();
     }
-
-
-   
 }
 
 
@@ -334,7 +324,8 @@ public static class ProcessExtentions
             inputWriter.WriteLine(command);
             inputWriter.Flush();
             await UniTask.SwitchToMainThread();
-        } catch { }
+        }
+        catch { }
     }
 
 
@@ -343,7 +334,7 @@ public static class ProcessExtentions
         await UniTask.SwitchToThreadPool();
         var timeoutCTS = new CancellationTokenSource();
         var exited = new UniTaskCompletionSource();
-        
+
         if (timeout != 0)
             UniTask.RunOnThreadPool(() => process.Timeout(timeout, timeoutCTS.Token)).Forget();
 
@@ -363,7 +354,7 @@ public static class ProcessExtentions
         };
 
         process.Start();
-        
+
         try
         {
             // 外部キャンセルを反映
@@ -403,7 +394,8 @@ public static class ProcessExtentions
         {
             // 既にKillされていた場合は無視される
             process.Kill();
-        }catch { /*Debug.Log("既に Kill されていた");*/ }
+        }
+        catch { /*Debug.Log("既に Kill されていた");*/ }
         process.Dispose();
     }
 

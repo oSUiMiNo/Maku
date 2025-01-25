@@ -15,42 +15,7 @@ public class PyAPIHandler : SingletonCompo<PyAPIHandler>
     protected sealed override void Awake0() => PyAPI.InitLog();
     private void OnApplicationQuit() => PyAPI.Close();
     private void OnDestroy() => PyAPI.Close(); // パッケージインポート先で実行されてない
-    
-    
-    //static string LogPath => $"{Application.dataPath}/PyLog.txt"; // 監視するファイル
-    //static SharedLog Log = new SharedLog(LogPath);
-    //static IObservable<long> OnRead => logActive.UpdateWhileEqualTo(Log.isActive, 0.05f);
-    //static BoolReactiveProperty logActive = new BoolReactiveProperty(true);
-
-
-    //static void InitLog()
-    //{
-    //    OnRead.Subscribe(_ =>
-    //    {
-    //        if (!File.Exists(LogPath)) return; // なんかオペレータをすり抜けるのでブロックしとく
-    //        //Debug.Log($"ログ {File.Exists(LogPath)}");
-    //        Log.ReadLogFile();
-    //    }).AddTo(Compo);
-
-    //    Log.OnLog.Subscribe(msg =>
-    //    {
-    //        Debug.Log(msg.HexColor("#90E3C4"));
-    //    }).AddTo(Compo);
-    //}
-
-    //static async void Close()
-    //{
-    //    Debug.Log("PyAPIクローズ");
-    //    // 終了時はは待ち時間0じゃないとパッケージ利用先で実行されない
-    //    PyFnc.CloseAll(0);
-    //    logActive.Dispose();
-    //    // 終了後に待ちたいのでここはDelay.Secondではだめ
-    //    await UniTask.Delay(1);
-    //    Log.Close();
-    //}
 }
-
-
 
 
 public class PyAPI

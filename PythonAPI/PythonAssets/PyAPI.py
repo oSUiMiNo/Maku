@@ -1,7 +1,6 @@
 import sys
 import json
 import os
-import threading
 import time
 from inspect import stack
 from pathlib import Path
@@ -39,14 +38,14 @@ def APIn():
     if len(sys.argv) > 1:
             try:
                 arg = sys.argv[1]
-                inputJObj = json.loads(arg)
-                return inputJObj
+                inJO = json.loads(arg)
+                return inJO
             except json.JSONDecodeError:
                 Log("JSON形式の引数ではありません。")
             except Exception as e:
                 Log(f"エラーが発生しました: {e}")
-    else:
-        Log("外部からの引数無し")
+    # else:
+        # Log("外部からの引数無し")
 
 
 
@@ -82,16 +81,19 @@ def Log(msg):
 
 
 
-def Idle(fnc):
+def Idle(fnc, inJO):
+    outJO = {}
+    outJO["Loaded"] = True
+    APOut(outJO)
     # メインループ（C#からの入力を処理）
-    with ThreadPoolExecutor(max_workers=5) as executor:
+    with ThreadPoolExecutor(max_workers=inJO["ThreadCount"]) as executor:
         for arg in sys.stdin:
             if arg.strip() == "Close":
                 break
             
             executor.submit(Exe, arg, fnc)
             time.sleep(0.001)
-
+    
 
         
 def Exe(arg, fnc):
@@ -108,29 +110,3 @@ def Exe(arg, fnc):
         fileName = exception_traceback.tb_frame.f_code.co_filename
         lineNo = exception_traceback.tb_lineno
         Log(f"エラー:, {e} {fileName} _ {lineNo}")
-
-
-
-# # 新しいスレッドを作成して関数を割り当て
-# def Idle(fnc):
-#     global Threads
-#     threading.Thread(target=idle, args=[fnc]).start()
-# def idle(fnc):
-#     # メインループ（C#からの入力を処理）
-#     for arg in sys.stdin:
-#         if arg.strip() == "Close":
-#             break
-#         try:
-#             inJO: dict = json.loads(arg.strip())
-#             # Log(f"受け取ったデータ: {inJO}")
-#             # Log(f"受取ったデータタイプ {type(inJO)}")
-#             # Log(f"受取った数 {len(inJO["Data"])}")
-#             fnc(inJO)
-#         except json.JSONDecodeError:
-#             Log("JSON形式の引数ではありません。")
-#         except Exception as e:
-#             exception_type, exception_object, exception_traceback = sys.exc_info()
-#             fileName = exception_traceback.tb_frame.f_code.co_filename
-#             lineNo = exception_traceback.tb_lineno
-#             Log(f"エラー:, {e} {fileName} _ {lineNo}")
-#         time.sleep(0.001)

@@ -46,7 +46,7 @@ public class Test_PyLoop : MonoBehaviour
         JObject inJO = new JObject();
         inJO["Data0"] = "‚ ‚ ‚ ‚ ‚ ‚ ‚ ‚ ‚ ‚ ‚ ";
         inJO["Data1"] = "‚¢‚¢‚¢‚¢‚¢‚¢‚¢‚¢‚¢‚¢";
-        PyFnc Test_Idle = await py.Idle("Test_Idle.py", count: 20);
+        PyFnc Test_Idle = await py.Idle("Test_Idle.py", processCount: 20);
 
         await Delay.Second(7);
 
@@ -71,7 +71,7 @@ public class Test_PyLoop : MonoBehaviour
         JObject inJO = new JObject();
         inJO["Data0"] = "‚ ‚ ‚ ‚ ‚ ‚ ‚ ‚ ‚ ‚ ‚ ";
         inJO["Data1"] = "‚¢‚¢‚¢‚¢‚¢‚¢‚¢‚¢‚¢‚¢";
-        PyFnc Test_Idle = await py.Idle("Test_Idle.py", count: 20);
+        PyFnc Test_Idle = await py.Idle("Test_Idle.py", processCount: 20);
 
         Test_Idle.OnOut.Subscribe(JO =>
         {

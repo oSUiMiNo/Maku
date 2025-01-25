@@ -7,33 +7,88 @@ using System.IO;
 using System;
 using System.Collections.Generic;
 using UniRx;
+using static Codice.Client.BaseCommands.KnownCommandOptions;
 
 
 public class PyAPIHandler : SingletonCompo<PyAPIHandler>
 {
-    static string LogPath => $"{Application.dataPath}/PyLog.txt"; // 監視するファイルのパス
+    protected sealed override void Awake0() => PyAPI.InitLog();
+    private void OnApplicationQuit() => PyAPI.Close();
+    private void OnDestroy() => PyAPI.Close(); // パッケージインポート先で実行されてない
+    
+    
+    //static string LogPath => $"{Application.dataPath}/PyLog.txt"; // 監視するファイル
+    //static SharedLog Log = new SharedLog(LogPath);
+    //static IObservable<long> OnRead => logActive.UpdateWhileEqualTo(Log.isActive, 0.05f);
+    //static BoolReactiveProperty logActive = new BoolReactiveProperty(true);
+
+
+    //static void InitLog()
+    //{
+    //    OnRead.Subscribe(_ =>
+    //    {
+    //        if (!File.Exists(LogPath)) return; // なんかオペレータをすり抜けるのでブロックしとく
+    //        //Debug.Log($"ログ {File.Exists(LogPath)}");
+    //        Log.ReadLogFile();
+    //    }).AddTo(Compo);
+
+    //    Log.OnLog.Subscribe(msg =>
+    //    {
+    //        Debug.Log(msg.HexColor("#90E3C4"));
+    //    }).AddTo(Compo);
+    //}
+
+    //static async void Close()
+    //{
+    //    Debug.Log("PyAPIクローズ");
+    //    // 終了時はは待ち時間0じゃないとパッケージ利用先で実行されない
+    //    PyFnc.CloseAll(0);
+    //    logActive.Dispose();
+    //    // 終了後に待ちたいのでここはDelay.Secondではだめ
+    //    await UniTask.Delay(1);
+    //    Log.Close();
+    //}
+}
+
+
+
+
+public class PyAPI
+{
+    string PyInterpFile;
+    string PyDir;
+
+    static string LogPath => $"{Application.dataPath}/PyLog.txt"; // 監視するファイル
     static SharedLog Log = new SharedLog(LogPath);
-    IObservable<long> OnRead => logActive.UpdateWhileEqualTo(Log.isActive, 0.05f);
+    static IObservable<long> OnRead => logActive.UpdateWhileEqualTo(Log.isActive, 0.05f);
     static BoolReactiveProperty logActive = new BoolReactiveProperty(true);
 
-    protected sealed override void Awake0()
+
+    public PyAPI(string pyDir, string pyInterpFile = "")
+    {
+        PyDir = pyDir;
+        if (string.IsNullOrEmpty(pyInterpFile)) PyInterpFile = $"{pyDir}/.venv/Scripts/python.exe";
+        else PyInterpFile = pyInterpFile;
+    }
+
+
+    public static void InitLog()
     {
         OnRead.Subscribe(_ =>
         {
             if (!File.Exists(LogPath)) return; // なんかオペレータをすり抜けるのでブロックしとく
             //Debug.Log($"ログ {File.Exists(LogPath)}");
             Log.ReadLogFile();
-        }).AddTo(this);
+        }).AddTo(PyAPIHandler.Compo);
 
         Log.OnLog.Subscribe(msg =>
         {
             Debug.Log(msg.HexColor("#90E3C4"));
-        }).AddTo(this);
+        }).AddTo(PyAPIHandler.Compo);
     }
 
-    private void OnApplicationQuit() => Close();
-    private void OnDestroy() => Close(); // パッケージインポート先で実行されてない
-    async void Close()
+
+    public static async void Close()
     {
         Debug.Log("PyAPIクローズ");
         // 終了時はは待ち時間0じゃないとパッケージ利用先で実行されない
@@ -43,6 +98,46 @@ public class PyAPIHandler : SingletonCompo<PyAPIHandler>
         await UniTask.Delay(1);
         Log.Close();
     }
+
+
+    // -------------------------------------------
+    // 高速実行したい関数を作成してアイドリングさせる
+    // -------------------------------------------
+    public async UniTask<PyFnc> Idle(string pyFileName, int processCount = 1, int threadCount = 1)
+    {
+        // Pythonファイルパス
+        string pyFile = @$"{PyDir}\{pyFileName}";
+        if (!File.Exists(PyInterpFile)) Debug.LogError($"次の実行ファイルは無い{PyInterpFile}");
+        if (!File.Exists(pyFile)) Debug.LogError($"次のPyファイルは無い{pyFile}");
+        PyFnc pyFnc;
+        if (processCount <= 1) pyFnc = await PyFnc.Create(PyInterpFile, pyFile);
+        else pyFnc = await PyFnc.Create(PyInterpFile, pyFile, processCount: processCount, threadCount: threadCount);
+        pyFnc.Start();
+        GC.Collect();
+        return pyFnc;
+    }
+
+
+    // -------------------------------------------
+    // １ショット実行する関数を作成して待機させる
+    // -------------------------------------------
+    public async UniTask<PyFnc> Wait(string pyFileName, float timeout = 0)
+    {
+        return await Wait(pyFileName, new JObject(), timeout);
+    }
+    public async UniTask<PyFnc> Wait(string pyFileName, JObject inJO, float timeout = 0)
+    {
+        // Pythonファイルパス
+        string pyFile = @$"{PyDir}\{pyFileName}";
+        if (!File.Exists(PyInterpFile)) Debug.LogError($"次の実行ファイルは無い{PyInterpFile}");
+        if (!File.Exists(pyFile)) Debug.LogError($"次のPyファイルは無い{pyFile}");
+        //// ["] を [\""] にエスケープしたJson
+        //string sendData = JsonConvert.SerializeObject(inJO).Replace("\"", "\\\"\"");
+        PyFnc pyFnc = await PyFnc.Create(PyInterpFile, pyFile, inJO);
+        GC.Collect();
+        return pyFnc;
+    }
+
 }
 
 
@@ -52,7 +147,7 @@ public class PyFnc
     static List<PyFnc> IdolingFncs = new List<PyFnc>();
 
     public string FncName { get; private set; }
-    public string OutPath { get; private set; } // 監視するファイルのパス
+    public string OutPath { get; private set; } // 監視するファイル
     float Timeout = 0;
     SharedLog Output;
 
@@ -98,7 +193,7 @@ public class PyFnc
     .Where(JO => JO["Loaded"] != null);
 
 
-    public static async UniTask<PyFnc> Create(string pyInterpFile, string pyFile, string sendData = "", int count = 1, float timeout = 0)
+    public static async UniTask<PyFnc> Create(string pyInterpFile, string pyFile, JObject inJO = null, int processCount = 1, int threadCount = 1, float timeout = 0)
     {
         await UniTask.SwitchToThreadPool();
         var newFnc = new PyFnc();
@@ -107,9 +202,15 @@ public class PyFnc
         newFnc.FncName = Path.GetFileName(pyFile);
         newFnc.Timeout = timeout;
 
+        if(inJO == null) inJO = new JObject();
+        inJO["ThreadCount"] = threadCount;
+
+        // ["] を [\""] にエスケープしたJson
+        string sendData = JsonConvert.SerializeObject(inJO).Replace("\"", "\\\"\"");
+
         string log = $"PyFnc起動:{newFnc.FncName} - プロセス ";
-        if (count <= 0) count = 1;
-        for (int i = 0; i < count; i++)
+        if (processCount <= 0) processCount = 1;
+        for (int i = 0; i < processCount; i++)
         {
             newFnc.children.Add(new System.Diagnostics.Process
             {
@@ -145,10 +246,10 @@ public class PyFnc
         if (!ThreadIsMain) await UniTask.SwitchToMainThread();
         int loadedCount = 0;
         IDisposable onOut = OnLoad
-         .Subscribe(JO =>
-         {
-             loadedCount++;
-         }).AddTo(PyAPIHandler.Compo);
+        .Subscribe(JO =>
+        {
+            loadedCount++;
+        }).AddTo(PyAPIHandler.Compo);
         if (!ThreadIsMain) await UniTask.SwitchToThreadPool();
         await UniTask.WaitUntil(() => loadedCount >= (int)(count * 0.7));
         Debug.Log($"{FncName} 7割のプロセスがロード完了".Magenta());
@@ -281,58 +382,6 @@ public class PyFnc
 
 
 
-public class PyAPI
-{
-    string PyInterpFile;
-    string PyDir;
-
-
-    public PyAPI(string pyDir, string pyInterpFile = "")
-    {
-        PyDir = pyDir;
-        if (string.IsNullOrEmpty(pyInterpFile)) PyInterpFile = $"{pyDir}/.venv/Scripts/python.exe";
-        else PyInterpFile = pyInterpFile;
-    }
-
-
-    // -------------------------------------------
-    // 高速実行したい関数を作成してアイドリングさせる
-    // -------------------------------------------
-    public async UniTask<PyFnc> Idle(string pyFileName, int count = 1)
-    {
-        // Pythonファイルパス
-        string pyFile = @$"{PyDir}\{pyFileName}";
-        if (!File.Exists(PyInterpFile)) Debug.LogError($"次の実行ファイルは無い{PyInterpFile}");
-        if (!File.Exists(pyFile)) Debug.LogError($"次のPyファイルは無い{pyFile}");
-        PyFnc pyFnc;
-        if (count <= 1) pyFnc = await PyFnc.Create(PyInterpFile, pyFile);
-        else pyFnc = await PyFnc.Create(PyInterpFile, pyFile, count: count);
-        pyFnc.Start();
-        GC.Collect();
-        return pyFnc;
-    }
-
-
-    // -------------------------------------------
-    // １ショット実行する関数を作成して待機させる
-    // -------------------------------------------
-    public async UniTask<PyFnc> Wait(string pyFileName, float timeout = 0)
-    {
-        return await Wait(pyFileName, new JObject(), timeout);
-    }
-    public async UniTask<PyFnc> Wait(string pyFileName, JObject inJO, float timeout = 0)
-    {
-        // Pythonファイルパス
-        string pyFile = @$"{PyDir}\{pyFileName}";
-        if (!File.Exists(PyInterpFile)) Debug.LogError($"次の実行ファイルは無い{PyInterpFile}");
-        if (!File.Exists(pyFile)) Debug.LogError($"次のPyファイルは無い{pyFile}");
-        // ["] を [\""] にエスケープしたJson
-        string sendData = JsonConvert.SerializeObject(inJO).Replace("\"", "\\\"\"");
-        PyFnc pyFnc = await PyFnc.Create(PyInterpFile, pyFile, sendData);
-        GC.Collect();
-        return pyFnc;
-    }
-}
 
 
 public static class ProcessExtentions

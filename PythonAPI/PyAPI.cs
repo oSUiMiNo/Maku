@@ -168,7 +168,7 @@ public class PyFnc
         // ["] を [\""] にエスケープしたJson
         string sendData = JsonConvert.SerializeObject(inJO).Replace("\"", "\\\"\"");
 
-        string log = $"PyFnc起動:{newFnc.FncName} - プロセス ";
+        string log = $"PyFnc起動:{newFnc.FncName} - プロセス: ";
         if (processCount <= 0) processCount = 1;
         for (int i = 0; i < processCount; i++)
         {
@@ -186,6 +186,7 @@ public class PyFnc
             });
             log += $", {i.ToString()}";
         }
+        log += $"\n各スレッド数: {threadCount}";
         Debug.Log(log);
         await UniTask.Delay(1);
         newFnc.InitLog(pyFile);
@@ -198,8 +199,13 @@ public class PyFnc
 
     // 全プロセスの7割以上がロード完了するまで待つ
     // Create 内でawait すると何故か onOut が発火しない
-    public async UniTask WaitLoad()
+    public async UniTask WaitLoad(int completionRate)
     {
+        if (completionRate < 1 || 10 < completionRate)
+        {
+            Debug.LogError("completionRate は 1-10 の間で");
+            return;
+        }
         // AddTo の中身はGOかCompoなのでメインスレッドじゃないとだめ
         bool ThreadIsMain = false;
         if (Thread.CurrentThread.ManagedThreadId == 1) ThreadIsMain = true;
@@ -212,7 +218,7 @@ public class PyFnc
         }).AddTo(PyAPIHandler.Compo);
         if (!ThreadIsMain) await UniTask.SwitchToThreadPool();
         await UniTask.WaitUntil(() => loadedCount >= (int)(children.Count * 0.7));
-        Debug.Log($"{FncName} 7割のプロセスがロード完了".Magenta());
+        Debug.Log($"{FncName}: {completionRate}0% のプロセスがロード完了".Magenta());
         onOut.Dispose();
     }
 

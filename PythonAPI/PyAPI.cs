@@ -234,7 +234,7 @@ public class PyFnc
 
     // 全プロセスの7割以上がロード完了するまで待つ
     // Create 内でawait すると何故か onOut が発火しない
-    public async UniTask WaitLoad(int count)
+    public async UniTask WaitLoad()
     {
         // AddTo の中身はGOかCompoなのでメインスレッドじゃないとだめ
         bool ThreadIsMain = false;
@@ -247,7 +247,7 @@ public class PyFnc
             loadedCount++;
         }).AddTo(PyAPIHandler.Compo);
         if (!ThreadIsMain) await UniTask.SwitchToThreadPool();
-        await UniTask.WaitUntil(() => loadedCount >= (int)(count * 0.7));
+        await UniTask.WaitUntil(() => loadedCount >= (int)(children.Count * 0.7));
         Debug.Log($"{FncName} 7割のプロセスがロード完了".Magenta());
         onOut.Dispose();
     }

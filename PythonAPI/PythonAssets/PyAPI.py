@@ -86,9 +86,9 @@ def Idle(fnc, inJO):
     outJO["Loaded"] = True
     APOut(outJO)
     threadCount = inJO["ThreadCount"]
-    Log(f"スレッド数 {threadCount}")
-    # メインループ（C#からの入力を処理）
-    with ThreadPoolExecutor(max_workers=inJO["ThreadCount"]) as executor:
+    # Log(f"スレッド数 {threadCount}")
+    # メインループ C#からの入力を待機
+    with ThreadPoolExecutor(max_workers=threadCount) as executor:
         for arg in sys.stdin:
             if arg.strip() == "Close":
                 break

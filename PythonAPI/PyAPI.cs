@@ -58,7 +58,7 @@ public class PyAPI
     {
         return await Wait(pyFileName, new JObject(), timeout);
     }
-    public async UniTask<PyFnc> Wait(string pyFileName, JObject inJO, float timeout = 0)
+    public async UniTask<PyFnc> Wait(string pyFileName, JObject inJO, float timeout = 0, bool largeInput = false)
     {
         // Pythonファイルパス
         string pyFile = @$"{PyDir}\{pyFileName}";
@@ -66,7 +66,7 @@ public class PyAPI
         if (!File.Exists(pyFile)) Debug.LogError($"次のPyファイルは無い{pyFile}");
         //// ["] を [\""] にエスケープしたJson
         //string sendData = JsonConvert.SerializeObject(inJO).Replace("\"", "\\\"\"");
-        PyFnc pyFnc = await PyFnc.Create(PyInterpFile, pyFile, inJO);
+        PyFnc pyFnc = await PyFnc.Create(PyInterpFile, pyFile, inJO, largeInput: largeInput);
         GC.Collect();
         return pyFnc;
     }

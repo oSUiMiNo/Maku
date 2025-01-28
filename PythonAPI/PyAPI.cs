@@ -7,6 +7,8 @@ using System.IO;
 using System;
 using System.Collections.Generic;
 using UniRx;
+using System.Security.Cryptography;
+using System.Text;
 
 
 public class PyAPIHandler : SingletonCompo<PyAPIHandler>
@@ -105,6 +107,7 @@ public class PyAPI
 public class PyFnc
 {
     static List<PyFnc> IdolingFncs = new List<PyFnc>();
+    static int InPathNum = 0;
 
     public string FncName { get; private set; }
     public string OutPath { get; private set; } // 監視するファイル
@@ -153,7 +156,7 @@ public class PyFnc
     .Where(JO => JO["Loaded"] != null);
 
 
-    public static async UniTask<PyFnc> Create(string pyInterpFile, string pyFile, JObject inJO = null, int processCount = 1, int threadCount = 1, float timeout = 0)
+    public static async UniTask<PyFnc> Create(string pyInterpFile, string pyFile, JObject inJO = null, int processCount = 1, int threadCount = 1, float timeout = 0, bool largeInput = false)
     {
         await UniTask.SwitchToThreadPool();
         var newFnc = new PyFnc();
@@ -164,6 +167,19 @@ public class PyFnc
 
         if(inJO == null) inJO = new JObject();
         inJO["ThreadCount"] = threadCount;
+        inJO["LargeInput"] = largeInput;
+        if(largeInput == true)
+        {
+            string inPath = $"{Path.GetDirectoryName(pyFile)}/{largeInput}{InPathNum}.txt";
+            InPathNum++;
+            if(InPathNum > 50000) InPathNum = 0;
+            inJO["InPath"] = inPath;
+            // ファイルが存在する場合は上書き
+            StreamWriter writer = new StreamWriter(inPath, false);
+            writer.WriteLine(JsonConvert.SerializeObject(inJO).Replace("\"", "\\\"\"")); // 書き込むテキスト
+            writer.Close();
+        }
+
 
         // ["] を [\""] にエスケープしたJson
         string sendData = JsonConvert.SerializeObject(inJO).Replace("\"", "\\\"\"");
@@ -494,5 +510,24 @@ public static class ProcessExtentions
         process.Start();
 
         return exited.Task;
+    }
+}
+
+
+
+public class HashGenerator
+{
+    public static string Generate()
+    {
+        // ランダムな文字列を生成
+        string input = Guid.NewGuid().ToString();
+
+        using (SHA256 sha256 = SHA256.Create())
+        {
+            byte[] inputBytes = Encoding.UTF8.GetBytes(input);
+            byte[] hashBytes = sha256.ComputeHash(inputBytes);
+            string hashString = BitConverter.ToString(hashBytes).Replace("-", "");
+            return hashString;
+        }
     }
 }

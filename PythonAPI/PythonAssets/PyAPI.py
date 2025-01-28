@@ -12,6 +12,7 @@ from concurrent.futures import ThreadPoolExecutor
 LogPath = ""
 RootPah = ""
 OutPath = ""
+InPath = ""
 
 
 def APInit():
@@ -31,13 +32,28 @@ def APInit():
 
 
 def APIn():
-    global OutPath
+    global OutPath, InPath
     # アウトプット用にC#によって呼び出し元.pyと同じディレクトリに [自分のファイル名.json] が作成されている。
     OutPath = f"{Path(stack()[1].filename).with_suffix(".txt")}"
     APInit()
     if len(sys.argv) > 1:
             try:
                 arg = sys.argv[1]
+                inJO = json.loads(arg)
+                if(inJO["LargeInput"] == True):
+                    InPath = inJO["InPath"]
+                    try:
+                        with open(InPath, 'r') as f:
+                            arg = f.read()
+                            Log(f"巨大引数 {arg}")
+                        with open(InPath, 'w') as f:
+                            pass  # ファイルを空にする
+                        os.remove(InPath)
+                        Log(f"巨大引数ファイル削除成功: {InPath}")
+                    except FileNotFoundError:
+                        Log(f"巨大引数ファイルが存在しない: {InPath}")
+                    except Exception as e:
+                        Log(f"エラー: {e}")
                 inJO = json.loads(arg)
                 return inJO
             except json.JSONDecodeError:

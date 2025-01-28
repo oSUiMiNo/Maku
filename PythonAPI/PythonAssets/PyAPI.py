@@ -41,7 +41,9 @@ def APIn():
                 arg = sys.argv[1]
                 inJO = json.loads(arg)
                 if(inJO["LargeInput"] == True):
+                    Log(f"ラージインプット")
                     InPath = inJO["InPath"]
+                    Log(f"{InPath}")
                     try:
                         with open(InPath, 'r') as f:
                             arg = f.read()
@@ -56,10 +58,10 @@ def APIn():
                         Log(f"エラー: {e}")
                 inJO = json.loads(arg)
                 return inJO
-            except json.JSONDecodeError:
-                Log("JSON形式の引数ではありません。")
+            except json.JSONDecodeError as e:
+                Log(f"JSONデコードエラー: {e}")
             except Exception as e:
-                Log(f"エラーが発生しました: {e}")
+                Log(f"エラー: {e}")
     # else:
         # Log("外部からの引数無し")
 

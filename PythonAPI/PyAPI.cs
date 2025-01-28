@@ -165,20 +165,24 @@ public class PyFnc
         newFnc.FncName = Path.GetFileName(pyFile);
         newFnc.Timeout = timeout;
 
-        if(inJO == null) inJO = new JObject();
-        inJO["ThreadCount"] = threadCount;
-        inJO["LargeInput"] = largeInput;
-        if(largeInput == true)
+        Debug.Log($"ラージインプット {largeInput}");
+        string inPath = "";
+        if (largeInput == true)
         {
-            string inPath = $"{Path.GetDirectoryName(pyFile)}/{largeInput}{InPathNum}.txt";
+            inPath = $"{Path.GetDirectoryName(pyFile)}/LargeInput{InPathNum}.txt";
             InPathNum++;
-            if(InPathNum > 50000) InPathNum = 0;
-            inJO["InPath"] = inPath;
+            if (InPathNum > 50000) InPathNum = 0;
             // ファイルが存在する場合は上書き
             StreamWriter writer = new StreamWriter(inPath, false);
-            writer.WriteLine(JsonConvert.SerializeObject(inJO).Replace("\"", "\\\"\"")); // 書き込むテキスト
+            writer.WriteLine(JsonConvert.SerializeObject(inJO));//.Replace("\"", "\\\"\"")); // 書き込むテキスト
             writer.Close();
+            inJO = null;
+            Debug.Log($"書き込み完了");
         }
+        if (inJO == null) inJO = new JObject();
+        inJO["ThreadCount"] = threadCount;
+        inJO["LargeInput"] = largeInput;
+        inJO["InPath"] = inPath;
 
 
         // ["] を [\""] にエスケープしたJson

@@ -574,14 +574,15 @@ public static class ObservableExtensions
 
             UniTask.RunOnThreadPool(() =>
             {
-                var interval = TimeSpan.FromSeconds(sec);
+                //var interval = TimeSpan.FromSeconds(sec);
                 long count = 0;
                 var stopwatch = new System.Diagnostics.Stopwatch();
                 try
                 {
                     stopwatch.Start();
+                    //if (stopwatch.Elapsed.TotalSeconds >= interval.TotalSeconds)
+                    if (stopwatch.Elapsed.TotalSeconds >= sec)
                     while (!cts.IsCancellationRequested)
-                    if (stopwatch.Elapsed.TotalSeconds >= interval.TotalSeconds)
                     {
                         observer.OnNext(count++);
                         // 無限ループのスレッドが独占対策でCPUスイッチ

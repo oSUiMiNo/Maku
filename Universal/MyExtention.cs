@@ -545,7 +545,7 @@ public static class ObservableExtensions
 
 
     // UpdateWhileEqualToは1フレームより短い秒数を測れない
-    // こちらは短く測れる(下限0.001)がスレッドプールでやるのでフレームに依存するUnityのAPIが使えない(例 Time.time)
+    // こちらは短く測れる(デフォルト0.001, 下限0.0001)がスレッドプールでやるのでフレームに依存するUnityのAPIが使えない(例 Time.time)
     public static IObservable<long> TimerWhileEqualTo<T>(
         this IObservable<T> source,
         T expectedValue,
@@ -553,7 +553,7 @@ public static class ObservableExtensions
     {
         // インターバルの下限設定
         float interval = sec;
-        if (sec <= 0.001f) interval = 0.001f;
+        if (sec <= 0.0001f) interval = 0.0001f;
 
         // 極小秒数毎発火
         return source

@@ -581,8 +581,8 @@ public static class ObservableExtensions
                 {
                     stopwatch.Start();
                     //if (stopwatch.Elapsed.TotalSeconds >= interval.TotalSeconds)
-                    if (stopwatch.Elapsed.TotalSeconds >= sec)
                     while (!cts.IsCancellationRequested)
+                    if (stopwatch.Elapsed.TotalSeconds >= sec)
                     {
                         observer.OnNext(count++);
                         // 無限ループのスレッドが独占対策でCPUスイッチ

@@ -1,10 +1,11 @@
 using UnityEngine;
 
+
 public class CenterPositionGetter
 {
-    public static Vector3 Compute(GameObject gObj)
+    public static Vector3 Compute(GameObject GO)
     {
-        Transform target = gObj.transform;
+        Transform target = GO.transform;
 
         //非アクティブも含めて、targetとtargetの子全てのレンダラーとコライダーを取得
         var cols = target.GetComponentsInChildren<Collider>(true);

@@ -3,19 +3,32 @@ using UnityEngine;
 using UnityEditor;
 using System.IO;
 
+
 [InitializeOnLoad]
 public class AutoCopyPythonAPI : AssetPostprocessor
 {
-    private const string sourceFilePath = "Packages/jp.maku.maku_utillity/PythonAPI/PythonAssets/PyAPI.py";
-    private const string destinationFolderName = "PythonAssets";
-    private const string destinationFileName = "PyAPI.py";
+    public static string PJT => Application.dataPath.Replace("/Assets", "");
+    public static string SourceFile => $"{PJT}/Packages/jp.maku.maku_utillity/PythonAPI/PythonAssets/PyAPI.py";
+    public static string DestFile => $"{Application.dataPath}/PythonAssets/PyAPI.py";
+
+    //static string destDirName = "PythonAssets";
+    //static string destFileName = "PyAPI.py";
+    //private const string sourceFilePath = "Packages/jp.maku.maku_utillity/PythonAPI/PythonAssets/PyAPI.py";
+    //private const string destinationFolderName = "PythonAssets";
+    //private const string destinationFileName = "PyAPI.py";
 
     static AutoCopyPythonAPI()
     {
         CopyAsset();
+        Debug.Log($"{PJT}");
     }
 
-    //private static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths)
+    //private static void OnPostprocessAllAssets(
+    //    string[] importedAssets,
+    //    string[] deletedAssets,
+    //    string[] movedAssets,
+    //    string[] movedFromAssetPaths
+    //)
     //{
     //    // アセットの変更に関わらず、常にコピーを試みる
     //    CopyAsset();
@@ -23,29 +36,28 @@ public class AutoCopyPythonAPI : AssetPostprocessor
 
     private static void CopyAsset()
     {
-        string projectPath = Application.dataPath.Replace("/Assets", "");
-        string destinationFolderPath = Path.Combine(Application.dataPath, destinationFolderName);
-        string destinationFilePath = Path.Combine(destinationFolderPath, destinationFileName);
+        //string projectPath = Application.dataPath.Replace("/Assets", "");
+        //string destinationFolderPath = Path.Combine(Application.dataPath, destinationFolderName);
+        //string destinationFilePath = Path.Combine(destinationFolderPath, destinationFileName);
+        //string fullSourcePath = Path.Combine(projectPath, sourceFilePath);
 
-        string fullSourcePath = Path.Combine(projectPath, sourceFilePath);
-
-        if (!File.Exists(fullSourcePath))
+        if (!File.Exists(SourceFile))
         {
-            Debug.LogError("ソースファイルが見つかりません: " + fullSourcePath);
+            Debug.LogError("ソースファイルが見つかりません: " + SourceFile);
             return;
         }
-
         try
         {
-            if (!Directory.Exists(destinationFolderPath))
+            // 保存先が存在しなければ作成
+            if (!Directory.Exists(Path.GetDirectoryName(DestFile)))
             {
-                Directory.CreateDirectory(destinationFolderPath);
+                Directory.CreateDirectory(Path.GetDirectoryName(DestFile));
                 AssetDatabase.Refresh();
             }
 
-            File.Copy(fullSourcePath, destinationFilePath, true); // trueで上書きを許可
+            File.Copy(SourceFile, DestFile, true); // trueで上書きを許可
             AssetDatabase.Refresh();
-            Debug.Log("ファイルをコピーしました: " + destinationFilePath);
+            //Debug.Log("ファイルをコピーしました: " + destinationFilePath);
         }
         catch (IOException e)
         {

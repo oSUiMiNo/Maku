@@ -4,7 +4,7 @@ using UnityEngine;
 using System;
 using System.Linq;
 using System.Reflection;
-
+using MyUtil;
 
 
 #region シングルトン ( 通常クラス )
@@ -16,7 +16,7 @@ using System.Reflection;
 /// https://www.notion.so/7d0966e1c52e48ec84e976af050a84aa#f7d0608026a048eebb61c5a949c4f379
 /// </summary>
 /// <typeparam name="SingletonType"></typeparam>
-public abstract class Singleton<SingletonType> : MyExtention,
+public abstract class Singleton<SingletonType> :
     System.IDisposable
     where SingletonType : Singleton<SingletonType>, new()
 {
@@ -176,7 +176,7 @@ public class SingletonCompoSetter
     }
 }
 
-public abstract class NonGenericSingletonCompoBase : SealableMonoBehaviourMyExtention
+public abstract class NonGenericSingletonCompoBase : SealableMonoBehaviour
 {
     ///<summary>
     /// ただ基底クラスとしでだけ使いたい場合でも、
@@ -252,12 +252,13 @@ public abstract class SingletonCompo<SingletonType> : NonGenericSingletonCompoBa
     public sealed override void CreateSingletonGameObject()
     {
         string thisName = GetType().Name;
-        GameObject thisObj = GameObject.Find(thisName);
-        if (thisObj == null)
+        GameObject thisGO = GameObject.Find(thisName);
+        if (thisGO == null)
         {
-            thisObj = new GameObject(thisName);
+            thisGO = new GameObject(thisName);
         }
-        CheckAddComponent<SingletonType>(thisObj);
+        //CheckAddComponent<SingletonType>(thisObj);
+        thisGO.CheckAddCompo<SingletonType>();
     }
 
     protected SingletonCompo() { } // コンストラクタ（外部からの呼び出し禁止）

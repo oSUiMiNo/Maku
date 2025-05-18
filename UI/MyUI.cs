@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
 
-public abstract class MyUI : SealableMonoBehaviourMyExtention
+public abstract class MyUI : SealableMonoBehaviour
 {
     public Subject<Unit> On_Enter = new Subject<Unit>();
     public Subject<Unit> On_Exit = new Subject<Unit>();

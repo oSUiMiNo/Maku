@@ -1,139 +1,102 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine; 
+using UnityEngine;
+using MyUtil;
+using Cysharp.Threading.Tasks;
+using System;
+using System.Xml.Linq;
+
+
+// 
+
 
 // 今回の文字メッシュエフェクト本体
 [ExecuteAlways]
-public class MeshParticle : MonoBehaviourMyExtention
+public class MeshParticle : MonoBehaviour
 {
-    public GameObject Model { get; set; }
-
-    float modelDiableDelay = 2;
-    float modelEnableDelay = 6.5f;
-    float animEnableDelay = 1;
-    float autoDestroyDelay = 22;
-
-    class Eff : MyExtention
-    {
-        public GameObject unit;
-        public float effectDiableDelay;
-        public float pointCountPerArea;
-        public bool startEffect;
-         
-        public Eff(
-            string unitPrefabName,
-            float effectDiableDelay,
-            float pointCountPerArea,
-            Transform transform,
-            bool startEffect = true
-            )
-        {
-            //this.unit = Instantiate((GameObject)Resources.Load(unitPrefabName));
-            //this.unit.transform.SetParent(transform);
-            this.unit = LoadPrefab(unitPrefabName);
-            this.effectDiableDelay = effectDiableDelay;
-            this.pointCountPerArea = pointCountPerArea;
-            this.startEffect = startEffect;
-            
-            Debug.Log($"Effコンストラクタ {unit}");
-        }
-    }
-    List<Eff> effs = new List<Eff>();
-    
+    // ターゲットゲームオブジェクト 
+    public GameObject Targ;
+    // 遅延パラメータ
+    public float Delay_TargDiable = 2;
+    public float Delay_TargEnable = 6.5f;
+    public float Delay_AnimEnable = 1;
+    public float Delay_Destroy = 22;
+    // 動的メッシュVXFの管理辞書
+    Dictionary<string, VFXWrap_DynamicAttributeMap> vfxs = new();
+    // アニメーション
     Animator pausedAnim;
 
 
     void Start()
     {
-        effs.Add(new Eff("MeshParticleVFXUnit1", modelEnableDelay + 5, 6000, transform));
-        effs.Add(new Eff("MeshParticleVFXUnit2", modelDiableDelay, 3000, transform));
-        effs.Add(new Eff("MeshParticleVFXUnit3", modelEnableDelay + 15, 3000, transform));
-        Destroy(gameObject, autoDestroyDelay);
-        StartCoroutine(StartTargetActiveSequence());
-        effs.ForEach(eff => InitEffect(eff));
+        transform.SetPositionAndRotation(Targ.transform.position, Targ.transform.rotation);
+
+        Create_DynamicAttributeMap("MeshParticleVFX1", 6000);
+        Create_DynamicAttributeMap("MeshParticleVFX2", 3000);
+        Create_DynamicAttributeMap("MeshParticleVFX3", 3000);
+
+        LifeCycle();
     }
 
 
-    void InitEffect(Eff eff)
+    //===========================================
+    // VFXを生成しパラメータを代入
+    //===========================================
+    void Create_DynamicAttributeMap(
+        string name,
+        float pointCountPerArea
+    )
     {
-        if (!eff.startEffect) return;
-
-        var modelTrans = Model.transform;
-        transform.SetPositionAndRotation(modelTrans.position, modelTrans.rotation);
-
-        var meshAndTexs = GetMeshData();
-        foreach (var (mesh, tex) in meshAndTexs)
-        {
-            eff.unit.SetActive(true);
-            eff.unit.transform.SetParent(transform, false);
-
-            VFXUnit_DynamicAttributeMap dynamicMap = eff.unit.GetComponent<VFXUnit_DynamicAttributeMap>();
-            dynamicMap.mapSet = MeshToMap.Convert(mesh, eff.pointCountPerArea);
-            dynamicMap.modelMainTex = tex;
-        }
-
-        StartCoroutine(StartEffectAtiveSequence(eff));
+        vfxs.Add(name, ResourcesUtil.GetCompo<VFXWrap_DynamicAttributeMap>(name));
+        vfxs[name].transform.SetParent(transform, false);
+        vfxs[name].Targ = Targ;
+        vfxs[name].PointCountPerArea = pointCountPerArea;
     }
 
 
-    IEnumerator StartTargetActiveSequence()
+    //===========================================
+    // ライフサイクル
+    //===========================================
+    async void LifeCycle()
     {
-        yield return new WaitForSeconds(modelDiableDelay);
-        Model.SetActive(false);
-
-        yield return new WaitForSeconds(modelEnableDelay);
-        //model.SetActive(true);
-
-        if (pausedAnim != null)
+        async void Cycle_Targ()
         {
-            yield return new WaitForSeconds(animEnableDelay);
-            pausedAnim.enabled = true;
-            pausedAnim = null;
+            // アニメーションを停止
+            pausedAnim = Targ.GetComponentInParent<Animator>();
+            if(pausedAnim != null)
+            {
+                pausedAnim.enabled = false;
+            }
+
+            await Delay.Second(Delay_TargDiable);
+            Targ.SetActive(false);
+
+            await Delay.Second(Delay_TargEnable);
+            //TargetGO.SetActive(true);
+
+            if (pausedAnim != null)
+            {
+                await Delay.Second(Delay_AnimEnable);
+                pausedAnim.enabled = true;
+                pausedAnim = null;
+            }
         }
-    }
 
-
-    IEnumerator StartEffectAtiveSequence(Eff eff)
-    {
-        yield return new WaitForSeconds(eff.effectDiableDelay);
-        Destroy(eff.unit.gameObject);
-        effs.Remove(eff);        
-    }
-
-
-
-    IEnumerable<(Mesh, Texture)> GetMeshData()
-    {
-        var smr = Model.GetComponentInChildren<SkinnedMeshRenderer>();
-        if (smr != null)
+        async void Cycle_VFX(string name, float diableDelay)
         {
-            // stop animation
-            pausedAnim = Model.GetComponentInParent<Animator>();
-            pausedAnim.enabled = false;
-
-            var material = smr.sharedMaterial;
-
-            var mesh = new Mesh();
-            smr.BakeMesh(mesh);
-
-            Debug.Log($"上 {material.mainTexture}");
-
-            return new[] { (mesh, material.mainTexture) };
+            vfxs[name].gameObject.SetActive(true);
+            await Delay.Second(diableDelay);
+            Destroy(vfxs[name].gameObject);
+            vfxs.Remove(name);
         }
-        else
-        {
-            var mf = Model.GetComponentInChildren<MeshFilter>();
-            var renderer = Model.GetComponentInChildren<Renderer>();
 
-            var mesh = mf.sharedMesh;
-            var meshCount = mesh.subMeshCount;
-            var materials = renderer.sharedMaterials;
+        Cycle_Targ();
+        Cycle_VFX("MeshParticleVFX1", Delay_TargEnable + 5);
+        Cycle_VFX("MeshParticleVFX2", Delay_TargDiable);
+        Cycle_VFX("MeshParticleVFX3", Delay_TargEnable + 12);
 
-            Debug.Log($"下 {materials}");
-            Debug.Log(materials.First().mainTexture);
-
-            return new[] { (mesh, materials.First().mainTexture) };
-        }
+        await Delay.Second(Delay_Destroy);
+        Destroy(gameObject);
     }
 }

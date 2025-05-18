@@ -4,7 +4,7 @@ using UnityEngine;
 using System;
 using System.Linq;
 using TMPro;
-
+using MyUtil;
 
 
 public class Roulet
@@ -116,7 +116,7 @@ public class TimeHandler : SingletonCompo<TimeHandler>
 {
     public double GlobalDetailSecond { get; private set; } = 0;
 
-    public class Clock : MyExtention
+    public class Clock //: MyExtention
     {
         public GameObject Display { get; set; }
         public TextMeshProUGUI DisplayTex { get; set; }
@@ -155,11 +155,12 @@ public class TimeHandler : SingletonCompo<TimeHandler>
         private void CreateDisplay()
         {
             if (DisplayCraated) return;
-            Display = CreateChild($"{ClockName}Display", GameObject.Find("ClockCanvas"), new List<Type> { typeof(TextMeshProUGUI) });
-            Debug.Log($"いーーーーーーーーーー1　　{Display}");
-            DisplayTex = CheckAddComponent<TextMeshProUGUI>(Display);
-
-            Debug.Log($"いーーーーーーーーーー2　　{DisplayTex}");
+            //Display = CreateChild($"{ClockName}Display", GameObject.Find("ClockCanvas"), new List<Type> { typeof(TextMeshProUGUI) });
+            Display = GameObject.Find("ClockCanvas").CreateChild($"{ClockName}Display", typeof(TextMeshProUGUI));
+            Debug.Log($"ディスプレイ作成0：{Display}");
+            //DisplayTex = CheckAddComponent<TextMeshProUGUI>(Display);
+            DisplayTex = Display.CheckAddCompo<TextMeshProUGUI>();
+            Debug.Log($"ディスプレイ作成1：{DisplayTex}");
         }
 
         private void UpdateDisplay(string content)

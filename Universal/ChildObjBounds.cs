@@ -4,14 +4,11 @@ using UnityEngine;
 
 public class ChildObjBounds : MonoBehaviour
 {
-    /// <summary>
-    /// 子オブジェクトの統合Bounds
-    /// </summary>
+    // 子オブジェクトの統合Bounds
     public Bounds childObjBounds;
 
     void Start()
     {
-        // 
         childObjBounds = CalcLocalObjBounds(this.gameObject);
 
         // Boundsの大きさと形状が見た目に分かるようコライダーを追加する
@@ -24,7 +21,7 @@ public class ChildObjBounds : MonoBehaviour
     /// <summary>
     /// 現在オブジェクトのローカル座標でのバウンド計算
     /// </summary>
-    private Bounds CalcLocalObjBounds(GameObject obj)
+    Bounds CalcLocalObjBounds(GameObject obj)
     {
         // 指定オブジェクトのワールドバウンドを計算する
         Bounds totalBounds = CalcChildObjWorldBounds(obj, new Bounds());
@@ -52,7 +49,7 @@ public class ChildObjBounds : MonoBehaviour
     /// <summary>
     /// 子オブジェクトのワールド座標でのバウンド計算（再帰処理）
     /// </summary>
-    private Bounds CalcChildObjWorldBounds(GameObject obj, Bounds bounds)
+    Bounds CalcChildObjWorldBounds(GameObject obj, Bounds bounds)
     {
         // 指定オブジェクトの全ての子オブジェクトをチェックする
         foreach (Transform child in obj.transform)

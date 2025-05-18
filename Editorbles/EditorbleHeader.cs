@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using UniRx;
 using Cysharp.Threading.Tasks;
+using MyUtil;
 
 
 // 重要メモ
 // カタログ等からランタイムに生成したゲームオブジェクトのインデックスを管理してセーブするクラスを後で作成
 
 
-public class EditorbleHeader : MonoBehaviourMyExtention
+public class EditorbleHeader : MonoBehaviour
 {
     //List<string> ExistingContentIDList = new List<string>();
 

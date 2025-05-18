@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UniRx;
 using System;
+using MyUtil;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -48,10 +49,12 @@ public class MySlider : MyUI
 
         //if (type == Type.Minus_Plus) point_Zero.GetOrAddComponent<SpriteRenderer>().enabled = true;
         //else point_Zero.GetOrAddComponent<SpriteRenderer>().enabled = false;
-        
+
         // 上記のGetOrAddComponentはUniGLTFを使うようなので、CheckAddComponentに置き換えてみたが、正常にうごくかはまだ分からない。
-        if (type == Type.Minus_Plus) CheckAddComponent<SpriteRenderer>(point_Zero).enabled = true;
-        else CheckAddComponent<SpriteRenderer>(point_Zero).enabled = false;
+        //if (type == Type.Minus_Plus) CheckAddComponent<SpriteRenderer>(point_Zero).enabled = true;
+        //else CheckAddComponent<SpriteRenderer>(point_Zero).enabled = false;
+        if (type == Type.Minus_Plus) point_Zero.CheckAddCompo<SpriteRenderer>().enabled = true;
+        else point_Zero.CheckAddCompo<SpriteRenderer>().enabled = false;
 
         //Vector3 filScale = fill.transform.localScale;
         //if (type == Type.Min_Max)

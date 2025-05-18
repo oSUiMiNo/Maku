@@ -406,7 +406,7 @@ public interface ISave
 /// これを継承したクラスには必ず引数無しのデフォルトコンストラクタを書いておく。
 /// </summary>
 [Serializable]
-public abstract class Savable : MyExtention,
+public abstract class Savable : //MyExtention,
     SaveSystem.IFriendWith_SaveSystem,
     ISave
 {
@@ -548,7 +548,7 @@ public abstract class Savable : MyExtention,
 #region 2【コンポーネント用】 ==============================================================
 
 [Serializable]
-public abstract class SavableCompo : MonoBehaviourMyExtention,
+public abstract class SavableCompo : MonoBehaviour,
     SaveSystem.IFriendWith_SaveSystem,
     ISave
 {

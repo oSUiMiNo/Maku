@@ -1,17 +1,20 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System;
-using UnityEngine.Experimental.GlobalIllumination;
-public class ColorUtil
+
+
+namespace MyUtil
 {
-    public static Color HEX(string hex)
+    public class ColorUtil
     {
-        if (!hex.Contains("#")) hex = "#" + hex;
+        public static Color HEX(string hex)
+        {
+            if (!hex.Contains("#")) hex = "#" + hex;
 
-        Color color;
-        ColorUtility.TryParseHtmlString(hex, out color);
+            Color color;
+            ColorUtility.TryParseHtmlString(hex, out color);
 
-        return color;
+            return color;
+        }
     }
 }

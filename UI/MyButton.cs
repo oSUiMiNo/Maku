@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using UniRx;
+using MyUtil;
 
 public class MyButton : MyUI
 {
@@ -17,7 +18,8 @@ public class MyButton : MyUI
 
     protected sealed override void Awake0()
     {
-        animator = CheckAddComponent<Animator>(gameObject);
+        //animator = CheckAddComponent<Animator>(gameObject);
+        animator = gameObject.CheckAddCompo<Animator>();
         animatorController.Subscribe(value => animator.runtimeAnimatorController = value);
     }
 

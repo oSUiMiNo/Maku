@@ -6,7 +6,7 @@ using UnityEngine;
 /// これをアタッチしたオブジェクトをクリックすると、
 /// エフェクトのプレハブをジェネレートしてくれる。
 /// </summary>
-public class OnClick_GenarateMeshParticle : MonoBehaviourMyExtention
+public class OnClick_GenarateMeshParticle : MonoBehaviour //MonoBehaviourMyExtention
 {
     /// <summary>
     /// MeshParticle をアタッチしたプレハブ。
@@ -46,7 +46,7 @@ public class OnClick_GenarateMeshParticle : MonoBehaviourMyExtention
                 if (hit.collider.gameObject != gameObject) return;
 
                 MeshParticle mp = Instantiate(meshParticlePrefab);
-                mp.Model = hit.collider.gameObject;
+                mp.Targ = hit.collider.gameObject;
             }
         }
     }

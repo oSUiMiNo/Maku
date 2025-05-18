@@ -1,21 +1,20 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using MyUtil;
 
-/// <Summary>
-/// メッシュを結合するクラス
-/// </Summary>
+
+// メッシュを結合するクラス
 public class MeshCombiner : Singleton<MeshCombiner>
 {
-    /// <summary>
-    /// メッシュを結合する。
-    /// </summary>
-    /// <param name="fieldParent"> フィールドパーツの親オブジェクトのTransform </param>
-    /// <param name="combinedMat"> 結合したメッシュに付けるマテリアル </param>
+    //========================================
+    // メッシュを結合する
+    // フィールドパーツの親オブジェクト, 結合したメッシュに付けるマテリアル を指定
+    //========================================
     public void Combine(GameObject fieldParent, Material combinedMat)
     {
         // 親オブジェクトにMeshFilterがあるかどうか確認
-        MeshFilter parentMeshFilter = CheckAddComponent<MeshFilter>(fieldParent);
+        MeshFilter parentMeshFilter = fieldParent.CheckAddCompo<MeshFilter>();
 
 
         // 子オブジェクトのMeshFilterへの参照を配列として保持
@@ -54,7 +53,7 @@ public class MeshCombiner : Singleton<MeshCombiner>
         fieldParent.AddComponent<MeshCollider>();
 
         // 結合したメッシュにマテリアルをセット
-        CheckAddComponent<MeshRenderer>(fieldParent).material = combinedMat;
+        fieldParent.CheckAddCompo<MeshRenderer>().material = combinedMat;
 
         // 親オブジェクトをアクティブに
         fieldParent.SetActive(true);
@@ -62,10 +61,10 @@ public class MeshCombiner : Singleton<MeshCombiner>
 
 
 
-    /// <Summary>
-    /// 引数のオブジェクトのコンポーネントをデタッチする。
-    /// </Summary>
-    void RemoveMeshes(GameObject obj)
+    //========================================
+    // 引数のオブジェクトのコンポーネントをデタッチする
+    //========================================
+    public void RemoveMeshes(GameObject obj)
     {
         // 親オブジェクトのコンポーネントを取得し、Transform以外のコンポーネントをデタッチ
         foreach (Component a in obj.GetComponents<Component>())

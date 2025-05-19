@@ -52,7 +52,7 @@ VisualEffect:
   m_PropertySheet:
     m_Float:
       m_Array:
-      - m_Value: 0.03
+      - m_Value: 0.1
         m_Name: ParticleSize
         m_Overridden: 1
     m_Vector2f:
@@ -133,8 +133,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 750a625e2e6fa0141a05485a55ab8e8d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  EffectDiableDelay: 0
-  PointCountPerArea: 0
-  ActivateOnCreate: 0
   VFX: {fileID: 0}
+  Targ: {fileID: 0}
   ModelMainTex: {fileID: 0}
+  PointCountPerArea: 0

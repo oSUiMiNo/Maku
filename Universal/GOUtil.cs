@@ -9,9 +9,9 @@ namespace MyUtil
 {
     public static class GOUtil
     {
-        //========================================
+        //================================================
         // 子オブジェクトを作成
-        //========================================
+        //================================================
         public static GameObject CreateChild(this GameObject parent, string name, params Type[] compos)
         {
             GameObject GO = new GameObject();
@@ -22,9 +22,9 @@ namespace MyUtil
             return GO;
         }
 
-        //========================================
+        //================================================
         // 子オブジェクトを複数作成
-        //========================================
+        //================================================
         public static List<GameObject> CreateChildren(this GameObject parent, string name, int quantity, params Type[] compos)
         {
             List<GameObject> GOs = new List<GameObject>();
@@ -39,9 +39,9 @@ namespace MyUtil
             return GOs;
         }
 
-        //===================================
+        //===========================================
         // 自分と子孫オブジェクトのレイヤーを変更
-        //===================================
+        //===========================================
         public static void SetLayerRecursive(this GameObject parent, string layerName) { SetLayerRecursive(parent.transform, layerName); }
         public static void SetLayerRecursive(this Transform parent, string layerName)
         {
@@ -53,9 +53,9 @@ namespace MyUtil
             }
         }
 
-        //===================================
+        //===========================================
         // 自分と子孫オブジェクトのアクティブ状態を変更
-        //===================================
+        //===========================================
         public static void SetActiveRecursive(this GameObject parent, bool activeState) { SetActiveRecursive(parent.transform, activeState); }
         public static async void SetActiveRecursive(this Transform parent, bool activeState)
         {
@@ -64,6 +64,14 @@ namespace MyUtil
             {
                 SetActiveRecursive(child, activeState);
             }
+        }
+
+        //===========================================
+        // 2つのゲームオブジェクト間の距離取得
+        //===========================================
+        public static float Distance(this GameObject gO, GameObject targ)
+        {
+            return Vector3.Distance(gO.transform.position, targ.transform.position);
         }
 
         //===========================================

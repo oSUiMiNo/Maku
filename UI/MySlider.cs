@@ -1,10 +1,7 @@
 using Cysharp.Threading.Tasks;
-using System.Collections;
-using System.Collections.Generic;
 //using UniGLTF;
 using UnityEngine;
 using UniRx;
-using System;
 using MyUtil;
 #if UNITY_EDITOR
 using UnityEditor;
@@ -35,7 +32,7 @@ public class MySlider : MyUI
     Type type;
     
 
-    MousePosFromGameObject mousePosFromGameObject;
+    //MousePosFromGameObject mousePosFromGO;
     protected sealed override async void Awake0()
     {
         //presenter = UIPresenter.Childlen[gameObject]; // 親クラスでやってるから要らなくね？
@@ -65,15 +62,16 @@ public class MySlider : MyUI
         //fill.transform.localScale = filScale;
         SetFill();　// 加筆
 
-        On_Down.Subscribe(_ =>
-        {
-            //Debug.Log("ダウン");
-            mousePosFromGameObject = new MousePosFromGameObject(handle, false);
-        }).AddTo(gameObject);
+        //On_Down.Subscribe(_ =>
+        //{
+        //    //Debug.Log("ダウン");
+        //    //mousePosFromGO = new MousePosFromGameObject(handle, false);
+        //}).AddTo(gameObject);
         On_Drag.Subscribe(_ =>
         {
             //Debug.Log("スライド");
-            Vector3 MousePos_World = mousePosFromGameObject.GameObjectPosFromMouse();
+            //Vector3 MousePos_World = mousePosFromGO.GOPosFromMouse;
+            Vector3 MousePos_World = handle.PosUnderMouse();
             MousePos_World.y = transform.position.y;
             SetHandle(MousePos_World);
             SetFill();

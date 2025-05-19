@@ -42,8 +42,8 @@ public class VFXWrap_DynamicAttributeMap : VFXWrap
     {
         VFX.SetTexture("PositionMap", MeshMap.PosMap);
         VFX.SetTexture("UVMap", MeshMap.UVMap);
-        VFX.SetTexture("NormalMap", MeshMap.NormalMap);
+        VFX.SetTexture("NormalMap", MeshMap.NormMap);
         VFX.SetTexture("ModelMainTex", ModelMainTex);
-        VFX.SetInt("ParticleCount", MeshMap.VertexCount);
+        VFX.SetInt("ParticleCount", MeshMap.VertCount);
     }
 }

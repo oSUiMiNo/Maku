@@ -122,7 +122,7 @@ public class InkDispenser : MonoBehaviour
 	void Combine()
     {
         GameObject writingElementsParent = new GameObject($"Inks");
-		writingElementsParent.AddComponent<Test_MeshParticle>();
+		//writingElementsParent.AddComponent<Test_MeshParticle>();
         writtenInks.ForEach(a => a.transform.SetParent(writingElementsParent.transform));
         writtenInks.Clear();
 		writingElementsParent.CombineMesh(InkMT);

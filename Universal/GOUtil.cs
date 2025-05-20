@@ -15,7 +15,7 @@ namespace MyUtil
         public static GameObject CreateChild(this GameObject parent, string name, params Type[] compos)
         {
             GameObject GO = new GameObject();
-            GO.CheckAddMultiCompo(compos);
+            GO.CheckAddCompos(compos);
             GO.transform.parent = parent.transform;
             GO.name = name;
 
@@ -31,7 +31,7 @@ namespace MyUtil
             for (int a = 0; a < quantity; a++)
             {
                 GameObject GO = new GameObject();
-                GO.CheckAddMultiCompo(compos);
+                GO.CheckAddCompos(compos);
                 GO.transform.parent = parent.transform;
                 GO.name = name;
                 GOs.Add(GO);

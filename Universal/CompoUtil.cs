@@ -42,7 +42,7 @@ namespace MyUtil
         // ただし戻り値が Component型 なので、取得したコンポーネントを使いたい場合は更に変換が必要
         // ※ 複数コンポを指定可能
         //========================================
-        public static List<Component> CheckAddMultiCompo(this GameObject GO, params Type[] compos)
+        public static List<Component> CheckAddCompos(this GameObject GO, params Type[] compos)
         {
             List<Component> returnCompos = new List<Component>();
             foreach (Type compo in compos)

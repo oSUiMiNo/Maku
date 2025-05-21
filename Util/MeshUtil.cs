@@ -4,78 +4,14 @@ using System.Linq;
 using UnityEngine;
 
 
-//public class MeshMap
-//{
-//    public int vtxCount;
-//    public Texture2D position;
-//    public Texture2D uv;
-//    public Texture2D normal;
-//}
-
-
 namespace MyUtil
 {
-
     public static class MeshUtil
     {
-        //========================================
-        // サイズのデータセットを返す
-        //========================================
-        public static MeshSize MeshSize(this GameObject gO) => new MeshSize(gO);
-
-        //========================================
+        //================================================
         // メッシュをマップに変換したデータセットを返す
-        //========================================
-        public static MeshMap Maps(this Mesh mesh, float pointCountPerArea) => new MeshMap(mesh, pointCountPerArea);
-
-        //========================================
-        // メッシュを結合する
-        // 親オブジェクト, 結合したメッシュに付けるマテリアル を指定
-        //========================================
-        public static void CombineMesh(this GameObject parent, Material mt)
-        {
-            // 親オブジェクトにMeshFilterがあるかどうか確認
-            MeshFilter parentMeshFilter = parent.CheckAddCompo<MeshFilter>();
-
-            // 子オブジェクトのMeshFilterへの参照を配列として保持
-            // ただし、親オブジェクトのメッシュもGetComponentsInChildrenに含まれるので除外
-            MeshFilter[] meshFilters = parent.GetComponentsInChildren<MeshFilter>();
-            List<MeshFilter> meshFilterList = new List<MeshFilter>();
-            for (int i = 1; i < meshFilters.Length; i++)
-            {
-                meshFilterList.Add(meshFilters[i]);
-            }
-
-            // 結合するメッシュの配列を作成
-            CombineInstance[] combine = new CombineInstance[meshFilterList.Count];
-
-            // 結合するメッシュの情報をCombineInstanceに追加
-            for (int i = 0; i < meshFilterList.Count; i++)
-            {
-                combine[i].mesh = meshFilterList[i].sharedMesh;
-                combine[i].transform = meshFilterList[i].transform.localToWorldMatrix;
-                meshFilterList[i].gameObject.SetActive(false);
-            }
-
-            // 結合したメッシュをセット
-            parentMeshFilter.mesh = new Mesh();
-            // 標準でサポートしているインデックスバッファ?ってやつの頂点数が65535個らしく、
-            // mesh が一度に持つ頂点数がそれを超えてしまうとバグるので、
-            // インデックスバッファにしまえる頂点数を、16bit から 32bit に変更することで 、
-            // 扱える頂点数が65535個から40億個になる。
-            parentMeshFilter.mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
-            parentMeshFilter.mesh.CombineMeshes(combine);
-
-            Debug.Log($"{parentMeshFilter.mesh.vertexCount} 個");
-
-            parent.AddComponent<MeshCollider>();
-
-            // 結合したメッシュにマテリアルをセット
-            parent.CheckAddCompo<MeshRenderer>().material = mt;
-
-            // 親オブジェクトをアクティブに
-            parent.SetActive(true);
-        }
+        //================================================
+        public static MeshMap Map(this Mesh mesh, float pointCountPerArea) => new MeshMap(mesh, pointCountPerArea);
     }
 
 
@@ -204,34 +140,4 @@ namespace MyUtil
         }
         #endregion
     }
-
-
-    //**********************************
-    // メッシュのサイズを計算
-    //**********************************
-    public class MeshSize
-    {
-        public Vector3 Orig { get; private set; }
-        public Vector3 Real { get; private set; }
-        public Mesh Mesh { get; private set; }
-
-        public MeshSize(GameObject gO)
-        {
-            Mesh = gO.transform.GetComponent<MeshFilter>().mesh;
-
-            // メッシュの（バウンズ）サイズを取得
-            Bounds bounds = Mesh.bounds;
-            Orig = bounds.size;
-
-            // スケールを掛け合わせた実際のサイズを取得
-            Real = new Vector3(
-                bounds.size.x * gO.transform.lossyScale.x,
-                bounds.size.y * gO.transform.lossyScale.y,
-                bounds.size.z * gO.transform.lossyScale.z
-            );
-            Debug.Log(Real);
-        }
-    }
-
-
 }

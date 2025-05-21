@@ -3,23 +3,23 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
-public class SetWindowSize : MonoBehaviour
+public class WindowSizeSetter : MonoBehaviour
 {
     enum Resolution
     {
-        FullHD,
         HD,
+        FullHD,
         _4K
     }
 
     [SerializeField]
     Resolution resolution;
 
-    TextMeshPro textMeshPro;
+    TextMeshPro tMPro;
 
     private void Awake()
     {
-        textMeshPro = GetComponent<TextMeshPro>();
+        tMPro = GetComponent<TextMeshPro>();
     }
 
     void Start()
@@ -27,19 +27,19 @@ public class SetWindowSize : MonoBehaviour
         switch (resolution)
         {
             case Resolution.HD:
-                Screen.SetResolution(1280, 720, FullScreenMode.Windowed, 60);
+                Screen.SetResolution(1280, 720, FullScreenMode.Windowed);
                 break;
             case Resolution.FullHD:
-                Screen.SetResolution(1920, 1080, FullScreenMode.Windowed, 60);
+                Screen.SetResolution(1920, 1080, FullScreenMode.Windowed);
                 break;
             case Resolution._4K:
-                Screen.SetResolution(3840, 2160, FullScreenMode.Windowed, 60);
+                Screen.SetResolution(3840, 2160, FullScreenMode.Windowed);
                 break;
         }
     }
 
     private void Update()
     {
-        textMeshPro.text = $"Current Resolution: {Screen.width} Å~ {Screen.height}";
+        tMPro.text = $"Current Resolution: {Screen.width} Å~ {Screen.height}";
     }
 }

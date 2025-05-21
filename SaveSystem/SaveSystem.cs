@@ -115,13 +115,11 @@ public class SaveSystem : SingletonCompo<SaveSystem>
     #region セーブ Json.NET版
     public static void Save(ISave data)
     {
-        Debug.Log($"---SaveSystem  セーブ---");
-        ///<summary>
-        ///【StreamWriter の使い方】
-        /// sw.Writeとsw.WriteLineと書くことで、テキストに文字を出力することができる。
-        /// 改行しないときは、Write
-        /// 改行するときは、WriteLine
-        /// </summary>
+        //Debug.Log($"---SaveSystem  セーブ---");
+        //【StreamWriter の使い方】
+        // sw.Writeとsw.WriteLineと書くことで、テキストに文字を出力することができる。
+        // 改行しないときは、Write
+        // 改行するときは、WriteLine
         string Path = data.GetPath();
         // データクラスに循環参照しているパラメータがあるとエラーを吐くので、
         // そのパラメータには[JsonIgnore]をつけてシリアライズを無視してもらう
@@ -139,16 +137,14 @@ public class SaveSystem : SingletonCompo<SaveSystem>
     #region ロード Json.NET版 ( 通常のクラス用 )
     public static void Load(ISave data)
     {
-        Debug.Log($"---SaveSystem  ロード---");
+        //Debug.Log($"---SaveSystem  ロード---");
         string Path = data.GetPath();
         if (!File.Exists(Path))
         {
-            Debug.Log("-----------最初回ロード-----------");
-            ///<summary>
-            /// 初回はとりまJsonデータを作りたいので、
-            /// 以下の処理の中でセーブも行っている。
-            /// ここでセーブしておかないとセーブファイルが無いまんまなのでまたここに来る。
-            /// </summary>
+            //Debug.Log("-----------最初回ロード-----------");
+            // 初回はとりまJsonデータを作りたいので、
+            // 以下の処理の中でセーブも行っている。
+            // ここでセーブしておかないとセーブファイルが無いまんまなのでまたここに来る。
             Friend(data).CheckFirstLoading();
         }
         else
@@ -162,11 +158,9 @@ public class SaveSystem : SingletonCompo<SaveSystem>
                 // これをセットしないとロードしたデータを上書きした際、List系のデータが上書きではなく要素の追加をされてしまう
                 ObjectCreationHandling = ObjectCreationHandling.Replace, 
             });
-            ///<summary>
-            /// 以下の処理にはセーブの処理が含まれている。
-            /// この処理を、ロードよりも前に持ってきてしまうと、
-            /// ロード前のデータがセーブされた状態でロード処理に移ってしまう。
-            /// </summary>
+            // 以下の処理にはセーブの処理が含まれている。
+            // この処理を、ロードよりも前に持ってきてしまうと、
+            // ロード前のデータがセーブされた状態でロード処理に移ってしまう。
             Friend(data).CheckFirstLoading();
         }
     }
@@ -457,13 +451,13 @@ public abstract class Savable : //MyExtention,
     {
         if (!IsLoadedAtFirst)
         {
-            Debug.Log($"{this} はアプリを起動してから１回目のロード");
+            //Debug.Log($"{this} はアプリを起動してから１回目のロード");
             IsLoadedAtFirst = true;
             SaveSystem.Save(this);
         }
         else
         {
-            Debug.Log($"{this} はアプリを起動後に少なくとも１回ロードされたようです");
+            //Debug.Log($"{this} はアプリを起動後に少なくとも１回ロードされたようです");
         }
 
         //Debug.Log($"{IsLoadedAtFirst}");
@@ -791,13 +785,13 @@ public abstract class SavableSingleton<SingletonType> : Singleton<SingletonType>
     {
         if (!IsLoadedAtFirst)
         {
-            Debug.Log($"{this} はアプリを起動してから１回目のロード");
+            //Debug.Log($"{this} はアプリを起動してから１回目のロード");
             IsLoadedAtFirst = true;
             SaveSystem.Save(this);
         }
         else
         {
-            Debug.Log($"{this} はアプリを起動後に少なくとも１回ロードされたようです");
+            //Debug.Log($"{this} はアプリを起動後に少なくとも１回ロードされたようです");
         }
 
         //Debug.Log($"{IsLoadedAtFirst}");
@@ -837,7 +831,7 @@ public abstract class SavableSingleton<SingletonType> : Singleton<SingletonType>
     public void Save()
     {
         SaveSystem.Save(this);
-        Debug.Log("------セーブした------");
+        //Debug.Log("------セーブした------");
     }
     public void Load()
     {

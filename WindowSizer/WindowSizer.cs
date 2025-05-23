@@ -20,10 +20,6 @@ public class WindowSizer : MonoBehaviour
         });
     }
 
-    void Update()
-    {
-        Txt.text = $"Current Resolution: {Screen.width} Å~ {Screen.height}";
-    }
 
     void SetSize(int listNum)
     {
@@ -34,5 +30,7 @@ public class WindowSizer : MonoBehaviour
             Screen.SetResolution(1920, 1080, FullScreenMode.Windowed);
         if (listNum == 2)
             Screen.SetResolution(3840, 2160, FullScreenMode.Windowed);
+        
+        if(Txt) Txt.text = $"{Screen.width} Å~ {Screen.height}";
     }
 }

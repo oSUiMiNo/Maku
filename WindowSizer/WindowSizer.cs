@@ -31,6 +31,8 @@ public class WindowSizer : MonoBehaviour
         if (listNum == 2)
             Screen.SetResolution(1920, 1080, FullScreenMode.Windowed);
         if (listNum == 3)
+            Screen.SetResolution(2560, 1440, FullScreenMode.Windowed);
+        if (listNum == 4)
             Screen.SetResolution(3840, 2160, FullScreenMode.Windowed);
         
         if(Txt) Txt.text = $"{Screen.width} Å~ {Screen.height}";

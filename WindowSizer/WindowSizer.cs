@@ -25,7 +25,7 @@ public class WindowSizer : MonoBehaviour
     {
         Debug.Log($"{listNum}");
         if (listNum == 0)
-            Screen.SetResolution(720, 480, FullScreenMode.Windowed);
+            Screen.SetResolution(854, 480, FullScreenMode.Windowed);
         if (listNum == 1)
             Screen.SetResolution(1280, 720, FullScreenMode.Windowed);
         if (listNum == 2)

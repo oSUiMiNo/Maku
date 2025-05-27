@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UniRx;
+using MyUtil;
 
 
 public class WindowSizer : MonoBehaviour
 {
-    TMP_Dropdown Dropdown => transform.Find("Dropdown").GetComponent<TMP_Dropdown>();
-    TextMeshProUGUI Txt => transform.Find("Text").GetComponent<TextMeshProUGUI>();
+    TMP_Dropdown Dropdown => GetComponent<TMP_Dropdown>();
+    TextMeshProUGUI Txt => gameObject.Child("SizeViewer").GetComponent<TextMeshProUGUI>();
 
    
     void Start()
@@ -23,7 +24,6 @@ public class WindowSizer : MonoBehaviour
 
     void SetSize(int listNum)
     {
-        Debug.Log($"{listNum}");
         if (listNum == 0)
             Screen.SetResolution(854, 480, FullScreenMode.Windowed);
         if (listNum == 1)

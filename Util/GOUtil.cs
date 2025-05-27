@@ -10,6 +10,28 @@ namespace MyUtil
     public static class GOUtil
     {
         //================================================
+        // 名前で全子オブジェクトを取得
+        //================================================
+        public static GameObject Child(this GameObject parent, string name)
+        {
+            return parent.transform.Find(name).gameObject;
+        }
+
+        //================================================
+        // 全子オブジェクトを取得
+        //================================================
+        public static List<GameObject> Children(this GameObject parent)
+        {
+            List<GameObject> children = new List<GameObject>();
+            foreach (var item in parent.GetComponentsInChildren<Transform>())
+            {
+                if (item.gameObject == parent) continue;
+                children.Add(item.gameObject);
+            }
+            return children;
+        }
+
+        //================================================
         // 子オブジェクトを作成
         //================================================
         public static GameObject CreateChild(this GameObject parent, string name, params Type[] compos)
@@ -77,7 +99,7 @@ namespace MyUtil
         //===========================================
         // 全メッシュ取得
         //===========================================
-        public static List<Mesh> GetMeshes(this GameObject gO)
+        public static List<Mesh> Meshes(this GameObject gO)
         {
             List<Mesh> meshes = new();
             // SkinnedMeshRenderer の場合
@@ -101,7 +123,7 @@ namespace MyUtil
         //===========================================
         // 全メッシュについているテクスチャ取得
         //===========================================
-        public static List<Texture> GetTexs(this GameObject gO)
+        public static List<Texture> Texs(this GameObject gO)
         {
             List<Texture> texs = new();
             // SkinnedMeshRenderer の場合
@@ -177,7 +199,7 @@ namespace MyUtil
         //================================================
         // 子を含めた全メッシュ中の中心位置を取得
         //================================================
-        public static Vector3 GetCenterPos(GameObject gO)
+        public static Vector3 CenterPos(GameObject gO)
         {
             Transform target = gO.transform;
 

@@ -10,7 +10,29 @@ namespace MyUtil
     public static class GOUtil
     {
         //================================================
-        // 名前で全子オブジェクトを取得
+        // 名前でコンポがついたGOの子オブジェクトを取得
+        //================================================
+        public static GameObject Child(this Component parentCompo, string name)
+        {
+            return parentCompo.transform.Find(name).gameObject;
+        }
+
+        //================================================
+        // コンポがついたGOの全子オブジェクトを取得
+        //================================================
+        public static List<GameObject> Children(this Component parentCompo)
+        {
+            List<GameObject> children = new List<GameObject>();
+            foreach (var item in parentCompo.GetComponentsInChildren<Transform>())
+            {
+                if (item.gameObject == parentCompo.gameObject) continue;
+                children.Add(item.gameObject);
+            }
+            return children;
+        }
+
+        //================================================
+        // 名前で子オブジェクトを取得
         //================================================
         public static GameObject Child(this GameObject parent, string name)
         {

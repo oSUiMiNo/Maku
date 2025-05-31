@@ -10,7 +10,23 @@ namespace MyUtil
     public static class GOUtil
     {
         //================================================
-        // 名前でコンポがついたGOの子オブジェクトを取得
+        // コンポがついたGOの親を取得
+        //================================================
+        public static GameObject Parent(this Component childCompo)
+        {
+            return childCompo.transform.parent.gameObject;
+        }
+
+        //================================================
+        // 親を取得
+        //================================================
+        public static GameObject Parent(this GameObject child)
+        {
+            return child.transform.parent.gameObject;
+        }
+
+        //================================================
+        // 名前でコンポがついたGOの子を取得
         //================================================
         public static GameObject Child(this Component parentCompo, string name)
         {
@@ -18,7 +34,7 @@ namespace MyUtil
         }
 
         //================================================
-        // コンポがついたGOの全子オブジェクトを取得
+        // コンポがついたGOの全子を取得
         //================================================
         public static List<GameObject> Children(this Component parentCompo)
         {
@@ -32,7 +48,7 @@ namespace MyUtil
         }
 
         //================================================
-        // 名前で子オブジェクトを取得
+        // 名前で子を取得
         //================================================
         public static GameObject Child(this GameObject parent, string name)
         {
@@ -40,7 +56,7 @@ namespace MyUtil
         }
 
         //================================================
-        // 全子オブジェクトを取得
+        // 全子を取得
         //================================================
         public static List<GameObject> Children(this GameObject parent)
         {
@@ -54,7 +70,7 @@ namespace MyUtil
         }
 
         //================================================
-        // 子オブジェクトを作成
+        // 子を作成
         //================================================
         public static GameObject CreateChild(this GameObject parent, string name, params Type[] compos)
         {
@@ -67,7 +83,7 @@ namespace MyUtil
         }
 
         //================================================
-        // 子オブジェクトを複数作成
+        // 子を複数作成
         //================================================
         public static List<GameObject> CreateChildren(this GameObject parent, string name, int quantity, params Type[] compos)
         {
@@ -84,7 +100,7 @@ namespace MyUtil
         }
 
         //===========================================
-        // 自分と子孫オブジェクトのレイヤーを変更
+        // 自分と子孫のレイヤーを変更
         //===========================================
         public static void SetLayerRecursive(this GameObject parent, string layerName) { SetLayerRecursive(parent.transform, layerName); }
         public static void SetLayerRecursive(this Transform parent, string layerName)
@@ -98,7 +114,7 @@ namespace MyUtil
         }
 
         //===========================================
-        // 自分と子孫オブジェクトのアクティブ状態を変更
+        // 自分と子孫のアクティブ状態を変更
         //===========================================
         public static void SetActiveRecursive(this GameObject parent, bool activeState) { SetActiveRecursive(parent.transform, activeState); }
         public static async void SetActiveRecursive(this Transform parent, bool activeState)
@@ -111,7 +127,7 @@ namespace MyUtil
         }
 
         //===========================================
-        // 2つのゲームオブジェクト間の距離取得
+        // 2つのGO間の距離取得
         //===========================================
         public static float Distance(this GameObject gO, GameObject targ)
         {
@@ -298,9 +314,9 @@ namespace MyUtil
     }
 
 
-    //**********************************
+    //*************************************
     // メッシュのサイズを計算
-    //**********************************
+    //*************************************
     public class MeshSize
     {
         public Vector3 Orig { get; private set; }

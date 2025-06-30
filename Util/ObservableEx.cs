@@ -43,8 +43,52 @@ public static class ObservableEx
     }
 
 
+    // UpdateWhileEqualTo の時間補正版まだアルファ
+    public static IObservable<long> FixedUpdateWhileEqualTo<T>(
+    this IObservable<T> source,
+    T expectedValue,
+    float sec = 0f)
+    {
+        // インターバルの下限設定
+        float interval = sec <= 0 ? 0 : Mathf.Max(sec, 0.02f);
+
+        return source
+            .Select(value =>
+            {
+                if (!EqualityComparer<T>.Default.Equals(value, expectedValue))
+                    return Observable.Empty<long>();
+
+                if (interval == 0)
+                    return Observable.EveryFixedUpdate();
+
+                // 補正機能付きインターバル（fixedTime使用）
+                return Observable.Create<long>(observer =>
+                {
+                    float startTime = Time.fixedTime;
+                    float nextEmitTime = startTime + interval;
+                    long count = 0;
+
+                    return Observable.EveryFixedUpdate()
+                        .Subscribe(_ =>
+                        {
+                            float currentTime = Time.fixedTime;
+
+                            // 発行すべき回数を計算
+                            while (currentTime >= nextEmitTime)
+                            {
+                                observer.OnNext(count++);
+                                nextEmitTime += interval;
+                            }
+                        });
+                });
+            })
+            .Switch();
+    }
+
+
     // UpdateWhileEqualToは1フレームより短い秒数を測れない
-    // こちらは短く測れる(デフォルト0.001, 下限0.0001)がスレッドプールでやるのでフレームに依存するUnityのAPIが使えない(例 Time.time)
+    // こちらは短く測れる(デフォルト0.001, 下限0.0001)がスレッドプールでやるので
+    // フレームに依存するUnityのAPIが使えない(例 Time.time)
     public static IObservable<long> TimerWhileEqualTo<T>(
         this IObservable<T> source,
         T expectedValue,

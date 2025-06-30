@@ -142,7 +142,7 @@ public class UIRayCaster : MonoBehaviour
     {
         // í‚ÉRay‚ğ”ò‚Î‚·
         Ray ray = cam.ScreenPointToRay(Input.mousePosition);
-        Debug.DrawRay(ray.origin, ray.direction * 100, Color.red); // Ray‚ğ‰Â‹‰»
+        Debug.DrawRay(ray.origin, ray.direction * 200, Color.red); // Ray‚ğ‰Â‹‰»
 
         RaycastHit hit;
         if (Physics.Raycast(ray, out hit, Mathf.Infinity, cam.cullingMask))

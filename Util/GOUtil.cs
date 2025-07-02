@@ -14,7 +14,7 @@ namespace MyUtil
         //================================================
         public static GameObject Parent(this Component childCompo)
         {
-            return childCompo.transform.parent.gameObject;
+            return childCompo.transform.parent?.gameObject;
         }
 
         //================================================
@@ -22,7 +22,7 @@ namespace MyUtil
         //================================================
         public static GameObject Parent(this GameObject child)
         {
-            return child.transform.parent.gameObject;
+            return child.transform.parent?.gameObject;
         }
 
         //================================================
@@ -30,7 +30,7 @@ namespace MyUtil
         //================================================
         public static GameObject Child(this Component parentCompo, string name)
         {
-            return parentCompo.transform.Find(name).gameObject;
+            return parentCompo.transform.Find(name)?.gameObject;
         }
 
         //================================================
@@ -52,7 +52,7 @@ namespace MyUtil
         //================================================
         public static GameObject Child(this GameObject parent, string name)
         {
-            return parent.transform.Find(name).gameObject;
+            return parent.transform.Find(name)?.gameObject;
         }
 
         //================================================

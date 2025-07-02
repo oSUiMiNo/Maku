@@ -102,7 +102,8 @@ namespace MyUtil
         //===========================================
         // 自分と子孫のレイヤーを変更
         //===========================================
-        public static void SetLayerRecursive(this GameObject parent, string layerName) { SetLayerRecursive(parent.transform, layerName); }
+        public static void SetLayerRecursive(this Component parent, string layerName) => SetLayerRecursive(parent.transform, layerName);
+        public static void SetLayerRecursive(this GameObject parent, string layerName) => SetLayerRecursive(parent.transform, layerName);
         public static void SetLayerRecursive(this Transform parent, string layerName)
         {
             parent.gameObject.layer = LayerMask.NameToLayer(layerName);
@@ -116,8 +117,9 @@ namespace MyUtil
         //===========================================
         // 自分と子孫のアクティブ状態を変更
         //===========================================
-        public static void SetActiveRecursive(this GameObject parent, bool activeState) { SetActiveRecursive(parent.transform, activeState); }
-        public static async void SetActiveRecursive(this Transform parent, bool activeState)
+        public static void SetActiveRecursive(this Component parent, string layerName) => SetActiveRecursive(parent.transform, layerName);
+        public static void SetActiveRecursive(this GameObject parent, bool activeState) => SetActiveRecursive(parent.transform, activeState);
+        public static void SetActiveRecursive(this Transform parent, bool activeState)
         {
             parent.gameObject.SetActive(activeState);
             foreach (Transform child in parent)

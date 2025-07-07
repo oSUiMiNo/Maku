@@ -1,8 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using System;
 using System.Linq;
+using UnityEngine;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.TextBox;
 
 
 namespace MyUtil
@@ -38,12 +39,9 @@ namespace MyUtil
         //================================================
         public static List<GameObject> Children(this Component parentCompo)
         {
-            List<GameObject> children = new List<GameObject>();
-            foreach (var item in parentCompo.GetComponentsInChildren<Transform>())
-            {
-                if (item.gameObject == parentCompo.gameObject) continue;
-                children.Add(item.gameObject);
-            }
+            List<GameObject> children = new();
+            for (int i = 0; i < parentCompo.transform.childCount; i++)
+                children.Add(parentCompo.transform.GetChild(i).gameObject);
             return children;
         }
 
@@ -60,12 +58,9 @@ namespace MyUtil
         //================================================
         public static List<GameObject> Children(this GameObject parent)
         {
-            List<GameObject> children = new List<GameObject>();
-            foreach (var item in parent.GetComponentsInChildren<Transform>())
-            {
-                if (item.gameObject == parent) continue;
-                children.Add(item.gameObject);
-            }
+            List<GameObject> children = new();
+            for (int i = 0; i < parent.transform.childCount; i++)
+                children.Add(parent.transform.GetChild(i).gameObject);
             return children;
         }
 
@@ -97,6 +92,14 @@ namespace MyUtil
                 GOs.Add(GO);
             }
             return GOs;
+        }
+
+        //================================================
+        // Transform ‚©‚ç SetActive ‚·‚é
+        //================================================
+        public static void SetActive(this Component targ, bool activeState)
+        {
+            targ.gameObject.SetActive(activeState);
         }
 
         //===========================================

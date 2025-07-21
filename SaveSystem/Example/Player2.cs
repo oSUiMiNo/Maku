@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
+using MyUtil;
+
 
 [System.Serializable]
 public class Player2 : SavableCompo

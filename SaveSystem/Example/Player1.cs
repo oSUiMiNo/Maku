@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using UnityEngine;
+using MyUtil;
+
 
 [System.Serializable]
 public class Player1 : SingletonCompo<Player1>

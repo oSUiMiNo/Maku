@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Reflection.Emit;
 using UnityEngine;
 using System.IO;
-
+using MyUtil;
 
 
 public class NagesenContentsHandler : SingletonCompo<NagesenContentsHandler>

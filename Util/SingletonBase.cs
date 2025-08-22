@@ -258,7 +258,9 @@ public abstract class SingletonCompo<SingletonType> : NonGenericSingletonCompoBa
             thisGO = new GameObject(thisName);
         }
         //CheckAddComponent<SingletonType>(thisObj);
-        thisGO.CheckAddCompo<SingletonType>();
+        // WebGL用に修正
+        thisGO.CheckAddCompo(GetType());          // 型はランタイムに確定しているので Type 版で確実に
+        //thisGO.CheckAddCompo<SingletonType>();
     }
 
     protected SingletonCompo() { } // コンストラクタ（外部からの呼び出し禁止）
@@ -316,7 +318,9 @@ public abstract class SingletonCompo<SingletonType> : NonGenericSingletonCompoBa
             thisGObj = new GameObject(thisGName);
         }
 
-        if (!thisGObj.TryGetComponent(out InheritSingletonType a))
+        // WebGL用に修正
+        if (!thisGObj.TryGetComponent(GetType(), out var _))
+        //if (!thisGObj.TryGetComponent(out InheritSingletonType a))
         {
             ///<summary>
             /// GetComponent<>() が コンポーネント自体を返すのに対し、
@@ -339,12 +343,18 @@ public abstract class SingletonCompo<SingletonType> : NonGenericSingletonCompoBa
             /// 他のスクリプトのから Compo を呼んだ際にnullになったりする可能性があるからだ。
             /// よって、CreateSingletonGameObject() で付加済みの自分を破壊してもう一度付加することで上書きする必要がある。
             /// </summary>
-            Destroy(GetComponent<InheritSingletonType>());
-            compo = thisGObj.AddComponent<InheritSingletonType>();
+            // WebGL用に修正
+            var prev = GetComponent(GetType());
+            if (prev) Destroy(prev);
+            compo = (SingletonType)thisGObj.AddComponent(GetType());
+            //Destroy(GetComponent<InheritSingletonType>());
+            //compo = thisGObj.AddComponent<InheritSingletonType>();
         }
         else
         {
-            compo = thisGObj.GetComponent<InheritSingletonType>();
+            // WebGL用に修正
+            compo = (SingletonType)thisGObj.GetComponent(GetType());
+            //compo = thisGObj.GetComponent<InheritSingletonType>();
         }
         DontDestroyOnLoad(thisGObj);
         return compo as InheritSingletonType;

@@ -9,12 +9,18 @@ namespace MyUtil
 {
     public static class CompoUtil
     {
+        // WebGL で使えない!
+        //     IL2CPP（WebGL）がジェネリック引数を object で共有化してしまい、結果として
+        //     「T は Component 前提」な呼び出しが、WebGL実機では AddComponent<object>() っぽい不正コールに化けて落ちる
         //========================================
         // 型引数で指定されたコンポーネントへの参照を取得
         // コンポーネントがない場合はアタッチして参照を取得
         //========================================
         public static Compo CheckAddCompo<Compo>(this GameObject GO) where Compo : Component
         {
+            if (!typeof(Component).IsAssignableFrom(typeof(Compo)) || typeof(Compo).IsAbstract || typeof(Compo).IsGenericTypeDefinition)
+                throw new ArgumentException($"AddComponentできない型: {typeof(Compo)}");
+
             //Debug.Log($"コンポ {typeof(Compo).Name}");
             #region 呼び出し元通知
             var caller = new System.Diagnostics.StackFrame(1, false);
@@ -24,14 +30,24 @@ namespace MyUtil
             #endregion
             //ここでTryGetComponent 使うと、AddComponent の所で、MonoBehaviour 継承してないとか言われる。原因はそのうち調べる
             Compo targetCompo = GO.GetComponent<Compo>();
-            if (targetCompo == null)
-            {
-                targetCompo = GO.AddComponent<Compo>();
-            }
+            if (targetCompo == null) targetCompo = GO.AddComponent<Compo>();
             return targetCompo;
         }
 
+        //================================================
+        // WebGL ではこっちを使う
+        //================================================
+        public static Component CheckAddCompo(this GameObject GO, Type Compo)
+        {
+            // 安全チェック（念のため）
+            if (!typeof(Component).IsAssignableFrom(Compo) || Compo.IsAbstract || Compo.IsGenericTypeDefinition)
+                throw new ArgumentException($"AddComponentできない型: {Compo}");
 
+            //ここでTryGetComponent 使うと、AddComponent の所で、MonoBehaviour 継承してないとか言われる。原因はそのうち調べる
+            Component targetCompo = GO.GetComponent(Compo);
+            if (targetCompo == null) targetCompo = GO.AddComponent(Compo);
+            return targetCompo;
+        }
 
         //========================================
         // 型引数で指定されたコンポーネントへの参照を取得
@@ -50,14 +66,12 @@ namespace MyUtil
                 //CheckAddCompo(GO, compo);
                 //ここでTryGetComponent 使うと、AddComponent の所で、MonoBehaviour 継承してないとか言われる。原因はそのうち調べる
                 Component targetCompo = GO.GetComponent(compo);
-                if (targetCompo == null)
-                {
-                    targetCompo = GO.AddComponent(compo);
-                }
+                if (targetCompo == null) targetCompo = GO.AddComponent(compo);
                 returnCompos.Add(targetCompo);
             }
             return returnCompos;
         }
+
 
         //public static Component CheckAddCompo(this GameObject GO, Type Compo)
         //{

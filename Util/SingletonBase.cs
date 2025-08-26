@@ -291,8 +291,8 @@ public abstract class SingletonCompo<SingletonType> : NonGenericSingletonCompoBa
     {
         if (gameObject.name != this.GetType().Name)
         {
-            Debug.LogError(@$"
-                スクリプトとゲームオブジェクト [{gameObject.name}], [{this.GetType()}] の名前が違うシングルトンゲームオブジェクトがあったから破壊しちゃったよ
+            Debug.LogError(@$"スクリプトとゲームオブジェクト [{gameObject.name}], [{this.GetType()}] の
+                名前が違うシングルトンゲームオブジェクトがあったから破壊しちゃったよ
                 代わりに新しいの作っておいたけど、
                 手動で設定した方を使いたい場合は名前を統一してね"
             );

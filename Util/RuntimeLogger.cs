@@ -2,18 +2,28 @@ using UnityEngine;
 using System.IO;
 using System;
 
-// Debug.Logを拡張し、ランタイム実行時にログをファイルに出力
+
+///*******************************************************<summary>
+/// Debug.Logを拡張しランタイム（ビルド後）にログをファイルに出力
+///</summary>******************************************************
 public class RuntimeLogger : MonoBehaviour
 {
-    private static RuntimeLogger instance;
-    private string logFilePath;
+    static RuntimeLogger Ins;
+    // ログファイルのパス
+    string LogFile => $"{Application.persistentDataPath}/runtime_log.txt";
 
-    private void Awake()
+
+    void Awake()
     {
-        // シングルトンパターンで、シーンをまたいでインスタンスを1つに保つ
-        if (instance == null)
+        // ランタイム（ビルド後）でなければ無視
+        if (Application.isEditor) return;
+
+        //--------------------------------------
+        // シーンをまたげるようにシングルトン化
+        //--------------------------------------
+        if (Ins == null)
         {
-            instance = this;
+            Ins = this;
             DontDestroyOnLoad(gameObject);
         }
         else
@@ -21,71 +31,63 @@ public class RuntimeLogger : MonoBehaviour
             Destroy(gameObject);
             return;
         }
-
-        // ログファイルのパスを決定
-        logFilePath = Path.Combine(Application.persistentDataPath, "runtime_log.txt");
-
-        // アプリケーション起動時にログファイルをクリア
+        // 起動時にログファイルをクリア
         ClearLogFile();
-
-        // logMessageReceivedイベントにハンドラを登録
+        // 標準の logMessageReceived イベントにログ処理を登録
         Application.logMessageReceived += HandleLog;
-
-        Debug.Log("ランタイムログ起動");
+        Debug.Log("ランタイムログ起動完了");
     }
 
-    private void OnDestroy()
+
+    void OnDestroy()
     {
-        // オブジェクトが破棄される際にイベントハンドラの登録を解除
+        // イベントハンドラ登録解除
         Application.logMessageReceived -= HandleLog;
     }
 
-    //================================================
-    // ログメッセージを受け取った際の処理
-    //================================================
+
+    ///==============================================<summary>
+    /// ログメッセージを受け取った際の処理
+    ///</summary>=============================================
     void HandleLog(string logMsg, string stackTrace, LogType type)
     {
-        // エディタ実行時はファイルに書き込まない
-        if (Application.isEditor)
-        {
-            return;
-        }
+        // ランタイム（ビルド後）でなければ無視
+        if (Application.isEditor) return;
 
         try
         {
+            // 1つ分のログ文作成
             string logEntry = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] [{type}] {logMsg}\n";
             if (type == LogType.Error || type == LogType.Exception)
             {
                 logEntry += $"{stackTrace}\n";
             }
-            File.AppendAllText(logFilePath, logEntry);
+            // ログをファイルに追記
+            File.AppendAllText(LogFile, logEntry);
         }
         catch (Exception e)
         {
-            // ファイル書き込みに失敗した場合のエラー処理（このログはファイルには書かれない）
-            Debug.LogError($"ランタイムログ書き込み失敗: {e.Message}");
+            Debug.LogError($"ランタイムログ書き込み失敗：{e.Message}");
         }
     }
 
-    //================================================
-    // ログファイルをクリア
-    //================================================
-    private void ClearLogFile()
-    {
-        // ランタイム（ビルド後）でのみファイルをクリアする
-        if (Application.isEditor)
-        {
-            return;
-        }
 
+    ///==============================================<summary>
+    /// ログファイルをクリア
+    ///</summary>=============================================
+    void ClearLogFile()
+    {
+        // ランタイム（ビルド後）でなければ無視
+        if (Application.isEditor) return;
+     
         try
         {
-            File.WriteAllText(logFilePath, string.Empty);
+            // ファイルを空の文字列で上書き
+            File.WriteAllText(LogFile, string.Empty);
         }
         catch (Exception e)
         {
-            // ファイル操作に失敗した場合
-            Debug.LogError($"ログファイルのクリア失敗\nパス: {logFilePath}\n原因: {e.Message}");
+            Debug.LogError($"ログファイルのクリア失敗\nパス: {LogFile}\n原因: {e.Message}");
         }
     }
 }

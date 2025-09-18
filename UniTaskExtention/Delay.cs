@@ -1,15 +1,18 @@
 using Cysharp.Threading.Tasks;
 using System;
+using System.Threading;
 
 public class Delay
 {
-    public static async UniTask Second(float time)
+    // CT‚Å’†’f‰Â
+    public static async UniTask Second(float time, CancellationToken ct = default)
     {
-        await UniTask.Delay(TimeSpan.FromSeconds(time));
+        await UniTask.Delay(TimeSpan.FromSeconds(time), cancellationToken: ct);
     }
 
-    public static async UniTask Frame(int frame)
+    // CT‚Å’†’f‰Â
+    public static async UniTask Frame(int frame, CancellationToken ct = default)
     {
-        await UniTask.DelayFrame(frame);
+        await UniTask.DelayFrame(frame, cancellationToken: ct);
     }
 }

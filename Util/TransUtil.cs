@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-namespace MyUtil
+namespace Maku
 {
     public static class TransUtil
     {

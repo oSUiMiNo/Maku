@@ -6,9 +6,9 @@ using System;
 ///*******************************************************<summary>
 /// Debug.Logを拡張しランタイム（ビルド後）にログをファイルに出力
 ///</summary>******************************************************
-public class RuntimeLogger : MonoBehaviour
+public class PlayerRuntimeLog : MonoBehaviour
 {
-    static RuntimeLogger Ins;
+    static PlayerRuntimeLog Ins;
     // ログファイルのパス
     string LogFile => $"{Application.persistentDataPath}/runtime_log.txt";
 

@@ -2,7 +2,7 @@ using Cysharp.Threading.Tasks;
 //using UniGLTF;
 using UnityEngine;
 using UniRx;
-using MyUtil;
+using Maku;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif

@@ -5,7 +5,7 @@ using System;
 using Cysharp.Threading.Tasks;
 
 
-namespace MyUtil
+namespace Maku
 {
     public static class CompoUtil
     {

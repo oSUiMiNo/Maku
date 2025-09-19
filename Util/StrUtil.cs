@@ -2,7 +2,7 @@ using System.Text;
 using System;
 
 
-namespace MyUtil
+namespace Maku
 {
     public static class StrUtil
     {

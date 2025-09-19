@@ -4,7 +4,7 @@ using UnityEngine;
 using System;
 using System.Linq;
 using TMPro;
-using MyUtil;
+using Maku;
 
 
 public class Roulet

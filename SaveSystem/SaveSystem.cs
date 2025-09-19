@@ -7,7 +7,8 @@ using System.Linq;
 using Newtonsoft.Json;
 using System.Reflection;
 
-namespace MyUtil
+
+namespace Maku.Save
 {
     /// <summary>
     /// アプリケーション終了時の処理をさせるのに MonoBehaviour が必要なのでシングルトンコンポーネント化するが、

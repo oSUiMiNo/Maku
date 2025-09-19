@@ -4,7 +4,7 @@ using UnityEngine;
 using System;
 using System.Linq;
 using System.Reflection;
-using MyUtil;
+using Maku;
 
 
 #region シングルトン ( 通常クラス )

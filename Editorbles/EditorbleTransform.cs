@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
 using static InputEventHandler;
-using MyUtil;
+using Maku;
 
 
 public interface IEditable { }

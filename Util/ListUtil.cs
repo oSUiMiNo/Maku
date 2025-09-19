@@ -4,7 +4,7 @@ using System.Linq;
 using UnityEngine;
 
 
-namespace MyUtil
+namespace Maku
 {
     public static class ListUtil
     {

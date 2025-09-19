@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UniRx;
-using MyUtil;
+using Maku;
 
 
 public class WindowSizer : MonoBehaviour

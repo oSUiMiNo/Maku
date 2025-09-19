@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using UniRx;
-using MyUtil;
+using Maku;
 
 public class MyButton : MyUI
 {

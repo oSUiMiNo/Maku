@@ -2,7 +2,7 @@ using TMPro;
 using UnityEngine;
 
 
-namespace MyUtil
+namespace Maku
 {
     public static class TMPUtil
     {

@@ -1,8 +1,8 @@
+#if UNITY_EDITOR
 using UnityEditor;
 using UnityEngine;
 using System.IO;
 using System.Collections.Generic;
-
 
 
 ///*******************************************************<summary>
@@ -92,3 +92,4 @@ public static class AssetFinder
         return relativePath;
     }
 }
+#endif

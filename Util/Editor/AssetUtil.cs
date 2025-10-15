@@ -8,7 +8,7 @@ using System.Collections.Generic;
 ///*******************************************************<summary>
 /// 
 ///</summary>******************************************************
-public static class AssetFinder
+public static class AssetUtil
 {
     ///==============================================<summary>
     /// 指定したフォルダ（Assets直下のフォルダなど）の直下にあるアセット数を取得

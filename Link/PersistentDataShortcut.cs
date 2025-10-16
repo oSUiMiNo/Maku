@@ -4,19 +4,20 @@ using System.Diagnostics;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 
 
 public static class PersistentDataShortcut
 {
     // Assets 直下に作るリンク（名前はお好みで）
-    private const string LinkPathUnderAssets = "Assets/Link_Persistent";
+    const string LinkPath = "Assets/Link_Persistent";
 
-    [MenuItem("Tools/Create Shortcut/PersistentDataPath -> Assets", priority = 1000)]
+    [MenuItem("Maku/Create Shortcut/Symbolic or Junction/PersistentDataPath", priority = 1000)]
     public static void CreatePersistentDataShortcut()
     {
-        string target = Application.persistentDataPath.Replace('/', Path.DirectorySeparatorChar);
-        string link = Path.GetFullPath(LinkPathUnderAssets);
+        string targ = Application.persistentDataPath.Replace('/', Path.DirectorySeparatorChar);
+        string link = Path.GetFullPath(LinkPath);
 
         // 既存を掃除
         try
@@ -29,30 +30,30 @@ public static class PersistentDataShortcut
         }
         catch (Exception e)
         {
-            UnityEngine.Debug.LogWarning($"既存リンクの削除に失敗: {e.Message}");
+            Debug.LogWarning($"既存リンクの削除に失敗: {e.Message}");
         }
 
         bool ok = false;
 
 #if UNITY_EDITOR_WIN
         // Windows: symlink(/D) か junction(/J)。開発者モードなら管理者不要で /D が通ることが多い
-        ok = RunCmd($"mklink /D \"{link}\" \"{target}\"") || RunCmd($"mklink /J \"{link}\" \"{target}\"");
+        ok = RunCmd($"mklink /D \"{link}\" \"{targ}\"") || RunCmd($"mklink /J \"{link}\" \"{targ}\"");
 #elif UNITY_EDITOR_OSX || UNITY_EDITOR_LINUX
         // macOS / Linux: シンボリックリンク
-        ok = RunShell($"ln -s \"{target}\" \"{link}\"");
+        ok = RunShell($"ln -s \"{targ}\" \"{link}\"");
 #endif
 
         AssetDatabase.Refresh();
 
         if (ok)
         {
-            UnityEngine.Debug.Log($"作成完了: {LinkPathUnderAssets} → {target}");
+            Debug.Log($"作成完了: {LinkPath} → {targ}");
         }
         else
         {
-            UnityEngine.Debug.LogError(
+            Debug.LogError(
                 $"リンク作成に失敗しました。\n" +
-                $"ターゲット: {target}\nリンク: {link}\n" +
+                $"ターゲット: {targ}\nリンク: {link}\n" +
 #if UNITY_EDITOR_WIN
                 "Windows の場合: 管理者権限または「開発者モード」を有効にして再試行してみてください。/J（ジャンクション）も試行しています。\n"
 #else
@@ -63,7 +64,7 @@ public static class PersistentDataShortcut
     }
 
 #if UNITY_EDITOR_WIN
-    private static bool RunCmd(string args)
+    static bool RunCmd(string args)
     {
         try
         {
@@ -78,7 +79,7 @@ public static class PersistentDataShortcut
         }
         catch (Exception e)
         {
-            UnityEngine.Debug.LogWarning($"cmd 実行失敗: {e.Message}");
+            Debug.LogWarning($"cmd 実行失敗: {e.Message}");
             return false;
         }
     }
@@ -101,7 +102,7 @@ public static class PersistentDataShortcut
         }
         catch (Exception e)
         {
-            UnityEngine.Debug.LogWarning($"シェル実行失敗: {e.Message}");
+            Debug.LogWarning($"シェル実行失敗: {e.Message}");
             return false;
         }
     }

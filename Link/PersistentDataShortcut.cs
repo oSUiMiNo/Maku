@@ -1,117 +1,81 @@
 #if UNITY_EDITOR
-using System;
-using System.Diagnostics;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
-using Debug = UnityEngine.Debug;
+using Cysharp.Threading.Tasks;
 
 
 
-public static class PersistentDataShortcut
+public static class PersistentDataShortcut_WIN
 {
-    // Assets 直下に作るリンク（名前はお好みで）
     const string LinkPath = "Assets/Link_Persistent";
 
-    [MenuItem("Maku/Create Shortcut/Symbolic or Junction/PersistentDataPath", priority = 1000)]
+    [MenuItem("Maku/Create Shortcut (Windows)/PersistentDataPath → Assets", priority = 1000)]
     public static void CreatePersistentDataShortcut()
     {
-        string targ = Application.persistentDataPath.Replace('/', Path.DirectorySeparatorChar);
-        string link = Path.GetFullPath(LinkPath);
-
-        // 既存を掃除
-        try
+#if UNITY_EDITOR_WIN
+        UniTask.Void(async () =>
         {
-            if (Directory.Exists(link) || File.Exists(link))
+            string targ = Application.persistentDataPath.Replace('/', Path.DirectorySeparatorChar);
+            string link = Path.GetFullPath(LinkPath);
+
+            // persistentDataPath が未作成でも落ちないように確保
+            try { Directory.CreateDirectory(targ); } catch { }
+
+            // 既存リンク/フォルダを除去
+            try
             {
-                // シンボリックリンク/ジャンクションでも Directory.Delete で消える
-                Directory.Delete(link, true);
+                // PowerShellでの安全削除（リンク/実体を誤って追わない）
+                string rm = $"if (Test-Path -LiteralPath '{link}') {{ Remove-Item -LiteralPath '{link}' -Force }}";
+                await PowerShellAPI.Command(rm);
             }
-        }
-        catch (Exception e)
-        {
-            Debug.LogWarning($"既存リンクの削除に失敗: {e.Message}");
-        }
+            catch (System.Exception e)
+            {
+                Debug.LogWarning($"既存のリンク削除に失敗: {e.Message}");
+            }
 
-        bool ok = false;
+            bool ok = false;
+            string madeType = "?";
 
-#if UNITY_EDITOR_WIN
-        // Windows: symlink(/D) か junction(/J)。開発者モードなら管理者不要で /D が通ることが多い
-        ok = RunCmd($"mklink /D \"{link}\" \"{targ}\"") || RunCmd($"mklink /J \"{link}\" \"{targ}\"");
-#elif UNITY_EDITOR_OSX || UNITY_EDITOR_LINUX
-        // macOS / Linux: シンボリックリンク
-        ok = RunShell($"ln -s \"{targ}\" \"{link}\"");
-#endif
+            // まず SymbolicLink を試す（開発者モード or 管理者で成功しやすい）
+            try
+            {
+                string cmdSym = $"New-Item -ItemType SymbolicLink -Path '{link}' -Target '{targ}'";
+                await PowerShellAPI.Command(cmdSym);
+                ok = true;
+                madeType = "SymbolicLink";
+            }
+            catch
+            {
+                // ダメなら Junction にフォールバック（管理者不要で通ることが多い）
+                try
+                {
+                    string cmdJunc = $"New-Item -ItemType Junction -Path '{link}' -Target '{targ}'";
+                    await PowerShellAPI.Command(cmdJunc);
+                    ok = true;
+                    madeType = "Junction";
+                }
+                catch (System.Exception e2)
+                {
+                    Debug.LogError(
+                        "リンク作成に失敗しました（SymbolicLink / Junction ともに失敗）。\n" +
+                        $"ターゲット: {targ}\nリンク: {link}\n" +
+                        $"詳細: {e2.Message}\n" +
+                        "※ SymbolicLink は開発者モード or 管理者権限が必要な場合があります。"
+                    );
+                }
+            }
 
-        AssetDatabase.Refresh();
+            AssetDatabase.Refresh();
 
-        if (ok)
-        {
-            Debug.Log($"作成完了: {LinkPath} → {targ}");
-        }
-        else
-        {
-            Debug.LogError(
-                $"リンク作成に失敗しました。\n" +
-                $"ターゲット: {targ}\nリンク: {link}\n" +
-#if UNITY_EDITOR_WIN
-                "Windows の場合: 管理者権限または「開発者モード」を有効にして再試行してみてください。/J（ジャンクション）も試行しています。\n"
+            if (ok)
+            {
+                Debug.Log($"作成完了: [{madeType}] {LinkPath} → {targ}");
+            }
+        });
 #else
-                "ターミナル権限やパスの権限を確認してください。\n"
+        Debug.LogError("このコマンドは Windows 専用です。");
 #endif
-            );
-        }
     }
-
-#if UNITY_EDITOR_WIN
-    static bool RunCmd(string args)
-    {
-        try
-        {
-            var psi = new ProcessStartInfo("cmd.exe", "/c " + args)
-            {
-                CreateNoWindow = true,
-                UseShellExecute = false
-            };
-            using var p = Process.Start(psi);
-            p.WaitForExit();
-            return p.ExitCode == 0;
-        }
-        catch (Exception e)
-        {
-            Debug.LogWarning($"cmd 実行失敗: {e.Message}");
-            return false;
-        }
-    }
-#endif
-
-#if UNITY_EDITOR_OSX || UNITY_EDITOR_LINUX
-    private static bool RunShell(string command)
-    {
-        try
-        {
-            var shell = Application.platform == RuntimePlatform.LinuxEditor ? "/bin/bash" : "/bin/zsh";
-            var psi = new ProcessStartInfo(shell, "-lc " + EscapeForShell(command))
-            {
-                CreateNoWindow = true,
-                UseShellExecute = false
-            };
-            using var p = Process.Start(psi);
-            p.WaitForExit();
-            return p.ExitCode == 0;
-        }
-        catch (Exception e)
-        {
-            Debug.LogWarning($"シェル実行失敗: {e.Message}");
-            return false;
-        }
-    }
-
-    private static string EscapeForShell(string s)
-    {
-        // 全体をシングルクォートで包み、内部のシングルクォートは安全にエスケープ
-        return "'" + s.Replace("'", "'\"'\"'") + "'";
-    }
-#endif
 }
 #endif
